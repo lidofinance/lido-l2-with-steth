@@ -169,9 +169,8 @@ async function ctxFactory() {
 
   const [l2ERC20TokenBridge] = await hre.ethers.getSigners();
 
-  const l1AuthorizedRebaseCaller = await new EmptyContractStub__factory(l1Deployer).deploy({ value: 10000000 });
-  const l1AuthorizedRebaseCallerAsEOA = await testing.impersonate(l1AuthorizedRebaseCaller.address);
-  await testing.setBalance(l1AuthorizedRebaseCaller.address, wei.toBigNumber(wei`1 ether`));
+  const l1AuthorizedRebaseCaller = await new EmptyContractStub__factory(l1Deployer).deploy({ value: wei.toBigNumber(wei`1 ether`) });
+  const l1AuthorizedRebaseCallerAsEOA = await testing.impersonate(l1AuthorizedRebaseCaller.address, l1Provider);
 
   const [ethDeployScript, optDeployScript] = await deploymentOracle(
     networkName
