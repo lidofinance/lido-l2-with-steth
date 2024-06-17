@@ -677,6 +677,71 @@ unit("TokenRateOracle", ctxFactory)
     );
   })
 
+  .test("resumeTokenRateUpdates() :: token rate is out of range", async (ctx) => {
+    const { tokenRateOracle } = ctx.contracts;
+    const { multisig, bridge } = ctx.accounts;
+    const { tokenRate, blockTimestampOfDeployment } = ctx.constants;
+
+    const disablerRole = await tokenRateOracle.RATE_UPDATE_DISABLER_ROLE();
+    await tokenRateOracle.grantRole(disablerRole, multisig.address);
+
+    const enablerRole = await tokenRateOracle.RATE_UPDATE_ENABLER_ROLE();
+    await tokenRateOracle.grantRole(enablerRole, multisig.address);
+
+    await tokenRateOracle.connect(bridge).updateRate(tokenRate, blockTimestampOfDeployment.add(1000));
+    await tokenRateOracle.connect(multisig).pauseTokenRateUpdates(0);
+
+    await assert.revertsWith(
+      tokenRateOracle.connect(multisig).resumeTokenRateUpdates(1, blockTimestampOfDeployment),
+      "ErrorTokenRateIsOutOfSaneRange(1)"
+    );
+  })
+
+  .test("resumeTokenRateUpdates() :: time is out of clock lag", async (ctx) => {
+    const { tokenRateOracle } = ctx.contracts;
+    const { multisig, bridge } = ctx.accounts;
+    const { tokenRate, blockTimestampOfDeployment } = ctx.constants;
+
+    const disablerRole = await tokenRateOracle.RATE_UPDATE_DISABLER_ROLE();
+    await tokenRateOracle.grantRole(disablerRole, multisig.address);
+
+    const enablerRole = await tokenRateOracle.RATE_UPDATE_ENABLER_ROLE();
+    await tokenRateOracle.grantRole(enablerRole, multisig.address);
+
+    await tokenRateOracle.connect(bridge).updateRate(tokenRate, blockTimestampOfDeployment.add(1000));
+    await tokenRateOracle.connect(multisig).pauseTokenRateUpdates(0);
+
+    const MAX_ALLOWED_L2_TO_L1_CLOCK_LAG = await tokenRateOracle.MAX_ALLOWED_L2_TO_L1_CLOCK_LAG();
+    const newWrongTime = blockTimestampOfDeployment.add(MAX_ALLOWED_L2_TO_L1_CLOCK_LAG).add(1000);
+
+    await assert.revertsWith(
+      tokenRateOracle.connect(multisig).resumeTokenRateUpdates(tokenRate, newWrongTime),
+      "ErrorL1TimestampExceededMaxAllowedClockLag("+newWrongTime+")"
+    );
+  })
+
+  .test("resumeTokenRateUpdates() :: time is older than previous", async (ctx) => {
+    const { tokenRateOracle } = ctx.contracts;
+    const { multisig, bridge } = ctx.accounts;
+    const { tokenRate, blockTimestampOfDeployment } = ctx.constants;
+
+    const disablerRole = await tokenRateOracle.RATE_UPDATE_DISABLER_ROLE();
+    await tokenRateOracle.grantRole(disablerRole, multisig.address);
+
+    const enablerRole = await tokenRateOracle.RATE_UPDATE_ENABLER_ROLE();
+    await tokenRateOracle.grantRole(enablerRole, multisig.address);
+
+    await tokenRateOracle.connect(bridge).updateRate(tokenRate, blockTimestampOfDeployment.add(1000));
+    await tokenRateOracle.connect(multisig).pauseTokenRateUpdates(0);
+
+    const newWrongTime = blockTimestampOfDeployment.sub(1000);
+
+    await assert.revertsWith(
+      tokenRateOracle.connect(multisig).resumeTokenRateUpdates(tokenRate, newWrongTime),
+      "ErrorL1TimestampOlderThanPrevious("+newWrongTime+")"
+    );
+  })
+
   .test("resumeTokenRateUpdates() :: success", async (ctx) => {
     const { tokenRateOracle } = ctx.contracts;
     const { multisig, bridge } = ctx.accounts;

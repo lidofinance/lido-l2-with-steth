@@ -180,6 +180,9 @@ contract TokenRateOracle is ITokenRateOracle, CrossDomainEnabled, AccessControl,
         if (rateUpdatedL1Timestamp_ > block.timestamp + MAX_ALLOWED_L2_TO_L1_CLOCK_LAG) {
             revert ErrorL1TimestampExceededMaxAllowedClockLag(rateUpdatedL1Timestamp_);
         }
+        if (rateUpdatedL1Timestamp_ < _getLastTokenRate().rateUpdatedL1Timestamp) {
+            revert ErrorL1TimestampOlderThanPrevious(rateUpdatedL1Timestamp_);
+        }
         _addTokenRate(tokenRate_, rateUpdatedL1Timestamp_, block.timestamp);
         _setPause(false);
         emit TokenRateUpdatesResumed(tokenRate_, rateUpdatedL1Timestamp_);
@@ -263,7 +266,7 @@ contract TokenRateOracle is ITokenRateOracle, CrossDomainEnabled, AccessControl,
             return;
         }
 
-        /// @dev This condition was made under the assumption that the L1 timestamps can be hacked.
+        /// @dev This condition was made under the assumption that the L1 timestamps can be manipulated.
         if (rateUpdatedL1Timestamp_ < tokenRateData.rateUpdatedL1Timestamp + MAX_ALLOWED_TIME_BETWEEN_TOKEN_RATE_UPDATES) {
             emit UpdateRateIsTooOften(rateUpdatedL1Timestamp_, tokenRateData.rateUpdatedL1Timestamp);
             return;
@@ -428,4 +431,5 @@ contract TokenRateOracle is ITokenRateOracle, CrossDomainEnabled, AccessControl,
     error ErrorMaxTokenRateDeviationIsOutOfRange();
     error ErrorTokenRateIsOutOfSaneRange(uint256 tokenRate_);
     error ErrorL1TimestampExceededMaxAllowedClockLag(uint256 rateL1Timestamp_);
+    error ErrorL1TimestampOlderThanPrevious(uint256 rateL1Timestamp_);
 }
