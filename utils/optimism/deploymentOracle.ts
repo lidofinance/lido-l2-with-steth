@@ -12,14 +12,16 @@ import {
   OpStackTokenRatePusher__factory
 } from "../../typechain";
 
-interface OptDeployScriptParams extends DeployScriptParams { }
+interface OptDeployScriptParams extends DeployScriptParams {
+  lido: string;
+}
 
 interface OptL2DeployScriptParams extends DeployScriptParams {
   tokenRateOracle: {
     maxAllowedL2ToL1ClockLag: BigNumber;
     maxAllowedTokenRateDeviationPerDayBp: BigNumber;
     oldestRateAllowedInPauseTimeSpan: BigNumber;
-    maxAllowedTimeBetweenTokenRateUpdates: BigNumber;
+    minTimeBetweenTokenRateUpdates: BigNumber;
     tokenRate: BigNumber;
     l1Timestamp: BigNumber;
   }
@@ -99,6 +101,7 @@ export default function deploymentOracle(
           factory: TokenRateNotifier__factory,
           args: [
             l1Params.deployer.address,
+            l1Params.lido,
             options?.overrides,
           ],
           afterDeploy: (c) =>
@@ -134,7 +137,7 @@ export default function deploymentOracle(
             l2Params.tokenRateOracle.maxAllowedL2ToL1ClockLag,
             l2Params.tokenRateOracle.maxAllowedTokenRateDeviationPerDayBp,
             l2Params.tokenRateOracle.oldestRateAllowedInPauseTimeSpan,
-            l2Params.tokenRateOracle.maxAllowedTimeBetweenTokenRateUpdates,
+            l2Params.tokenRateOracle.minTimeBetweenTokenRateUpdates,
             options?.overrides,
           ],
           afterDeploy: (c) =>

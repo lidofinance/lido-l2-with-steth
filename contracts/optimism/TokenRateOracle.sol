@@ -55,8 +55,8 @@ contract TokenRateOracle is ITokenRateOracle, CrossDomainEnabled, AccessControl,
     ///         See the 'pauseTokenRateUpdates()' method
     uint256 public immutable OLDEST_RATE_ALLOWED_IN_PAUSE_TIME_SPAN;
 
-    /// @notice The maximum delta time that is allowed between two L1 timestamps of token rate updates.
-    uint256 public immutable MAX_ALLOWED_TIME_BETWEEN_TOKEN_RATE_UPDATES;
+    /// @notice The minimum delta time between two L1 timestamps of token rate updates.
+    uint256 public immutable MIN_TIME_BETWEEN_TOKEN_RATE_UPDATES;
 
     /// @notice Decimals of the oracle response.
     uint8 public constant DECIMALS = 27;
@@ -95,7 +95,7 @@ contract TokenRateOracle is ITokenRateOracle, CrossDomainEnabled, AccessControl,
     ///        Can't be bigger than BASIS_POINT_SCALE.
     /// @param oldestRateAllowedInPauseTimeSpan_ Maximum allowed time difference between the current time
     ///        and the last received token rate update that can be set during a pause.
-    /// @param maxAllowedTimeBetweenTokenRateUpdates_ the maximum delta time that is allowed between two
+    /// @param minTimeBetweenTokenRateUpdates_ Minimum delta time between two
     ///        L1 timestamps of token rate updates.
     constructor(
         address messenger_,
@@ -105,7 +105,7 @@ contract TokenRateOracle is ITokenRateOracle, CrossDomainEnabled, AccessControl,
         uint256 maxAllowedL2ToL1ClockLag_,
         uint256 maxAllowedTokenRateDeviationPerDayBp_,
         uint256 oldestRateAllowedInPauseTimeSpan_,
-        uint256 maxAllowedTimeBetweenTokenRateUpdates_
+        uint256 minTimeBetweenTokenRateUpdates_
     ) CrossDomainEnabled(messenger_) {
         if (l2ERC20TokenBridge_ == address(0)) {
             revert ErrorZeroAddressL2ERC20TokenBridge();
@@ -122,7 +122,7 @@ contract TokenRateOracle is ITokenRateOracle, CrossDomainEnabled, AccessControl,
         MAX_ALLOWED_L2_TO_L1_CLOCK_LAG = maxAllowedL2ToL1ClockLag_;
         MAX_ALLOWED_TOKEN_RATE_DEVIATION_PER_DAY_BP = maxAllowedTokenRateDeviationPerDayBp_;
         OLDEST_RATE_ALLOWED_IN_PAUSE_TIME_SPAN = oldestRateAllowedInPauseTimeSpan_;
-        MAX_ALLOWED_TIME_BETWEEN_TOKEN_RATE_UPDATES = maxAllowedTimeBetweenTokenRateUpdates_;
+        MIN_TIME_BETWEEN_TOKEN_RATE_UPDATES = minTimeBetweenTokenRateUpdates_;
     }
 
     /// @notice Initializes the contract from scratch.
@@ -179,6 +179,9 @@ contract TokenRateOracle is ITokenRateOracle, CrossDomainEnabled, AccessControl,
         }
         if (rateUpdatedL1Timestamp_ > block.timestamp + MAX_ALLOWED_L2_TO_L1_CLOCK_LAG) {
             revert ErrorL1TimestampExceededMaxAllowedClockLag(rateUpdatedL1Timestamp_);
+        }
+        if (rateUpdatedL1Timestamp_ < _getLastTokenRate().rateUpdatedL1Timestamp) {
+            revert ErrorL1TimestampOlderThanPrevious(rateUpdatedL1Timestamp_);
         }
         _addTokenRate(tokenRate_, rateUpdatedL1Timestamp_, block.timestamp);
         _setPause(false);
@@ -263,8 +266,8 @@ contract TokenRateOracle is ITokenRateOracle, CrossDomainEnabled, AccessControl,
             return;
         }
 
-        /// @dev This condition was made under the assumption that the L1 timestamps can be hacked.
-        if (rateUpdatedL1Timestamp_ < tokenRateData.rateUpdatedL1Timestamp + MAX_ALLOWED_TIME_BETWEEN_TOKEN_RATE_UPDATES) {
+        /// @dev This condition was made under the assumption that the L1 timestamps can be manipulated.
+        if (rateUpdatedL1Timestamp_ < tokenRateData.rateUpdatedL1Timestamp + MIN_TIME_BETWEEN_TOKEN_RATE_UPDATES) {
             emit UpdateRateIsTooOften(rateUpdatedL1Timestamp_, tokenRateData.rateUpdatedL1Timestamp);
             return;
         }
@@ -428,4 +431,5 @@ contract TokenRateOracle is ITokenRateOracle, CrossDomainEnabled, AccessControl,
     error ErrorMaxTokenRateDeviationIsOutOfRange();
     error ErrorTokenRateIsOutOfSaneRange(uint256 tokenRate_);
     error ErrorL1TimestampExceededMaxAllowedClockLag(uint256 rateL1Timestamp_);
+    error ErrorL1TimestampOlderThanPrevious(uint256 rateL1Timestamp_);
 }
