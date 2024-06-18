@@ -27,8 +27,8 @@ interface IPostTokenRebaseReceiver {
 contract TokenRateNotifier is Ownable, IPostTokenRebaseReceiver {
     using ERC165Checker for address;
 
-    /// @notice Address of the contract that is allowed to call handlePostTokenRebase.
-    address public immutable AUTHORIZED_REBASE_CALLER;
+    /// @notice Address of lido core protocol contract that is allowed to call handlePostTokenRebase.
+    address public immutable LIDO;
 
     /// @notice Maximum amount of observers to be supported.
     uint256 public constant MAX_OBSERVERS_COUNT = 32;
@@ -43,16 +43,16 @@ contract TokenRateNotifier is Ownable, IPostTokenRebaseReceiver {
     address[] public observers;
 
     /// @param initialOwner_ initial owner
-    /// @param authorizedRebaseCaller_ Address of the contract that is allowed to call handlePostTokenRebase.
-    constructor(address initialOwner_, address authorizedRebaseCaller_) {
+    /// @param lido_ Address of lido core protocol contract that is allowed to call handlePostTokenRebase.
+    constructor(address initialOwner_, address lido_) {
         if (initialOwner_ == address(0)) {
             revert ErrorZeroAddressOwner();
         }
-        if (authorizedRebaseCaller_ == address(0)) {
-            revert ErrorZeroAddressCaller();
+        if (lido_ == address(0)) {
+            revert ErrorZeroAddressLido();
         }
         _transferOwnership(initialOwner_);
-        AUTHORIZED_REBASE_CALLER = authorizedRebaseCaller_;
+        LIDO = lido_;
     }
 
     /// @notice Add a `observer_` to the back of array
@@ -93,6 +93,7 @@ contract TokenRateNotifier is Ownable, IPostTokenRebaseReceiver {
 
     /// @inheritdoc IPostTokenRebaseReceiver
     /// @dev Parameters aren't used because all required data further components fetch by themselves.
+    ///      Allowed to called by Lido contract. See Lido._completeTokenRebase.
     function handlePostTokenRebase(
         uint256, /* reportTimestamp    */
         uint256, /* timeElapsed        */
@@ -102,7 +103,7 @@ contract TokenRateNotifier is Ownable, IPostTokenRebaseReceiver {
         uint256, /* postTotalEther     */
         uint256  /* sharesMintedAsFees */
     ) external {
-        if (msg.sender != AUTHORIZED_REBASE_CALLER) {
+        if (msg.sender != LIDO) {
             revert ErrorNotAuthorizedRebaseCaller();
         }
         uint256 cachedObserversLength = observers.length;
@@ -152,7 +153,7 @@ contract TokenRateNotifier is Ownable, IPostTokenRebaseReceiver {
     error ErrorMaxObserversCountExceeded();
     error ErrorNoObserverToRemove();
     error ErrorZeroAddressOwner();
-    error ErrorZeroAddressCaller();
+    error ErrorZeroAddressLido();
     error ErrorNotAuthorizedRebaseCaller();
     error ErrorAddExistedObserver();
 }

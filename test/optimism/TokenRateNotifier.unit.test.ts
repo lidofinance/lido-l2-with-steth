@@ -34,7 +34,7 @@ unit("TokenRateNotifier", ctxFactory)
 
     await assert.revertsWith(
       new TokenRateNotifier__factory(deployer).deploy(deployer.address, ethers.constants.AddressZero),
-      "ErrorZeroAddressCaller()"
+      "ErrorZeroAddressLido()"
     );
   })
 
