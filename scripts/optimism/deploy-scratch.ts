@@ -28,7 +28,7 @@ async function main() {
         l1TokenRebasable: deploymentConfig.l1RebasableToken,
         accountingOracle: deploymentConfig.accountingOracle,
         l2GasLimitForPushingTokenRate: deploymentConfig.l2GasLimitForPushingTokenRate,
-        l1AuthorizedRebaseCaller: deploymentConfig.l1AuthorizedRebaseCaller,
+        lido: deploymentConfig.lido,
 
         deployer: ethDeployer,
         admins: {
@@ -43,7 +43,7 @@ async function main() {
           maxAllowedL2ToL1ClockLag: deploymentConfig.maxAllowedL2ToL1ClockLag,
           maxAllowedTokenRateDeviationPerDayBp: deploymentConfig.maxAllowedTokenRateDeviationPerDayBp,
           oldestRateAllowedInPauseTimeSpan: deploymentConfig.oldestRateAllowedInPauseTimeSpan,
-          maxAllowedTimeBetweenTokenRateUpdates: deploymentConfig.maxAllowedTimeBetweenTokenRateUpdates,
+          minTimeBetweenTokenRateUpdates: deploymentConfig.minTimeBetweenTokenRateUpdates,
           tokenRate: deploymentConfig.tokenRateValue,
           l1Timestamp: deploymentConfig.tokenRateL1Timestamp
         },

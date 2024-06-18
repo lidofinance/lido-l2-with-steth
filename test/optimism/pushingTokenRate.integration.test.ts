@@ -32,11 +32,11 @@ scenario("Optimism :: Token Rate Oracle integration test", ctxFactory)
       secondsPerSlot,
       lastProcessingRefSlot,
       tokenRate,
-      l1AuthorizedRebaseCaller
+      lido
     } = ctx;
 
     const tx = await tokenRateNotifier
-      .connect(l1AuthorizedRebaseCaller)
+      .connect(lido)
       .handlePostTokenRebase(1, 2, 3, 4, 5, 6, 7);
 
     const messageNonce = await l1CrossDomainMessenger.messageNonce();
@@ -112,7 +112,7 @@ async function ctxFactory() {
   const maxAllowedL2ToL1ClockLag = BigNumber.from(86400);
   const maxAllowedTokenRateDeviationPerDay = BigNumber.from(500);
   const oldestRateAllowedInPauseTimeSpan = BigNumber.from(86400*3);
-  const maxAllowedTimeBetweenTokenRateUpdates = BigNumber.from(3600);
+  const minTimeBetweenTokenRateUpdates = BigNumber.from(3600);
   const totalPooledEther = BigNumber.from('9309904612343950493629678');
   const totalShares = BigNumber.from('7975822843597609202337218');
   const tokenRateDecimals = BigNumber.from(27);
@@ -169,8 +169,8 @@ async function ctxFactory() {
 
   const [l2ERC20TokenBridge] = await hre.ethers.getSigners();
 
-  const l1AuthorizedRebaseCaller = await new EmptyContractStub__factory(l1Deployer).deploy({ value: wei.toBigNumber(wei`1 ether`) });
-  const l1AuthorizedRebaseCallerAsEOA = await testing.impersonate(l1AuthorizedRebaseCaller.address, l1Provider);
+  const lido = await new EmptyContractStub__factory(l1Deployer).deploy({ value: wei.toBigNumber(wei`1 ether`) });
+  const lidoAsEOA = await testing.impersonate(lido.address, l1Provider);
 
   const [ethDeployScript, optDeployScript] = await deploymentOracle(
     networkName
@@ -181,7 +181,7 @@ async function ctxFactory() {
     l2GasLimitForPushingTokenRate,
     tokenRateOutdatedDelay,
     {
-      l1AuthorizedRebaseCaller: l1AuthorizedRebaseCaller.address,
+      lido: lido.address,
       deployer: l1Deployer,
       admins: {
         proxy: l1Deployer.address,
@@ -200,7 +200,7 @@ async function ctxFactory() {
         maxAllowedL2ToL1ClockLag: maxAllowedL2ToL1ClockLag,
         maxAllowedTokenRateDeviationPerDayBp: maxAllowedTokenRateDeviationPerDay,
         oldestRateAllowedInPauseTimeSpan: oldestRateAllowedInPauseTimeSpan,
-        maxAllowedTimeBetweenTokenRateUpdates: maxAllowedTimeBetweenTokenRateUpdates,
+        minTimeBetweenTokenRateUpdates: minTimeBetweenTokenRateUpdates,
         tokenRate: tokenRate,
         l1Timestamp: BigNumber.from(blockTimestampInPast)
       }
@@ -249,7 +249,7 @@ async function ctxFactory() {
     blockTimestamp,
     tokenRate,
     genesisTime, secondsPerSlot, lastProcessingRefSlot,
-    l1AuthorizedRebaseCaller: l1AuthorizedRebaseCallerAsEOA,
+    lido: lidoAsEOA,
     accounts: {
       accountA,
       l1CrossDomainMessengerAliased

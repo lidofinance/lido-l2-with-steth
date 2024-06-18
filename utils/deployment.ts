@@ -16,7 +16,7 @@ interface MultiChainDeploymentConfig {
   accountingOracle: string;
   l2GasLimitForPushingTokenRate: BigNumber;
   l1TokenBridge: string;
-  l1AuthorizedRebaseCaller: string;
+  lido: string;
 
   /// L2
   /// Oracle
@@ -24,7 +24,7 @@ interface MultiChainDeploymentConfig {
   maxAllowedL2ToL1ClockLag: BigNumber;
   maxAllowedTokenRateDeviationPerDayBp: BigNumber;
   oldestRateAllowedInPauseTimeSpan: BigNumber;
-  maxAllowedTimeBetweenTokenRateUpdates: BigNumber;
+  minTimeBetweenTokenRateUpdates: BigNumber;
   tokenRateValue: BigNumber;
   tokenRateL1Timestamp: BigNumber;
 
@@ -47,7 +47,7 @@ export function loadMultiChainDeploymentConfig(): MultiChainDeploymentConfig {
     accountingOracle: env.address("ACCOUNTING_ORACLE"),
     l2GasLimitForPushingTokenRate: BigNumber.from(env.string("L2_GAS_LIMIT_FOR_PUSHING_TOKEN_RATE")),
     l1TokenBridge: env.address("L1_TOKEN_BRIDGE"),
-    l1AuthorizedRebaseCaller: env.address("L1_AUTHORIZED_REBASE_CALLER"),
+    lido: env.address("LIDO"),
 
     /// L2 Part
     /// TokenRateOracle
@@ -55,7 +55,7 @@ export function loadMultiChainDeploymentConfig(): MultiChainDeploymentConfig {
     maxAllowedL2ToL1ClockLag: BigNumber.from(env.string("MAX_ALLOWED_L2_TO_L1_CLOCK_LAG")),
     maxAllowedTokenRateDeviationPerDayBp: BigNumber.from(env.string("MAX_ALLOWED_TOKEN_RATE_DEVIATION_PER_DAY_BP")),
     oldestRateAllowedInPauseTimeSpan: BigNumber.from(env.string("OLDEST_RATE_ALLOWED_IN_PAUSE_TIME_SPAN")),
-    maxAllowedTimeBetweenTokenRateUpdates: BigNumber.from(env.string("MAX_ALLOWED_TIME_BETWEEN_TOKEN_RATE_UPDATES")),
+    minTimeBetweenTokenRateUpdates: BigNumber.from(env.string("MIN_TIME_BETWEEN_TOKEN_RATE_UPDATES")),
     tokenRateValue: BigNumber.from(env.string("TOKEN_RATE")),
     tokenRateL1Timestamp: BigNumber.from(env.string("TOKEN_RATE_L1_TIMESTAMP")),
 

@@ -415,7 +415,6 @@ contract ERC20RebasableBridged is IERC20, IERC20Wrapper, IBridgeWrapper, ERC20Me
     error ErrorZeroSharesWrap();
     error ErrorZeroTokensUnwrap();
     error ErrorZeroSharesUnwrap();
-    error ErrorTokenRateDecimalsIsZero();
     error ErrorTransferToRebasableContract();
     error ErrorNotEnoughBalance();
     error ErrorNotEnoughAllowance();

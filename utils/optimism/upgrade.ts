@@ -22,7 +22,7 @@ interface OptL1UpgradeScriptParams extends DeployScriptParams {
   accountingOracle: string;
   l2GasLimitForPushingTokenRate: BigNumber;
   l1TokenBridge: string;
-  l1AuthorizedRebaseCaller: string;
+  lido: string;
 }
 
 interface OptL2UpgradeScriptParams extends DeployScriptParams {
@@ -46,7 +46,7 @@ interface OptL2UpgradeScriptParams extends DeployScriptParams {
       maxAllowedL2ToL1ClockLag: BigNumber;
       maxAllowedTokenRateDeviationPerDayBp: BigNumber;
       oldestRateAllowedInPauseTimeSpan: BigNumber;
-      maxAllowedTimeBetweenTokenRateUpdates: BigNumber;
+      minTimeBetweenTokenRateUpdates: BigNumber;
     }
     initialize: {
       tokenRate: BigNumber;
@@ -178,7 +178,7 @@ export default function upgrade(
           factory: TokenRateNotifier__factory,
           args: [
             l1Params.deployer.address,
-            l1Params.l1AuthorizedRebaseCaller,
+            l1Params.lido,
             options?.overrides,
           ],
           afterDeploy: (c) =>
@@ -240,7 +240,7 @@ export default function upgrade(
             l2Params.tokenRateOracle.constructor.maxAllowedL2ToL1ClockLag,
             l2Params.tokenRateOracle.constructor.maxAllowedTokenRateDeviationPerDayBp,
             l2Params.tokenRateOracle.constructor.oldestRateAllowedInPauseTimeSpan,
-            l2Params.tokenRateOracle.constructor.maxAllowedTimeBetweenTokenRateUpdates,
+            l2Params.tokenRateOracle.constructor.minTimeBetweenTokenRateUpdates,
             options?.overrides,
           ],
           afterDeploy: (c) =>

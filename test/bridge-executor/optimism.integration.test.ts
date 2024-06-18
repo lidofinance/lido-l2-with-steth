@@ -211,7 +211,7 @@ async function ctxFactory() {
   const maxAllowedL2ToL1ClockLag = BigNumber.from(86400);
   const maxAllowedTokenRateDeviationPerDay = BigNumber.from(500);
   const oldestRateAllowedInPauseTimeSpan = BigNumber.from(86400*3);
-  const maxAllowedTimeBetweenTokenRateUpdates = BigNumber.from(3600);
+  const minTimeBetweenTokenRateUpdates = BigNumber.from(3600);
   const exchangeRate = getExchangeRate(tokenRateDecimals, totalPooledEther, totalShares);
 
   const l1Deployer = testing.accounts.deployer(l1Provider);
@@ -273,7 +273,7 @@ async function ctxFactory() {
         maxAllowedL2ToL1ClockLag: maxAllowedL2ToL1ClockLag,
         maxAllowedTokenRateDeviationPerDayBp: maxAllowedTokenRateDeviationPerDay,
         oldestRateAllowedInPauseTimeSpan: oldestRateAllowedInPauseTimeSpan,
-        maxAllowedTimeBetweenTokenRateUpdates: maxAllowedTimeBetweenTokenRateUpdates,
+        minTimeBetweenTokenRateUpdates: minTimeBetweenTokenRateUpdates,
         tokenRate: exchangeRate,
         l1Timestamp: BigNumber.from('1000')
       },

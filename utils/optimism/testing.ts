@@ -203,7 +203,7 @@ async function deployTestBridge(
   const maxAllowedL2ToL1ClockLag = BigNumber.from(86400);
   const maxAllowedTokenRateDeviationPerDay = BigNumber.from(500);
   const oldestRateAllowedInPauseTimeSpan = BigNumber.from(86400*3);
-  const maxAllowedTimeBetweenTokenRateUpdates = BigNumber.from(3600);
+  const minTimeBetweenTokenRateUpdates = BigNumber.from(3600);
   const tokenRateOutdatedDelay = BigNumber.from(86400);
 
   const ethDeployer = testingUtils.accounts.deployer(ethProvider);
@@ -236,7 +236,7 @@ async function deployTestBridge(
       l1TokenRebasable: l1TokenRebasable.address,
       accountingOracle: accountingOracle.address,
       l2GasLimitForPushingTokenRate: BigNumber.from(300_000),
-      l1AuthorizedRebaseCaller: ethDeployer.address,
+      lido: ethDeployer.address,
       deployer: ethDeployer,
       admins: { proxy: ethDeployer.address, bridge: ethDeployer.address },
       contractsShift: 0
@@ -250,7 +250,7 @@ async function deployTestBridge(
         maxAllowedL2ToL1ClockLag: maxAllowedL2ToL1ClockLag,
         maxAllowedTokenRateDeviationPerDayBp: maxAllowedTokenRateDeviationPerDay,
         oldestRateAllowedInPauseTimeSpan: oldestRateAllowedInPauseTimeSpan,
-        maxAllowedTimeBetweenTokenRateUpdates: maxAllowedTimeBetweenTokenRateUpdates,
+        minTimeBetweenTokenRateUpdates: minTimeBetweenTokenRateUpdates,
         tokenRate: tokenRate,
         l1Timestamp: BigNumber.from('1000')
       },

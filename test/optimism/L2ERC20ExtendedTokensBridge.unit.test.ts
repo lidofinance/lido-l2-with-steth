@@ -1234,7 +1234,7 @@ async function ctxFactory() {
   const maxAllowedL2ToL1ClockLag = BigNumber.from(86400);
   const maxAllowedTokenRateDeviationPerDay = BigNumber.from(500);
   const oldestRateAllowedInPauseTimeSpan = BigNumber.from(86400*3);
-  const maxAllowedTimeBetweenTokenRateUpdates = BigNumber.from(3600);
+  const minTimeBetweenTokenRateUpdates = BigNumber.from(3600);
 
   const l2MessengerStub = await new CrossDomainMessengerStub__factory(
     deployer
@@ -1284,7 +1284,7 @@ async function ctxFactory() {
     maxAllowedL2ToL1ClockLag,
     maxAllowedTokenRateDeviationPerDay,
     oldestRateAllowedInPauseTimeSpan,
-    maxAllowedTimeBetweenTokenRateUpdates
+    minTimeBetweenTokenRateUpdates
   );
 
   const provider = await hre.ethers.provider;
@@ -1416,7 +1416,7 @@ async function getL2TokenBridgeImpl(deployer: SignerWithAddress, l1TokenBridge: 
   const maxAllowedL2ToL1ClockLag = BigNumber.from(86400);
   const maxAllowedTokenRateDeviationPerDay = BigNumber.from(500);
   const oldestRateAllowedInPauseTimeSpan = BigNumber.from(86400*3);
-  const maxAllowedTimeBetweenTokenRateUpdates = BigNumber.from(3600);
+  const minTimeBetweenTokenRateUpdates = BigNumber.from(3600);
 
   const l2MessengerStub = await new CrossDomainMessengerStub__factory(
     deployer
@@ -1459,7 +1459,7 @@ async function getL2TokenBridgeImpl(deployer: SignerWithAddress, l1TokenBridge: 
     maxAllowedL2ToL1ClockLag,
     maxAllowedTokenRateDeviationPerDay,
     oldestRateAllowedInPauseTimeSpan,
-    maxAllowedTimeBetweenTokenRateUpdates
+    minTimeBetweenTokenRateUpdates
   );
 
   const provider = await hre.ethers.provider;

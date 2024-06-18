@@ -45,7 +45,7 @@ async function main() {
             maxAllowedL2ToL1ClockLag: deploymentConfig.maxAllowedL2ToL1ClockLag,
             maxAllowedTokenRateDeviationPerDayBp: deploymentConfig.maxAllowedTokenRateDeviationPerDayBp,
             oldestRateAllowedInPauseTimeSpan: deploymentConfig.oldestRateAllowedInPauseTimeSpan,
-            maxAllowedTimeBetweenTokenRateUpdates: deploymentConfig.maxAllowedTimeBetweenTokenRateUpdates
+            minTimeBetweenTokenRateUpdates: deploymentConfig.minTimeBetweenTokenRateUpdates
           },
           initialize: {
             tokenRate: deploymentConfig.tokenRateValue,
