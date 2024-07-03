@@ -4,6 +4,7 @@ import network from "../../utils/network";
 import deployment from "../../utils/deployment";
 import { BridgingManagement } from "../../utils/bridging-management";
 import upgrade from "../../utils/optimism/upgrade";
+import { TokenRateNotifier__factory } from "../../typechain";
 
 async function main() {
   const networkName = env.network();
@@ -28,15 +29,15 @@ async function main() {
         l1TokenRebasable: deploymentConfig.l1RebasableToken,
         accountingOracle: deploymentConfig.accountingOracle,
         l2GasLimitForPushingTokenRate: deploymentConfig.l2GasLimitForPushingTokenRate,
-
         l1TokenBridge: deploymentConfig.l1TokenBridge,
         lido: deploymentConfig.lido,
+
         deployer: ethDeployer,
         admins: {
           proxy: deploymentConfig.l1.proxyAdmin,
           bridge: ethDeployer.address
         },
-        contractsShift: 0,
+        deployOffset: 0,
       },
       {
         tokenRateOracle: {
@@ -52,14 +53,11 @@ async function main() {
             l1Timestamp: deploymentConfig.tokenRateL1Timestamp
           }
         },
-
         l2TokenBridge: deploymentConfig.l2TokenBridge,
-
         l2TokenNonRebasable: {
           address: deploymentConfig.l2TokenNonRebasableAddress,
           version: deploymentConfig.l2TokenNonRebasableVersion
         },
-
         l2TokenRebasable: {
           version: deploymentConfig.l2TokenRebasableVersion
         },
@@ -69,7 +67,7 @@ async function main() {
           proxy: deploymentConfig.l2.proxyAdmin,
           bridge: optDeployer.address,
         },
-        contractsShift: 0,
+        deployOffset: 0,
       }
     );
 
@@ -86,6 +84,19 @@ async function main() {
 
   await l1DeployScript.run();
   await l2DeployScript.run();
+
+  // add observer
+  // TODO: transferOwnership to Agent
+  const [ethProvider, ] = ethOptNetwork.getProviders({
+    forking: env.forking()
+  });
+  const tokenRateNotifier = TokenRateNotifier__factory.connect(
+    l1DeployScript.tokenRateNotifierImplAddress,
+    ethProvider
+  );
+  await tokenRateNotifier
+    .connect(ethDeployer)
+    .addObserver(l1DeployScript.opStackTokenRatePusherImplAddress);
 
   const l1BridgingManagement = new BridgingManagement(
     l1DeployScript.bridgeProxyAddress,

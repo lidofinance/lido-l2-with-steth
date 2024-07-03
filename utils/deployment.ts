@@ -63,14 +63,18 @@ export function loadMultiChainDeploymentConfig(): MultiChainDeploymentConfig {
     tokenRateValue: BigNumber.from(env.string("TOKEN_RATE")),
     tokenRateL1Timestamp: BigNumber.from(env.string("TOKEN_RATE_L1_TIMESTAMP")),
 
+    // L2 wstETH
     l2TokenNonRebasableAddress: env.address("L2_TOKEN_NON_REBASABLE"),
-    l2TokenNonRebasableVersion: env.address("L2_TOKEN_NON_REBASABLE_VERSION"),
+    l2TokenNonRebasableVersion: env.string("L2_TOKEN_NON_REBASABLE_VERSION"),
 
-    l2TokenRebasableVersion:  env.address("L2_TOKEN_REBASABLE_VERSION"),
+    // L2 stETH
+    l2TokenRebasableVersion: env.string("L2_TOKEN_REBASABLE_VERSION"),
 
+    // L2 Bridge
     l2TokenBridge: env.address("L2_TOKEN_BRIDGE"),
 
     govBridgeExecutor: env.address("GOV_BRIDGE_EXECUTOR"),
+
     l1: {
       proxyAdmin: env.address("L1_PROXY_ADMIN"),
       bridgeAdmin: env.address("L1_BRIDGE_ADMIN"),

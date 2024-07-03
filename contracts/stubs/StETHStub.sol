@@ -6,6 +6,7 @@ pragma solidity 0.8.10;
 import {IStETH} from "../token/interfaces/IStETH.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
+/// @author kovalgek
 /// @dev For testing purposes.
 contract StETHStub is IStETH, ERC20 {
 
@@ -15,10 +16,11 @@ contract StETHStub is IStETH, ERC20 {
         _mint(msg.sender, 1000000 * 10**40);
     }
 
-    function getTotalShares() external view returns (uint256) {
+    function getTotalShares() external pure returns (uint256) {
         return 0;
     }
-    function getTotalPooledEther() external view returns (uint256) {
+
+    function getTotalPooledEther() external pure returns (uint256) {
         return 0;
     }
 }

@@ -1,23 +1,10 @@
-import hre from "hardhat";
 import { assert } from "chai";
 import { BigNumber } from "ethers";
 import env from "../../utils/env";
 import { wei } from "../../utils/wei";
 import optimism from "../../utils/optimism";
-import network from "../../utils/network";
 import testing, { scenario } from "../../utils/testing";
-import deploymentOracle from "../../utils/optimism/deploymentOracle";
-import { getBridgeExecutorParams } from "../../utils/bridge-executor";
-import { getExchangeRate, getBlockTimestamp } from "../../utils/testing/helpers";
-import {
-  WstETHStub__factory,
-  OptimismBridgeExecutor__factory,
-  TokenRateNotifier__factory,
-  TokenRateOracle__factory,
-  AccountingOracleStub__factory,
-  EmptyContractStub__factory,
-  StETHStub__factory
-} from "../../typechain";
+import { getExchangeRate, refSlotTimestamp } from "../../utils/testing/helpers";
 
 scenario("Optimism :: Token Rate Oracle integration test", ctxFactory)
 
@@ -27,15 +14,12 @@ scenario("Optimism :: Token Rate Oracle integration test", ctxFactory)
       tokenRateOracle,
       opTokenRatePusher,
       l1CrossDomainMessenger,
-      lido
+      lido,
+      accountingOracle
     } = ctx;
 
     const {
-      genesisTime,
-      secondsPerSlot,
-      lastProcessingRefSlot,
       tokenRate,
-      l2GasLimitForPushingTokenRate
     } = ctx.constants;
 
     const tx = await tokenRateNotifier
@@ -43,9 +27,7 @@ scenario("Optimism :: Token Rate Oracle integration test", ctxFactory)
       .handlePostTokenRebase(1, 2, 3, 4, 5, 6, 7);
 
     const messageNonce = await l1CrossDomainMessenger.messageNonce();
-
-    const updateRateTime = genesisTime.add(secondsPerSlot.mul(lastProcessingRefSlot));
-
+    const updateRateTime = await refSlotTimestamp(accountingOracle);
     const l2Calldata = tokenRateOracle.interface.encodeFunctionData(
       "updateRate",
       [
@@ -59,7 +41,7 @@ scenario("Optimism :: Token Rate Oracle integration test", ctxFactory)
       opTokenRatePusher,
       l2Calldata,
       messageNonce,
-      l2GasLimitForPushingTokenRate,
+      300_000,
     ]);
   })
 
@@ -68,12 +50,20 @@ scenario("Optimism :: Token Rate Oracle integration test", ctxFactory)
       opTokenRatePusher,
       tokenRateOracle,
       l1CrossDomainMessenger,
+      accountingOracle
     } = ctx;
 
+    const [
+      ,
+      tokenRateAnswerBefore,
+      startedAt_updatedRateBefore,
+      ,
+    ] = await tokenRateOracle.latestRoundData();
+
+    console.log("tokenRateAnswerBefore=", tokenRateAnswerBefore);
+    console.log("startedAt_updatedRateBefore=",startedAt_updatedRateBefore);
+
     const {
-      genesisTime,
-      secondsPerSlot,
-      lastProcessingRefSlot,
       tokenRate
     } = ctx.constants;
 
@@ -82,12 +72,17 @@ scenario("Optimism :: Token Rate Oracle integration test", ctxFactory)
       .connect(account.l1Signer)
       .setXDomainMessageSender(opTokenRatePusher);
 
-    const updateRateTime = genesisTime.add(secondsPerSlot.mul(lastProcessingRefSlot));
+    const minTimeBetweenTokenRateUpdates = await tokenRateOracle.MIN_TIME_BETWEEN_TOKEN_RATE_UPDATES();
+    const updateRateTime = (await refSlotTimestamp(accountingOracle))
+      .add(minTimeBetweenTokenRateUpdates)
+      .add(1000);
 
-    await ctx.l2CrossDomainMessenger
+    const messageNonce = await l1CrossDomainMessenger.messageNonce();
+
+    const tx = await ctx.l2CrossDomainMessenger
       .connect(ctx.accounts.l1CrossDomainMessengerAliased)
       .relayMessage(
-        1,
+        messageNonce,
         opTokenRatePusher,
         tokenRateOracle.address,
         0,
@@ -98,6 +93,16 @@ scenario("Optimism :: Token Rate Oracle integration test", ctxFactory)
         ]),
         { gasLimit: 5_000_000 }
       );
+
+    console.log("new tokenRate=",tokenRate);
+    console.log("new updateRateTime=",updateRateTime);
+
+    if ((updateRateTime.sub(startedAt_updatedRateBefore)).gt(minTimeBetweenTokenRateUpdates)) {
+      await assert.emits(tokenRateOracle, tx, "RateUpdated", [
+        tokenRate,
+        updateRateTime
+      ]);
+    }
 
     const answer = await tokenRateOracle.latestAnswer();
     assert.equalBN(answer, tokenRate);
@@ -117,120 +122,24 @@ scenario("Optimism :: Token Rate Oracle integration test", ctxFactory)
 
 async function ctxFactory() {
   const networkName = env.network("TESTING_OPT_NETWORK", "mainnet");
-  const [l1Provider, l2Provider] = network
-    .multichain(["eth", "opt"], networkName)
-    .getProviders({ forking: true });
-  const l1Deployer = testing.accounts.deployer(l1Provider);
-  const l2Deployer = testing.accounts.deployer(l2Provider);
 
-  // stETH config
-  const l1TokenRebasableName = "Test Token Rebasable";
-  const l1TokenRebasableSymbol = "TTR";
+  const {
+    totalPooledEther,
+    totalShares,
+    l1Provider,
+    l2Provider,
+    l1ERC20ExtendedTokensBridgeAdmin,
+    l2ERC20ExtendedTokensBridgeAdmin,
+    ...contracts
+  } = await optimism.testing(networkName).getIntegrationTestSetup();
 
-  // wstETH config
-  const l1TokenNonRebasableName = "Test Non Rebasable Token";
-  const l1TokenNonRebasableSymbol = "TT";
-  const totalPooledEther = BigNumber.from('9309904612343950493629678');
-  const totalShares = BigNumber.from('7975822843597609202337218');
+  const lidoAsEOA = await testing.impersonate(env.address("LIDO"), l1Provider);
 
-  // OpStackPusher
-  const l2GasLimitForPushingTokenRate = BigNumber.from(300_000);
-
-  // Accounting oracle config
-  const blockTimestamp = await getBlockTimestamp(l1Provider, 0);
-  const blockTimestampInPast = await getBlockTimestamp(l1Provider, -86400);
-  const genesisTime = blockTimestamp;
-  const secondsPerSlot = BigNumber.from(10);
-  const lastProcessingRefSlot = BigNumber.from(20);
-
-  // Token rate oracle config
-  const maxAllowedL2ToL1ClockLag = BigNumber.from(86400);
-  const maxAllowedTokenRateDeviationPerDay = BigNumber.from(500);
-  const oldestRateAllowedInPauseTimeSpan = BigNumber.from(86400 * 3);
-  const minTimeBetweenTokenRateUpdates = BigNumber.from(3600);
-  const tokenRateOutdatedDelay = BigNumber.from(86400);
   const tokenRateDecimals = BigNumber.from(27);
   const tokenRate = getExchangeRate(tokenRateDecimals, totalPooledEther, totalShares);
 
   const optContracts = optimism.contracts(networkName, { forking: true });
   const l2CrossDomainMessenger = optContracts.L2CrossDomainMessenger;
-  const testingOnDeployedContracts = testing.env.USE_DEPLOYED_CONTRACTS(false);
-  const optAddresses = optimism.addresses(networkName);
-
-  const govBridgeExecutor = testingOnDeployedContracts
-    ? OptimismBridgeExecutor__factory.connect(
-      testing.env.OPT_GOV_BRIDGE_EXECUTOR(),
-      l2Provider
-    )
-    : await new OptimismBridgeExecutor__factory(l2Deployer).deploy(
-      optAddresses.L2CrossDomainMessenger,
-      l1Deployer.address,
-      ...getBridgeExecutorParams(),
-      l2Deployer.address
-    );
-
-  const l1TokenRebasable = await new StETHStub__factory(l1Deployer).deploy(
-    l1TokenRebasableName,
-    l1TokenRebasableSymbol
-  );
-  const l1Token = await new WstETHStub__factory(l1Deployer).deploy(
-    l1TokenRebasable.address,
-    l1TokenNonRebasableName,
-    l1TokenNonRebasableSymbol,
-    totalPooledEther,
-    totalShares
-  );
-
-  const accountingOracle = await new AccountingOracleStub__factory(l1Deployer).deploy(
-    genesisTime,
-    secondsPerSlot,
-    lastProcessingRefSlot
-  );
-
-  const [l2ERC20TokenBridge] = await hre.ethers.getSigners();
-
-  const lido = await new EmptyContractStub__factory(l1Deployer).deploy({ value: wei.toBigNumber(wei`1 ether`) });
-  const lidoAsEOA = await testing.impersonate(lido.address, l1Provider);
-
-  const [ethDeployScript, optDeployScript] = await deploymentOracle(
-    networkName
-  ).oracleDeployScript(
-    {
-      lido: lido.address,
-      l1Token: l1Token.address,
-      accountingOracle: accountingOracle.address,
-      l2GasLimitForPushingTokenRate,
-
-      deployer: l1Deployer,
-      admins: {
-        proxy: l1Deployer.address,
-        bridge: l1Deployer.address
-      },
-      contractsShift: 0
-    },
-    {
-      tokenRateOracle: {
-        maxAllowedL2ToL1ClockLag: maxAllowedL2ToL1ClockLag,
-        maxAllowedTokenRateDeviationPerDayBp: maxAllowedTokenRateDeviationPerDay,
-        oldestRateAllowedInPauseTimeSpan: oldestRateAllowedInPauseTimeSpan,
-        minTimeBetweenTokenRateUpdates: minTimeBetweenTokenRateUpdates,
-        tokenRate: tokenRate,
-        l1Timestamp: BigNumber.from(blockTimestampInPast),
-        l2ERC20TokenBridge: l2ERC20TokenBridge.address,
-        tokenRateOutdatedDelay: tokenRateOutdatedDelay,
-      },
-
-      deployer: l2Deployer,
-      admins: {
-        proxy: govBridgeExecutor.address,
-        bridge: govBridgeExecutor.address,
-      },
-      contractsShift: 0,
-    }
-  );
-
-  await ethDeployScript.run();
-  await optDeployScript.run();
 
   await optimism.testing(networkName).stubL1CrossChainMessengerContract();
 
@@ -244,17 +153,11 @@ async function ctxFactory() {
     l2Provider
   );
 
-  const tokenRateNotifier = TokenRateNotifier__factory.connect(
-    ethDeployScript.tokenRateNotifierImplAddress,
-    l1Provider
-  );
-  await tokenRateNotifier
-    .connect(l1Deployer)
-    .addObserver(ethDeployScript.opStackTokenRatePusherImplAddress);
-  const tokenRateOracle = TokenRateOracle__factory.connect(
-    optDeployScript.tokenRateOracleProxyAddress,
-    l2Provider
-  );
+  const tokenRateNotifier = contracts.tokenRateNotifier;
+  const tokenRateOracle = contracts.tokenRateOracle;
+  const opTokenRatePusher = await tokenRateNotifier.observers(0);
+  const l1Token = contracts.l1Token;
+  const accountingOracle = contracts.accountingOracle;
 
   const accountA = testing.accounts.accountA(l1Provider, l2Provider);
   const l1CrossDomainMessenger = optContracts.L1CrossDomainMessengerStub;
@@ -262,7 +165,7 @@ async function ctxFactory() {
   return {
     tokenRateNotifier,
     tokenRateOracle,
-    opTokenRatePusher: ethDeployScript.opStackTokenRatePusherImplAddress,
+    opTokenRatePusher: opTokenRatePusher,
     l1CrossDomainMessenger,
     l2CrossDomainMessenger,
     l1Token,
@@ -274,12 +177,7 @@ async function ctxFactory() {
       l1CrossDomainMessengerAliased
     },
     constants: {
-      tokenRate,
-      genesisTime,
-      secondsPerSlot,
-      lastProcessingRefSlot,
-      l2GasLimitForPushingTokenRate,
-      blockTimestamp,
+      tokenRate
     }
   };
 }

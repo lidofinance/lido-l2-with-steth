@@ -1,5 +1,14 @@
 import { assert } from "chai";
 import { BigNumber } from 'ethers'
+import { wei } from "../../utils/wei";
+import env from "../../utils/env";
+import optimism from "../../utils/optimism";
+import testing, { scenario } from "../../utils/testing";
+import { BridgingManagerRole } from "../../utils/bridging-management";
+import { getExchangeRate } from "../../utils/testing/helpers";
+import { getBridgeExecutorParams } from "../../utils/bridge-executor";
+import deploymentAll from "../../utils/optimism/deployment";
+import network from "../../utils/network";
 import {
   StETHStub__factory,
   L2ERC20ExtendedTokensBridge__factory,
@@ -10,15 +19,6 @@ import {
   AccountingOracleStub__factory,
   EmptyContractStub__factory
 } from "../../typechain";
-import { wei } from "../../utils/wei";
-import optimism from "../../utils/optimism";
-import testing, { scenario } from "../../utils/testing";
-import { BridgingManagerRole } from "../../utils/bridging-management";
-import { getExchangeRate } from "../../utils/testing/helpers";
-import env from "../../utils/env";
-import network from "../../utils/network";
-import { getBridgeExecutorParams } from "../../utils/bridge-executor";
-import deploymentAll from "../../utils/optimism/deployment";
 
 scenario("Optimism :: Bridge Executor integration test", ctxFactory)
   .step("Activate L2 bridge", async (ctx) => {
@@ -309,7 +309,7 @@ async function ctxFactory() {
         proxy: l1Deployer.address,
         bridge: l1Deployer.address
       },
-      contractsShift: 0,
+      deployOffset: 0,
     },
     {
       tokenRateOracle: {
@@ -339,7 +339,7 @@ async function ctxFactory() {
         proxy: govBridgeExecutor.address,
         bridge: govBridgeExecutor.address,
       },
-      contractsShift: 0,
+      deployOffset: 0,
     }
   );
 

@@ -402,6 +402,7 @@ function bridgingTestsSuit(scenarioInstance: ScenarioTest<ContextType>) {
         l2TokenRebasable,
         l1CrossDomainMessenger,
         l2ERC20ExtendedTokensBridge,
+        l1TokensHolder
       } = ctx;
       const { accountA: tokenHolderA, accountB: tokenHolderB } = ctx.accounts;
       assert.notEqual(tokenHolderA.address, tokenHolderB.address);
@@ -415,7 +416,20 @@ function bridgingTestsSuit(scenarioInstance: ScenarioTest<ContextType>) {
         ctx.constants.totalShares
       );
 
-      const rebasableTokenHolderABalanceBefore = await l1TokenRebasable.balanceOf(tokenHolderA.address);
+      console.log("depositAmountOfRebasableToken=",depositAmountOfRebasableToken);
+      console.log("wrap L1: depositAmountNonRebasable=",depositAmountNonRebasable);
+
+      // top up balance if it became less after first deposit and loosing 1-2 wei.
+      var rebasableTokenHolderABalanceBefore = await l1TokenRebasable.balanceOf(tokenHolderA.address);
+      if (rebasableTokenHolderABalanceBefore.lt(depositAmountOfRebasableToken)) {
+        const diff = depositAmountOfRebasableToken.sub(rebasableTokenHolderABalanceBefore);
+        console.log("top up diff=",diff);
+        await l1TokenRebasable
+        .connect(l1TokensHolder)
+        .transfer(tokenHolderA.l1Signer.address, diff);
+      }
+
+      rebasableTokenHolderABalanceBefore = await l1TokenRebasable.balanceOf(tokenHolderA.address);
       const nonRebasableTokenBridgeBalanceBefore = await l1Token.balanceOf(l1LidoTokensBridge.address);
       const warappedRebasableTokenBalanceBefore = await l1TokenRebasable.balanceOf(l1Token.address);
 
@@ -524,6 +538,10 @@ function bridgingTestsSuit(scenarioInstance: ScenarioTest<ContextType>) {
         ctx.constants.tokenRate
       );
 
+      console.log("input:      depositAmountOfRebasableToken=",depositAmountOfRebasableToken);
+      console.log("wrap on L1: depositAmountNonRebasable=",depositAmountNonRebasable);
+      console.log("wrap on L2: depositAmountRebasable=",depositAmountRebasable);
+
       const refSlotTime = await refSlotTimestamp(accountingOracle);
       const dataToReceive = await tokenRateAndTimestampPacked(tokenRate, refSlotTime, "0x");
 
@@ -558,6 +576,12 @@ function bridgingTestsSuit(scenarioInstance: ScenarioTest<ContextType>) {
         "0x",
       ]);
 
+      const tokenHolderBBalanceAfter = await l2TokenRebasable.balanceOf(tokenHolderB.address);
+
+      console.log("rebasable on L2 tokenHolderBBalanceBefore=",tokenHolderBBalanceBefore);
+      console.log("rebasable on L2 tokenHolderBBalanceAfter=",tokenHolderBBalanceAfter);
+      console.log("diff on L2      tokenHolderBBalance=",tokenHolderBBalanceBefore.add(depositAmountRebasable).sub(tokenHolderBBalanceAfter));
+
       assert.equalBN(
         await l2TokenRebasable.balanceOf(tokenHolderB.address),
         tokenHolderBBalanceBefore.add(depositAmountRebasable)
@@ -574,6 +598,8 @@ function bridgingTestsSuit(scenarioInstance: ScenarioTest<ContextType>) {
       const { accountA: tokenHolderA, accountB: tokenHolderB } = ctx.accounts;
 
       const { withdrawalAmountOfRebasableToken } = ctx.constants;
+
+      console.log("input: withdrawalAmountOfRebasableToken=",withdrawalAmountOfRebasableToken);
 
       const tokenHolderBBalanceBefore = await l2TokenRebasable.balanceOf(tokenHolderB.address);
       const l2TotalSupplyBefore = await l2TokenRebasable.totalSupply();
@@ -635,6 +661,10 @@ function bridgingTestsSuit(scenarioInstance: ScenarioTest<ContextType>) {
         ctx.constants.totalShares
       );
 
+      console.log("input:        withdrawalAmountOfRebasableToken=",withdrawalAmountOfRebasableToken);
+      console.log("unwrap on L2: withdrawalAmountNonRebasable=",withdrawalAmountNonRebasable);
+      console.log("unwrap on L1: withdrawalAmountRebasable=",withdrawalAmountRebasable);
+
       const tokenHolderABalanceBefore = await l1TokenRebasable.balanceOf(tokenHolderA.address);
       const l1LidoTokensBridgeBalanceBefore = await l1Token.balanceOf(l1LidoTokensBridge.address);
 
@@ -673,6 +703,10 @@ function bridgingTestsSuit(scenarioInstance: ScenarioTest<ContextType>) {
       const l1LidoTokensBridgeBalanceAfter = await l1Token.balanceOf(l1LidoTokensBridge.address);
       const tokenHolderABalanceAfter = await l1TokenRebasable.balanceOf(tokenHolderA.address);
       const tokenHolderBBalanceAfter = await l2TokenRebasable.balanceOf(tokenHolderB.address);
+
+      console.log("rebasable on L1 tokenHolderABalanceBefore=",tokenHolderABalanceBefore);
+      console.log("rebasable on L1 tokenHolderABalanceAfter=",tokenHolderABalanceAfter);
+      console.log("diff on L1 tokenHolderA=",tokenHolderABalanceAfter.sub(tokenHolderABalanceBefore.add(withdrawalAmountRebasable)));
 
       assert.equalBN(
         l1LidoTokensBridgeBalanceAfter,
@@ -759,7 +793,7 @@ function ctxFactory(
 
     const l1TokensHolderAddress = await contracts.l1TokensHolder.getAddress();
     const l1TokensHolderRebasableBalance = await contracts.l1TokenRebasable.balanceOf(l1TokensHolderAddress);
-    if (hasDeployedContracts && l1TokensHolderRebasableBalance.lte(depositAmountOfRebasableToken)) {
+    if (hasDeployedContracts && l1TokensHolderRebasableBalance.lt(depositAmountOfRebasableToken)) {
       await l1Provider.getSigner(l1TokensHolderAddress).sendTransaction({
         from: l1TokensHolderAddress,
         to: contracts.l1TokenRebasable.address,
@@ -770,7 +804,7 @@ function ctxFactory(
       .connect(contracts.l1TokensHolder)
       .transfer(accountA.l1Signer.address, depositAmountOfRebasableToken);
 
-      var accountABalanceBeforeDeposit = BigNumber.from(0);
+    var accountABalanceBeforeDeposit = BigNumber.from(0);
     var accountBBalanceBeforeDeposit = BigNumber.from(0);
 
     return {

@@ -4,12 +4,10 @@ import { BigNumber } from "ethers";
 import {
   IERC20,
   ERC20Bridged,
-  IERC20__factory,
   IStETH__factory,
   L1LidoTokensBridge,
   L2ERC20ExtendedTokensBridge,
   ERC20BridgedPermit__factory,
-  ERC20BridgedStub__factory,
   WstETHStub__factory,
   TokenRateOracle__factory,
   L1LidoTokensBridge__factory,
@@ -17,7 +15,7 @@ import {
   CrossDomainMessengerStub__factory,
   ERC20RebasableBridgedPermit__factory,
   AccountingOracleStub__factory,
-  IAccountingOracle__factory,
+  TokenRateNotifier__factory,
   StETHStub__factory
 } from "../../typechain";
 import addresses from "./addresses";
@@ -86,19 +84,6 @@ export default function testing(networkName: NetworkName) {
           l1TokensHolder
         );
       }
-
-      // if the L1 bridge admin is a contract, remove it's code to
-      // make it behave as EOA
-      await ethProvider.send("hardhat_setCode", [
-        l1ERC20ExtendedTokensAdminAddress,
-        "0x",
-      ]);
-
-      // same for the L2 bridge admin
-      await optProvider.send("hardhat_setCode", [
-        l2ERC20ExtendedTokensBridgeAdminAddress,
-        "0x",
-      ]);
 
       const optContracts = contracts(networkName, { forking: true });
 
@@ -180,6 +165,7 @@ async function loadDeployedBridges(
 
     ...connectBridgeContracts(
       {
+        tokenRateNotifier: testingUtils.env.OPT_L1_TOKEN_RATE_NOTIFIER(),
         tokenRateOracle: testingUtils.env.OPT_L2_TOKEN_RATE_ORACLE(),
         l2Token: testingUtils.env.OPT_L2_NON_REBASABLE_TOKEN(),
         l2TokenRebasable: testingUtils.env.OPT_L2_REBASABLE_TOKEN(),
@@ -207,6 +193,9 @@ async function deployTestBridge(
   const l1TokenNonRebasableName = "Test Non Rebasable Token";
   const l1TokenNonRebasableSymbol = "TT";
 
+  // Notifier Config
+  const lido = testingUtils.env.OPT_L1_LIDO();
+
   // OpStackPusher
   const l2GasLimitForPushingTokenRate = BigNumber.from(300_000);
 
@@ -218,11 +207,27 @@ async function deployTestBridge(
   // Token rate oracle config
   const maxAllowedL2ToL1ClockLag = BigNumber.from(86400);
   const maxAllowedTokenRateDeviationPerDay = BigNumber.from(500);
-  const oldestRateAllowedInPauseTimeSpan = BigNumber.from(86400*3);
+  const oldestRateAllowedInPauseTimeSpan = BigNumber.from(86400 * 3);
   const minTimeBetweenTokenRateUpdates = BigNumber.from(3600);
   const tokenRateOutdatedDelay = BigNumber.from(86400);
   const tokenRate = BigNumber.from(10).pow(27).mul(totalPooledEther).div(totalShares);
-  const l1TokenRateUpdate = BigNumber.from('1000');
+  const l1TokenRateUpdate = BigNumber.from(genesisTime + (secondsPerSlot * lastProcessingRefSlot));
+
+  // L2 Non-Rebasable Token
+  const l2TokenNonRebasable = {
+    name: "wstETH",
+    symbol: "WST",
+    version: "1",
+    decimals: 18
+  };
+
+  // L2 Rebasable Token
+  const l2TokenRebasable = {
+    name: "stETH",
+    symbol: "ST",
+    version: "1",
+    decimals: 18
+  };
 
   const ethDeployer = testingUtils.accounts.deployer(ethProvider);
   const optDeployer = testingUtils.accounts.deployer(optProvider);
@@ -254,11 +259,11 @@ async function deployTestBridge(
       l1TokenRebasable: l1TokenRebasable.address,
       accountingOracle: accountingOracle.address,
       l2GasLimitForPushingTokenRate: l2GasLimitForPushingTokenRate,
-      lido: ethDeployer.address,
+      lido: lido,
 
       deployer: ethDeployer,
       admins: { proxy: ethDeployer.address, bridge: ethDeployer.address },
-      contractsShift: 0
+      deployOffset: 0
     },
     {
       tokenRateOracle: {
@@ -271,26 +276,34 @@ async function deployTestBridge(
         l1Timestamp: l1TokenRateUpdate
       },
       l2TokenNonRebasable: {
-        name: "wstETH",
-        symbol: "WST",
-        version: "1",
-        decimals: 18
+        name: l2TokenNonRebasable.name,
+        symbol: l2TokenNonRebasable.symbol,
+        version: l2TokenNonRebasable.version,
+        decimals: l2TokenNonRebasable.decimals
       },
       l2TokenRebasable: {
-        name: "stETH",
-        symbol: "ST",
-        version: "1",
-        decimals: 18
+        name: l2TokenRebasable.name,
+        symbol: l2TokenRebasable.symbol,
+        version: l2TokenRebasable.version,
+        decimals: l2TokenRebasable.decimals
       },
 
       deployer: optDeployer,
       admins: { proxy: optDeployer.address, bridge: optDeployer.address },
-      contractsShift: 0,
+      deployOffset: 0,
     }
   );
 
   await ethDeployScript.run();
   await optDeployScript.run();
+
+  const tokenRateNotifier = TokenRateNotifier__factory.connect(
+    ethDeployScript.tokenRateNotifierImplAddress,
+    ethProvider
+  );
+  await tokenRateNotifier
+    .connect(ethDeployer)
+    .addObserver(ethDeployScript.opStackTokenRatePusherImplAddress);
 
   const l1BridgingManagement = new BridgingManagement(
     ethDeployScript.bridgeProxyAddress,
@@ -320,6 +333,7 @@ async function deployTestBridge(
     accountingOracle: accountingOracle.connect(ethProvider),
     ...connectBridgeContracts(
       {
+        tokenRateNotifier: ethDeployScript.tokenRateNotifierImplAddress,
         tokenRateOracle: optDeployScript.tokenRateOracleProxyAddress,
         l2Token: optDeployScript.tokenProxyAddress,
         l2TokenRebasable: optDeployScript.tokenRebasableProxyAddress,
@@ -334,6 +348,7 @@ async function deployTestBridge(
 
 function connectBridgeContracts(
   addresses: {
+    tokenRateNotifier: string;
     tokenRateOracle: string;
     l2Token: string;
     l2TokenRebasable: string;
@@ -343,7 +358,10 @@ function connectBridgeContracts(
   ethSignerOrProvider: SignerOrProvider,
   optSignerOrProvider: SignerOrProvider
 ) {
-
+  const tokenRateNotifier = TokenRateNotifier__factory.connect(
+    addresses.tokenRateNotifier,
+    ethSignerOrProvider
+  );
   const l1LidoTokensBridge = L1LidoTokensBridge__factory.connect(
     addresses.l1LidoTokensBridge,
     ethSignerOrProvider
@@ -365,6 +383,7 @@ function connectBridgeContracts(
     optSignerOrProvider
   );
   return {
+    tokenRateNotifier,
     tokenRateOracle,
     l2Token,
     l2TokenRebasable,

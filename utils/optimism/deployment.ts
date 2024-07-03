@@ -132,7 +132,7 @@ export default function deploymentAll(
         expectedL1TokenBridgeProxyAddress,
         expectedL1TokenRateNotifierImplAddress,
         expectedL1OpStackTokenRatePusherImplAddress,
-      ] = await network.predictAddresses(l1Params.deployer, l1Params.contractsShift + 4);
+      ] = await network.predictAddresses(l1Params.deployer, l1Params.deployOffset + 4);
 
       const [
         expectedL2TokenRateOracleImplAddress,
@@ -143,7 +143,7 @@ export default function deploymentAll(
         expectedL2TokenRebasableProxyAddress,
         expectedL2TokenBridgeImplAddress,
         expectedL2TokenBridgeProxyAddress
-      ] = await network.predictAddresses(l2Params.deployer, l2Params.contractsShift + 8);
+      ] = await network.predictAddresses(l2Params.deployer, l2Params.deployOffset + 8);
 
       const l1DeployScript = new L1DeployAllScript(
         l1Params.deployer,

@@ -2,6 +2,7 @@ import { assert } from "chai";
 import env from "../../utils/env";
 import network, { SignerOrProvider } from "../../utils/network";
 import testingUtils, { scenario } from "../../utils/testing";
+import { BigNumber } from 'ethers'
 import {
   WstETHStub__factory,
   TokenRateNotifier__factory,
