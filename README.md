@@ -167,27 +167,6 @@ TESTING_OPT_L1_ERC20_TOKEN_BRIDGE=
 TESTING_OPT_L2_ERC20_TOKEN_BRIDGE=
 ```
 
-### Acceptance tests
-
-The acceptance tests might be run after the deployment to validate that the bridge was deployed with the correct parameters.
-
-The following ENV variables must be set before the tests running:
-
-```bash
-# Addresses of the Optimism bridge
-TESTING_OPT_L1_TOKEN=
-TESTING_OPT_L2_TOKEN=
-TESTING_OPT_L1_ERC20_TOKEN_BRIDGE=
-TESTING_OPT_L2_ERC20_TOKEN_BRIDGE=
-```
-
-To run the acceptance tests, use the following commands:
-
-```bash
-# Optimism bridge
-npm run optimism:test:acceptance
-```
-
 ## Code Coverage
 
 To run coverage measurement for unit tests:

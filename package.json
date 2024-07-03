@@ -17,7 +17,6 @@
     "test:e2e": "hardhat test ./test/*.e2e.test.ts",
     "test:unit": "hardhat test ./test/**/*.unit.test.ts",
     "test:integration": "hardhat test ./test/**/*.integration.test.ts",
-    "test:acceptance": "hardhat test ./test/*.acceptance.test.ts",
     "test:launch": "REVERT=false hardhat test ./test/optimism/{_launch.test.ts,bridging.integration.test.ts}"
   },
   "keywords": [],
@@ -51,7 +50,7 @@
     "prettier": "^2.6.1",
     "prettier-plugin-solidity": "^1.0.0-beta.13",
     "solhint": "^3.3.7",
-    "solidity-coverage": "^0.7.21",
+    "solidity-coverage": "0.8.12",
     "ts-node": "^10.7.0",
     "typechain": "^5.2.0",
     "typescript": "^4.6.3"
