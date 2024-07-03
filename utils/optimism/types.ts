@@ -17,7 +17,7 @@ export interface DeployScriptParams {
         proxy: string;
         bridge: string
     };
-    contractsShift: number;
+    deployOffset: number;
 }
 
 export interface OptDeploymentOptions extends CommonOptions {

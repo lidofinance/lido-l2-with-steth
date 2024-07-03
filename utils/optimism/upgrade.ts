@@ -136,7 +136,7 @@ export default function upgrade(
         expectedL1TokenBridgeImplAddress,
         expectedL1TokenRateNotifierImplAddress,
         expectedL1OpStackTokenRatePusherImplAddress,
-      ] = await network.predictAddresses(l1Params.deployer, l1Params.contractsShift + 3);
+      ] = await network.predictAddresses(l1Params.deployer, l1Params.deployOffset + 3);
 
       const [
         // Oracle + Proxy
@@ -149,7 +149,7 @@ export default function upgrade(
         expectedL2TokenRebasableProxyAddress,
         // L2Bridge Impl
         expectedL2TokenBridgeImplAddress
-      ] = await network.predictAddresses(l2Params.deployer, l2Params.contractsShift + 6);
+      ] = await network.predictAddresses(l2Params.deployer, l2Params.deployOffset + 6);
 
       const l1UpgradeScript = new L1UpgradeScript(
         l1Params.deployer,

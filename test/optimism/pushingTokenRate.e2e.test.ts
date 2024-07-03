@@ -2,8 +2,9 @@ import { assert } from "chai";
 import env from "../../utils/env";
 import network, { SignerOrProvider } from "../../utils/network";
 import testingUtils, { scenario } from "../../utils/testing";
+import { BigNumber } from 'ethers'
 import {
-  ERC20WrapperStub__factory,
+  WstETHStub__factory,
   TokenRateNotifier__factory,
   TokenRateOracle__factory
 } from "../../typechain";
@@ -78,7 +79,7 @@ async function loadDeployedContracts(
   l2SignerOrProvider: SignerOrProvider
 ) {
   return {
-    l1Token: ERC20WrapperStub__factory.connect(
+    l1Token: WstETHStub__factory.connect(
       testingUtils.env.OPT_L1_NON_REBASABLE_TOKEN(),
       l1SignerOrProvider
     ),
