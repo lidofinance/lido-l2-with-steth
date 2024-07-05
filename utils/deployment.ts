@@ -17,16 +17,22 @@ interface MultiChainDeploymentConfig {
   l2GasLimitForPushingTokenRate: BigNumber;
   l1TokenBridge: string;
   lido: string;
+  tokenRateNotifierOwner: string;
 
   /// L2
   /// Oracle
+  tokenRateOracleAdmin: string;
+  tokenRateUpdateEnabled: boolean;
+  tokenRateUpdateDisablers?: string[],
+  tokenRateUpdateEnablers?: string[],
+
   tokenRateOutdatedDelay: BigNumber;
   maxAllowedL2ToL1ClockLag: BigNumber;
   maxAllowedTokenRateDeviationPerDayBp: BigNumber;
   oldestRateAllowedInPauseTimeSpan: BigNumber;
   minTimeBetweenTokenRateUpdates: BigNumber;
-  tokenRateValue: BigNumber;
-  tokenRateL1Timestamp: BigNumber;
+  initialTokenRateValue: BigNumber;
+  initialTokenRateL1Timestamp: BigNumber;
 
   /// L2 wstETH address to upgrade
   l2TokenNonRebasableAddress: string;
@@ -52,16 +58,22 @@ export function loadMultiChainDeploymentConfig(): MultiChainDeploymentConfig {
     l2GasLimitForPushingTokenRate: BigNumber.from(env.string("L2_GAS_LIMIT_FOR_PUSHING_TOKEN_RATE")),
     l1TokenBridge: env.address("L1_TOKEN_BRIDGE"),
     lido: env.address("LIDO"),
+    tokenRateNotifierOwner: env.address("TOKEN_RATE_NOTIFIER_OWNER"),
 
     /// L2 Part
     /// TokenRateOracle
+    tokenRateOracleAdmin: env.address("TOKEN_RATE_ORACLE_ADMIN"),
+    tokenRateUpdateEnabled: env.bool("TOKEN_RATE_UPDATE_ENABLED", true),
+    tokenRateUpdateDisablers: env.addresses("TOKEN_RATE_UPDATE_DISABLERS", []),
+    tokenRateUpdateEnablers: env.addresses("TOKEN_RATE_UPDATE_ENABLERS", []),
+
     tokenRateOutdatedDelay: BigNumber.from(env.string("TOKEN_RATE_OUTDATED_DELAY")),
     maxAllowedL2ToL1ClockLag: BigNumber.from(env.string("MAX_ALLOWED_L2_TO_L1_CLOCK_LAG")),
     maxAllowedTokenRateDeviationPerDayBp: BigNumber.from(env.string("MAX_ALLOWED_TOKEN_RATE_DEVIATION_PER_DAY_BP")),
     oldestRateAllowedInPauseTimeSpan: BigNumber.from(env.string("OLDEST_RATE_ALLOWED_IN_PAUSE_TIME_SPAN")),
     minTimeBetweenTokenRateUpdates: BigNumber.from(env.string("MIN_TIME_BETWEEN_TOKEN_RATE_UPDATES")),
-    tokenRateValue: BigNumber.from(env.string("TOKEN_RATE")),
-    tokenRateL1Timestamp: BigNumber.from(env.string("TOKEN_RATE_L1_TIMESTAMP")),
+    initialTokenRateValue: BigNumber.from(env.string("INITIAL_TOKEN_RATE_VALUE")),
+    initialTokenRateL1Timestamp: BigNumber.from(env.string("INITIAL_TOKEN_RATE_L1_TIMESTAMP")),
 
     // L2 wstETH
     l2TokenNonRebasableAddress: env.address("L2_TOKEN_NON_REBASABLE"),

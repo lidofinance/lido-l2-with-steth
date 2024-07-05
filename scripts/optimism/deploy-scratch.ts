@@ -4,7 +4,7 @@ import network from "../../utils/network";
 import deployment from "../../utils/deployment";
 import { BridgingManagement } from "../../utils/bridging-management";
 import deploymentAll from "../../utils/optimism/deployment";
-import { TokenRateNotifier__factory } from "../../typechain";
+import { TokenRateNotifierManagement } from "../../utils/tokenRateNotifier-management";
 
 async function main() {
   const networkName = env.network();
@@ -13,6 +13,11 @@ async function main() {
   const [ethDeployer] = ethOptNetwork.getSigners(env.privateKey(), {
     forking: env.forking()
   });
+
+  const [ethProvider] = ethOptNetwork.getProviders({
+    forking: env.forking()
+  });
+
   const [, optDeployer] = ethOptNetwork.getSigners(
     env.string("OPT_DEPLOYER_PRIVATE_KEY"),
     {
@@ -30,6 +35,7 @@ async function main() {
         accountingOracle: deploymentConfig.accountingOracle,
         l2GasLimitForPushingTokenRate: deploymentConfig.l2GasLimitForPushingTokenRate,
         lido: deploymentConfig.lido,
+
         deployer: ethDeployer,
         admins: {
           proxy: deploymentConfig.l1.proxyAdmin,
@@ -44,8 +50,8 @@ async function main() {
           maxAllowedTokenRateDeviationPerDayBp: deploymentConfig.maxAllowedTokenRateDeviationPerDayBp,
           oldestRateAllowedInPauseTimeSpan: deploymentConfig.oldestRateAllowedInPauseTimeSpan,
           minTimeBetweenTokenRateUpdates: deploymentConfig.minTimeBetweenTokenRateUpdates,
-          tokenRate: deploymentConfig.tokenRateValue,
-          l1Timestamp: deploymentConfig.tokenRateL1Timestamp
+          tokenRate: deploymentConfig.initialTokenRateValue,
+          l1Timestamp: deploymentConfig.initialTokenRateL1Timestamp
         },
         l2TokenNonRebasable: {
           version: deploymentConfig.l2TokenNonRebasableVersion
@@ -77,17 +83,17 @@ async function main() {
   await l1DeployScript.run();
   await l2DeployScript.run();
 
-  const [ethProvider, ] = ethOptNetwork.getProviders({
-    forking: env.forking()
-  });
-
-  const tokenRateNotifier = TokenRateNotifier__factory.connect(
+  const tokenRateNotifierManagement = new TokenRateNotifierManagement(
     l1DeployScript.tokenRateNotifierImplAddress,
-    ethProvider
+    ethDeployer
   );
-  await tokenRateNotifier
-    .connect(ethDeployer)
-    .addObserver(l1DeployScript.opStackTokenRatePusherImplAddress);
+  await tokenRateNotifierManagement.setup({
+    tokenRateNotifier: l1DeployScript.tokenRateNotifierImplAddress,
+    opStackTokenRatePusher: l1DeployScript.opStackTokenRatePusherImplAddress,
+    ethDeployer: ethDeployer,
+    ethProvider: ethProvider,
+    notifierOwner: deploymentConfig.tokenRateNotifierOwner
+  });
 
   const l1BridgingManagement = new BridgingManagement(
     l1DeployScript.bridgeProxyAddress,
