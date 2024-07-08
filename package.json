@@ -14,9 +14,10 @@
     "deploy": "ts-node --files ./scripts/optimism/deploy-scratch.ts",
     "upgrade": "ts-node --files ./scripts/optimism/upgrade.ts",
     "finalize-message": "ts-node --files ./scripts/optimism/finalize-message.ts",
-    "test:e2e": "hardhat test ./test/*.e2e.test.ts",
-    "test:unit": "hardhat test ./test/**/*.unit.test.ts",
-    "test:integration": "hardhat test ./test/**/*.integration.test.ts",
+    "test:e2e": "hardhat test ./test/e2e/*.e2e.test.ts",
+    "test:managing-e2e": "hardhat test ./test/managing-e2e/*.e2e.test.ts",
+    "test:unit": "hardhat test ./test/unit/*.unit.test.ts",
+    "test:integration": "hardhat test ./test/integration/*.integration.test.ts",
     "test:launch": "REVERT=false hardhat test ./test/optimism/{_launch.test.ts,bridging.integration.test.ts}"
   },
   "keywords": [],

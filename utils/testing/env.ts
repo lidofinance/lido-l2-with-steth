@@ -19,7 +19,6 @@ export default {
   OPT_L1_LIDO() {
     return env.address("TESTING_OPT_L1_LIDO");
   },
-
   OPT_L2_TOKEN_RATE_ORACLE() {
     return env.address("TESTING_OPT_L2_TOKEN_RATE_ORACLE");
   },
@@ -32,15 +31,11 @@ export default {
   OPT_L2_ERC20_TOKEN_BRIDGE() {
     return env.address("TESTING_OPT_L2_ERC20_TOKEN_BRIDGE");
   },
-
   OPT_L1_TOKEN_RATE_NOTIFIER() {
     return env.address("TESTING_OPT_L1_TOKEN_RATE_NOTIFIER");
   },
   OPT_GOV_BRIDGE_EXECUTOR() {
     return env.address("TESTING_OPT_GOV_BRIDGE_EXECUTOR");
-  },
-  L1_ETH_GOV_EXECUTOR() {
-    return env.address("TESTING_L1_ETH_GOV_EXECUTOR");
   },
   L1_DEV_MULTISIG() {
     return env.address("L1_DEV_MULTISIG");
@@ -48,7 +43,6 @@ export default {
   L1_TOKENS_HOLDER() {
     return env.address("TESTING_L1_TOKENS_HOLDER");
   },
-
   TESTING_PRIVATE_KEY() {
     return env.string("TESTING_PRIVATE_KEY");
   },

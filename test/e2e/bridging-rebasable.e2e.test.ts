@@ -9,32 +9,22 @@ import {
   import { wei } from "../../utils/wei";
   import network from "../../utils/network";
   import optimism from "../../utils/optimism";
-  import { ERC20Mintable } from "../../typechain";
   import { scenario } from "../../utils/testing";
-  import { sleep } from "../../utils/testing/e2e";
+  import chalk from "chalk";
   import { LidoBridgeAdapter } from "../../utils/optimism/LidoBridgeAdapter";
 
   let depositTokensTxResponse: TransactionResponse;
   let withdrawTokensTxResponse: TransactionResponse;
 
-  scenario("Optimism :: Bridging via deposit/withdraw E2E test", ctxFactory)
+  scenario("Optimism :: Bridging rebasable token via deposit/withdraw E2E test", ctxFactory)
     .step(
       "Validate tester has required amount of L1 token",
       async ({ l1TokenRebasable, l1Tester, depositAmount }) => {
-        const balanceBefore = await l1TokenRebasable.balanceOf(l1Tester.address);
-        if (balanceBefore.lt(depositAmount)) {
-          try {
-            await (l1TokenRebasable as ERC20Mintable).mint(
-              l1Tester.address,
-              depositAmount
-            );
-          } catch {}
-          const balanceAfter = await l1TokenRebasable.balanceOf(l1Tester.address);
-          assert.isTrue(
-            balanceAfter.gte(depositAmount),
-            "Tester has not enough L1 token"
-          );
-        }
+        const balance = await l1TokenRebasable.balanceOf(l1Tester.address);
+        assert.isTrue(
+          balance.gte(depositAmount),
+          "Tester has not enough L1 token"
+        );
       }
     )
 
@@ -81,45 +71,8 @@ import {
       await withdrawTokensTxResponse.wait();
     })
 
-    .step("Waiting for status to change to READY_TO_PROVE", async (ctx) => {
-      await ctx.crossChainMessenger.waitForMessageStatus(
-        withdrawTokensTxResponse.hash,
-        MessageStatus.READY_TO_PROVE
-      );
-    })
-
-    .step("Proving the L2 -> L1 message", async (ctx) => {
-      const tx = await ctx.crossChainMessenger.proveMessage(
-        withdrawTokensTxResponse.hash
-      );
-      await tx.wait();
-    })
-
-    .step("Waiting for status to change to IN_CHALLENGE_PERIOD", async (ctx) => {
-      await ctx.crossChainMessenger.waitForMessageStatus(
-        withdrawTokensTxResponse.hash,
-        MessageStatus.IN_CHALLENGE_PERIOD
-      );
-    })
-
-    .step("Waiting for status to change to READY_FOR_RELAY", async (ctx) => {
-      await ctx.crossChainMessenger.waitForMessageStatus(
-        withdrawTokensTxResponse.hash,
-        MessageStatus.READY_FOR_RELAY
-      );
-    })
-
-    .step("Finalizing L2 -> L1 message", async (ctx) => {
-      const finalizationPeriod = await ctx.crossChainMessenger.contracts.l1.L2OutputOracle.FINALIZATION_PERIOD_SECONDS();
-      await sleep(finalizationPeriod * 1000);
-      await ctx.crossChainMessenger.finalizeMessage(withdrawTokensTxResponse);
-    })
-
-    .step("Waiting for status to change to RELAYED", async (ctx) => {
-      await ctx.crossChainMessenger.waitForMessageStatus(
-        withdrawTokensTxResponse,
-        MessageStatus.RELAYED
-      );
+    .step("Log withdrawTokensTxResponse", async (ctx) => {
+      console.log(`Save this value to TX_HASH env variable ${chalk.green(withdrawTokensTxResponse.hash)}`);
     })
 
     .run();
@@ -129,8 +82,8 @@ import {
     const testingSetup = await optimism.testing(networkName).getE2ETestSetup();
 
     return {
-      depositAmount: wei`0.0025 ether`,
-      withdrawalAmount: wei`0.0025 ether`,
+      depositAmount: wei`0.0001 ether`,
+      withdrawalAmount: wei`0.0001 ether`,
       l1Tester: testingSetup.l1Tester,
       l1TokenRebasable: testingSetup.l1TokenRebasable,
       l2TokenRebasable: testingSetup.l2TokenRebasable,

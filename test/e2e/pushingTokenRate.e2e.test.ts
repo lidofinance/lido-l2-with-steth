@@ -14,7 +14,7 @@ scenario("Optimism :: Push token rate to Oracle E2E test", ctxFactory)
   .step("Push Token Rate", async (ctx) => {
     await ctx.tokenRateNotifier
       .connect(ctx.l1Tester)
-      .handlePostTokenRebase(1, 2, 3, 4, 5, 6, 7);
+      .handlePostTokenRebase(1, 2, 3, 4, 5, 6, 7, { gasLimit: 5_000_000 });
   })
 
   .step("Receive token rate", async (ctx) => {
@@ -60,10 +60,7 @@ async function getE2ETestSetup() {
   const [l1Tester, l2Tester] = ethOptNetworks.getSigners(testerPrivateKey, {
     forking: false,
   });
-
   const contracts = await loadDeployedContracts(l1Tester, l2Tester);
-
-  // await printLoadedTestConfig(networkName, bridgeContracts, l1Tester);
 
   return {
     l1Tester,
