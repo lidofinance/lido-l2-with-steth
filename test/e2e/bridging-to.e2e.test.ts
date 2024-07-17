@@ -5,36 +5,27 @@ import {
 } from "@eth-optimism/sdk";
 import { assert } from "chai";
 import { TransactionResponse } from "@ethersproject/providers";
+import { LidoBridgeAdapter } from "../../utils/optimism/LidoBridgeAdapter";
 
 import env from "../../utils/env";
 import { wei } from "../../utils/wei";
 import network from "../../utils/network";
 import optimism from "../../utils/optimism";
-import { ERC20Mintable } from "../../typechain";
 import { scenario } from "../../utils/testing";
-import { sleep } from "../../utils/testing/e2e";
+import chalk from "chalk";
 
 let depositTokensTxResponse: TransactionResponse;
 let withdrawTokensTxResponse: TransactionResponse;
 
-scenario("Optimism :: Bridging via depositTo/withdrawTo E2E test", ctxFactory)
+scenario("Optimism :: Bridging non-rebasable via depositTo/withdrawTo E2E test", ctxFactory)
   .step(
     "Validate tester has required amount of L1 token",
     async ({ l1Token, l1Tester, depositAmount }) => {
-      const balanceBefore = await l1Token.balanceOf(l1Tester.address);
-      if (balanceBefore.lt(depositAmount)) {
-        try {
-          await (l1Token as ERC20Mintable).mint(
-            l1Tester.address,
-            depositAmount
-          );
-        } catch {}
-        const balanceAfter = await l1Token.balanceOf(l1Tester.address);
-        assert.isTrue(
-          balanceAfter.gte(depositAmount),
-          "Tester has not enough L1 token"
-        );
-      }
+      const balance = await l1Token.balanceOf(l1Tester.address);
+      assert.isTrue(
+        balance.gte(depositAmount),
+        "Tester has not enough L1 token"
+      );
     }
   )
 
@@ -65,7 +56,8 @@ scenario("Optimism :: Bridging via depositTo/withdrawTo E2E test", ctxFactory)
         ctx.l1Tester.address,
         ctx.depositAmount,
         2_000_000,
-        "0x"
+        "0x",
+        { gasLimit: 2_000_000}
       );
 
     await depositTokensTxResponse.wait();
@@ -91,45 +83,8 @@ scenario("Optimism :: Bridging via depositTo/withdrawTo E2E test", ctxFactory)
     await withdrawTokensTxResponse.wait();
   })
 
-  .step("Waiting for status to change to READY_TO_PROVE", async (ctx) => {
-    await ctx.crossChainMessenger.waitForMessageStatus(
-      withdrawTokensTxResponse.hash,
-      MessageStatus.READY_TO_PROVE
-    );
-  })
-
-  .step("Proving the L2 -> L1 message", async (ctx) => {
-    const tx = await ctx.crossChainMessenger.proveMessage(
-      withdrawTokensTxResponse.hash
-    );
-    await tx.wait();
-  })
-
-  .step("Waiting for status to change to IN_CHALLENGE_PERIOD", async (ctx) => {
-    await ctx.crossChainMessenger.waitForMessageStatus(
-      withdrawTokensTxResponse.hash,
-      MessageStatus.IN_CHALLENGE_PERIOD
-    );
-  })
-
-  .step("Waiting for status to change to READY_FOR_RELAY", async (ctx) => {
-    await ctx.crossChainMessenger.waitForMessageStatus(
-      withdrawTokensTxResponse.hash,
-      MessageStatus.READY_FOR_RELAY
-    );
-  })
-
-  .step("Finalizing L2 -> L1 message", async (ctx) => {
-    const finalizationPeriod = await ctx.crossChainMessenger.contracts.l1.L2OutputOracle.FINALIZATION_PERIOD_SECONDS();
-    await sleep(finalizationPeriod * 1000);
-    await ctx.crossChainMessenger.finalizeMessage(withdrawTokensTxResponse);
-  })
-
-  .step("Waiting for status to change to RELAYED", async (ctx) => {
-    await ctx.crossChainMessenger.waitForMessageStatus(
-      withdrawTokensTxResponse,
-      MessageStatus.RELAYED
-    );
+  .step("Log withdrawTokensTxResponse", async (ctx) => {
+    console.log(`Save this value to TX_HASH env variable ${chalk.green(withdrawTokensTxResponse.hash)}`);
   })
 
   .run();
@@ -139,8 +94,8 @@ async function ctxFactory() {
   const testingSetup = await optimism.testing(networkName).getE2ETestSetup();
 
   return {
-    depositAmount: wei`0.0025 ether`,
-    withdrawalAmount: wei`0.0025 ether`,
+    depositAmount: wei`0.0001 ether`,
+    withdrawalAmount: wei`0.0001 ether`,
     l1Tester: testingSetup.l1Tester,
     l2Tester: testingSetup.l2Tester,
     l1Token: testingSetup.l1Token,
@@ -154,7 +109,7 @@ async function ctxFactory() {
       l2SignerOrProvider: testingSetup.l2Tester,
       bridges: {
         LidoBridge: {
-          Adapter: DAIBridgeAdapter,
+          Adapter: LidoBridgeAdapter,
           l1Bridge: testingSetup.l1LidoTokensBridge.address,
           l2Bridge: testingSetup.l2ERC20ExtendedTokensBridge.address,
         },

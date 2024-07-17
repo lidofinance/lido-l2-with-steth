@@ -396,6 +396,7 @@ async function printLoadedTestConfig(
   networkName: NetworkName,
   bridgeContracts: {
     l1Token: IERC20;
+    l1TokenRebasable: IERC20;
     l2Token: ERC20Bridged;
     l1LidoTokensBridge: L1LidoTokensBridge;
     l2ERC20ExtendedTokensBridge: L2ERC20ExtendedTokensBridge;
@@ -415,7 +416,12 @@ async function printLoadedTestConfig(
     const holderBalance = await bridgeContracts.l1Token.balanceOf(
       l1TokensHolderAddress
     );
-    console.log(`  · L1 Tokens Holder Balance: ${holderBalance.toString()}`);
+    console.log(`  · L1 Tokens Holder Non-Rebasable Balance: ${holderBalance.toString()}`);
+
+    const holderBalanceRebasable = await bridgeContracts.l1TokenRebasable.balanceOf(
+      l1TokensHolderAddress
+    );
+    console.log(`  · L1 Tokens Holder Rebasable Balance: ${holderBalanceRebasable.toString()}`);
   }
   console.log(
     `  · L1 ERC20 Token Bridge: ${bridgeContracts.l1LidoTokensBridge.address}`
