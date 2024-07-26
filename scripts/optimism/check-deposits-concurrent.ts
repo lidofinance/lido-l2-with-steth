@@ -1,19 +1,29 @@
 import { ethers } from "ethers";
-import { ethers } from "hardhat";
+// import { ethers } from "hardhat";
 import pLimit from "p-limit";
 
 async function main() {
 
   //http://localhost:8545
-  const ethereumNode = ''
-  const optimismNode = ''
+  const ethereumNode = process.env["ETHEREUM_NODE"]
+  const optimismNode = process.env["OPTIMISM_NODE"]
+
+
 
   // Set up providers
-  const ethereumProvider = new ethers.providers.JsonRpcProvider(ethereumNode);
-  const optimismProvider = new ethers.providers.JsonRpcProvider(optimismNode);
+  // const ethereumProvider = new ethers.providers.JsonRpcProvider(ethereumNode);
+  const ethereumProvider = new ethers.providers.JsonRpcProvider({ url: ethereumNode, timeout: 5*60*1000 } as any);
+  const optimismProvider = new ethers.providers.JsonRpcProvider({ url: optimismNode, timeout: 5*60*1000 } as any);
+  // ethereumProvider.timeout = 12;
+  // optimismProvider.;
 
-  const ethBridgeAddress = "0x76943C0D61395d8F2edF9060e1533529cAe05dE6"
-  const optBridgeAddress = "0x8e01013243a96601a86eb3153f0d9fa4fbfb6957"
+  // Mainnet
+  // const ethBridgeAddress = "0x76943C0D61395d8F2edF9060e1533529cAe05dE6"
+  // const optBridgeAddress = "0x8e01013243a96601a86eb3153f0d9fa4fbfb6957"
+
+  // Sepolia
+  const ethBridgeAddress = "0x4Abf633d9c0F4aEebB4C2E3213c7aa1b8505D332"
+  const optBridgeAddress = "0x635B054A092F6aE61Ce0Fddc397A704F6626510D"
 
   // Define the ABI on the Ethereum
   const ethBridgeAbi = [
@@ -37,14 +47,27 @@ async function main() {
 
   // Define the starting and ending block numbers
   // creation code
+  // MAINNET
   // https://etherscan.io/tx/0x1bc90e7c6fe12e03691f7eccf025f3a244ea5a4888c7fb274f45f5e1004110ca
-  const startEthBlock = 15281202;
+  // const startEthBlock = 15281202;
 
   // creation code
   // https://optimistic.etherscan.io/tx/0xd0a75128fcedaa0acfe5ccb2740a1a47a6a8e47bca844dee23e7b4cc747ea4d1
-  const startOptBlock = 17831155;
+  // const startOptBlock = 17831155;
 
-  const blockStep = 100000;
+
+
+  //
+  // L1
+  // https://sepolia.etherscan.io/tx/0x477453faea59acf4517a2c1abfaba450449316c587009671540e538572eb85ff
+  const startEthBlock = 5272290;
+  // L2
+  // https://sepolia-optimism.etherscan.io/tx/0x792eaf25c68e91879854ab4ca9b6c933a49d25bdf78a858a1c87a8d64e5c99a3
+  const startOptBlock = 7967186;
+  // const startOptBlock = 15000000;
+
+  const optBlockStep = 10000; // higher value leads to rpc error "no backends available for method"
+  const ethBlockStep = 100000;
 
   // Get the latest block numbers from both networks
   const latestEthBlock = await ethereumProvider.getBlockNumber();
@@ -54,6 +77,7 @@ async function main() {
     provider: ethers.providers.JsonRpcProvider,
     startBlock: number,
     latestBlock: number,
+    blockStep: number,
     bridgeAddress: string,
     logsInterface: ethers.utils.Interface,
     topicDeposit: string,
@@ -81,8 +105,6 @@ async function main() {
 
     for (let fromBlock = startBlock; fromBlock < latestBlock; fromBlock += blockStep) {
       const toBlock = Math.min(fromBlock + blockStep - 1, latestBlock)
-
-
 
       // Create promise for fetching logs in this block range
       const promise = limit(async () => {
@@ -121,7 +143,7 @@ async function main() {
           withdrawalsTotal = withdrawalsTotal.add(parsedLog.args._amount)
         });
 
-        console.log(`${networkName} proceed blocks ${fromBlock}-${toBlock} of ${latestBlock}}`)
+        console.log(`${networkName} processed blocks ${fromBlock}-${toBlock} of ${latestBlock}`)
       });
 
       // Push promise into array
@@ -140,14 +162,14 @@ async function main() {
       depositsTotal,
       withdrawalsCount,
       withdrawalsTotal,
-      balance
+      balance,
     }
   }
 
   const promises = [
     // Promise for Ethereum
-    fetchLogs(ethereumProvider, startEthBlock, latestEthBlock, ethBridgeAddress, ethInterface, topicEthDeposit, topicEthWithdraw, "Ethereum"),
-    fetchLogs(optimismProvider, startOptBlock, latestOptBlock, optBridgeAddress, optInterface, topicOptDeposit, topicOptWithdraw, "Optimism"),
+    fetchLogs(ethereumProvider, startEthBlock, latestEthBlock, ethBlockStep, ethBridgeAddress, ethInterface, topicEthDeposit, topicEthWithdraw, "Ethereum"),
+    fetchLogs(optimismProvider, startOptBlock, latestOptBlock, optBlockStep, optBridgeAddress, optInterface, topicOptDeposit, topicOptWithdraw, "Optimism"),
   ];
 
   // Execute all promises in parallel and wait for all blocks to be processed
@@ -156,14 +178,15 @@ async function main() {
   const fromEthereum = results[0]
   const fromOptimism = results[1]
 
+  // const fromOptimism = results[0]
 
-  const table = {}
+  const table: any = {}
   table.L1 = {
     deposits: fromEthereum.depositsTotal.toString(),
     depCount: fromEthereum.depositsCount,
     withdrawals: fromEthereum.withdrawalsTotal.toString(),
     wthCount: fromEthereum.withdrawalsCount,
-    balance: fromEthereum.balance.toString()
+    balance: fromEthereum.balance.toString(),
   }
   table.L2 = {
     deposits: fromOptimism.depositsTotal.toString(),
