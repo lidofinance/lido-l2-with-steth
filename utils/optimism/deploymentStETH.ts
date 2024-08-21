@@ -35,12 +35,15 @@ interface OptL2UpgradeScriptParams extends DeployScriptParams {
     decimals?: BigNumber;
   };
   l2TokenRebasable: {
+    proxyAdmin: string;
     name?: string;
     symbol?: string;
     version: string;
     decimals?: BigNumber;
   };
   tokenRateOracle: {
+    proxyAdmin: string;
+    admin: string;
     constructor: {
       tokenRateOutdatedDelay: BigNumber;
       maxAllowedL2ToL1ClockLag: BigNumber;
@@ -121,13 +124,13 @@ export class L2UpgradeScript extends DeployScript {
 ///     RebasableToken(stETH) Impl and Proxy (because it was never deployed before)
 ///     Non-rebasable token (wstETH) new Impl with Permissions
 
-export default function upgrade(
+export default function deploy(
   networkName: NetworkName,
   options: OptDeploymentOptions = {}
 ) {
   const optAddresses = addresses(networkName, options);
   return {
-    async upgradeScript(
+    async deployScript(
       l1Params: OptL1UpgradeScriptParams,
       l2Params: OptL2UpgradeScriptParams,
     ): Promise<[L1UpgradeScript, L2UpgradeScript]> {
@@ -250,11 +253,11 @@ export default function upgrade(
           factory: OssifiableProxy__factory,
           args: [
             expectedL2TokenRateOracleImplAddress,
-            l2Params.admins.proxy,
+            l2Params.tokenRateOracle.proxyAdmin,
             TokenRateOracle__factory.createInterface().encodeFunctionData(
               "initialize",
               [
-                l2Params.admins.bridge,
+                l2Params.tokenRateOracle.admin,
                 l2Params.tokenRateOracle.initialize.tokenRate,
                 l2Params.tokenRateOracle.initialize.l1Timestamp
               ]
@@ -296,7 +299,7 @@ export default function upgrade(
           factory: OssifiableProxy__factory,
           args: [
             expectedL2TokenRebasableImplAddress,
-            l2Params.admins.proxy,
+            l2Params.l2TokenRebasable.proxyAdmin,
             ERC20RebasableBridgedPermit__factory.createInterface().encodeFunctionData(
               "initialize",
               [
