@@ -128,7 +128,8 @@ export async function printMultiChainDeploymentConfig(
   l2Deployer: Wallet,
   deploymentParams: MultiChainDeploymentConfig,
   l1DeployScript: DeployScript,
-  l2DeployScript: DeployScript
+  l2DeployScript: DeployScript,
+  scratchDeploy: boolean
 ) {
   const { ethereum, optimism } = deploymentParams;
   console.log(chalk.bold(`${title}\n`));
@@ -138,13 +139,13 @@ export async function printMultiChainDeploymentConfig(
   console.log();
 
   console.log(chalk.bold("  · L1 Deployment Params:"));
-  await printEthereumDeploymentConfig(l1Deployer, ethereum, false);
+  await printEthereumDeploymentConfig(l1Deployer, ethereum, scratchDeploy);
   console.log();
   console.log(chalk.bold("  · L1 Deployment Actions:"));
   l1DeployScript.print({ padding: 6 });
 
   console.log(chalk.bold("  · L2 Deployment Params:"));
-  await printOptimismDeploymentConfig(l2Deployer, optimism, false);
+  await printOptimismDeploymentConfig(l2Deployer, optimism, scratchDeploy);
   console.log();
   console.log(chalk.bold("  · L2 Deployment Actions:"));
   l2DeployScript.print({ padding: 6 });
@@ -154,7 +155,7 @@ export async function printMultiChainDeploymentConfig(
 async function printEthereumDeploymentConfig(
   deployer: Wallet,
   params: EthereumDeploymentConfig,
-  sctratchDeploy: boolean
+  scratchDeploy: boolean
 ) {
   const pad = " ".repeat(4);
   const chainId = await deployer.getChainId();
@@ -169,26 +170,27 @@ async function printEthereumDeploymentConfig(
   console.log(`${pad}· lido: ${chalk.underline(params.lido)}`);
   console.log(`${pad}· tokenRateNotifierOwner: ${chalk.underline(params.tokenRateNotifierOwner)}`);
 
-  if(sctratchDeploy) {
-    console.log(`${pad}· Proxy Admin: ${chalk.underline(params.bridgeProxyAdmin)}`);
-    console.log(`${pad}· Bridge Admin: ${chalk.underline(params.bridgeAdmin)}`);
-    console.log(`${pad}· Deposits Enabled: ${params.depositsEnabled}`);
+  if(scratchDeploy) {
+    console.log(`${pad}· Ethereum Bridge`);
+    console.log(`${pad}·· Proxy Admin: ${chalk.underline(params.bridgeProxyAdmin)}`);
+    console.log(`${pad}·· Bridge Admin: ${chalk.underline(params.bridgeAdmin)}`);
+    console.log(`${pad}·· Deposits Enabled: ${params.depositsEnabled}`);
     console.log(
-      `${pad}· Withdrawals Enabled: ${JSON.stringify(params.withdrawalsEnabled)}`
+      `${pad}·· Withdrawals Enabled: ${JSON.stringify(params.withdrawalsEnabled)}`
     );
     console.log(
-      `${pad}· Deposits Enablers: ${JSON.stringify(params.depositsEnablers)}`
+      `${pad}·· Deposits Enablers: ${JSON.stringify(params.depositsEnablers)}`
     );
     console.log(
-      `${pad}· Deposits Disablers: ${JSON.stringify(params.depositsDisablers)}`
+      `${pad}·· Deposits Disablers: ${JSON.stringify(params.depositsDisablers)}`
     );
     console.log(
-      `${pad}· Withdrawals Enablers: ${JSON.stringify(
+      `${pad}·· Withdrawals Enablers: ${JSON.stringify(
         params.withdrawalsEnablers
       )}`
     );
     console.log(
-      `${pad}· Withdrawals Disablers: ${JSON.stringify(
+      `${pad}·· Withdrawals Disablers: ${JSON.stringify(
         params.withdrawalsDisablers
       )}`
     )
@@ -198,7 +200,7 @@ async function printEthereumDeploymentConfig(
 async function printOptimismDeploymentConfig(
   deployer: Wallet,
   params: OptimismDeploymentConfig,
-  sctratchDeploy: boolean
+  scratchDeploy: boolean
 ) {
   const pad = " ".repeat(4);
   const chainId = await deployer.getChainId();
@@ -223,26 +225,27 @@ async function printOptimismDeploymentConfig(
   console.log(`${pad}· l2TokenRebasableDomainVersion: ${chalk.underline(params.l2TokenRebasableDomainVersion)}`);
   console.log(`${pad}· l2TokenBridge: ${chalk.underline(params.l2TokenBridge)}`);
 
-  if (sctratchDeploy) {
-    console.log(`${pad}· Proxy Admin: ${chalk.underline(params.bridgeProxyAdmin)}`);
-    console.log(`${pad}· Bridge Admin: ${chalk.underline(params.bridgeAdmin)}`);
-    console.log(`${pad}· Deposits Enabled: ${params.depositsEnabled}`);
+  if (scratchDeploy) {
+    console.log(`${pad}· Optimism Bridge`);
+    console.log(`${pad}·· Proxy Admin: ${chalk.underline(params.bridgeProxyAdmin)}`);
+    console.log(`${pad}·· Admin: ${chalk.underline(params.bridgeAdmin)}`);
+    console.log(`${pad}·· Deposits Enabled: ${params.depositsEnabled}`);
     console.log(
-      `${pad}· Withdrawals Enabled: ${JSON.stringify(params.withdrawalsEnabled)}`
+      `${pad}·· Withdrawals Enabled: ${JSON.stringify(params.withdrawalsEnabled)}`
     );
     console.log(
-      `${pad}· Deposits Enablers: ${JSON.stringify(params.depositsEnablers)}`
+      `${pad}·· Deposits Enablers: ${JSON.stringify(params.depositsEnablers)}`
     );
     console.log(
-      `${pad}· Deposits Disablers: ${JSON.stringify(params.depositsDisablers)}`
+      `${pad}·· Deposits Disablers: ${JSON.stringify(params.depositsDisablers)}`
     );
     console.log(
-      `${pad}· Withdrawals Enablers: ${JSON.stringify(
+      `${pad}·· Withdrawals Enablers: ${JSON.stringify(
         params.withdrawalsEnablers
       )}`
     );
     console.log(
-      `${pad}· Withdrawals Disablers: ${JSON.stringify(
+      `${pad}·· Withdrawals Disablers: ${JSON.stringify(
         params.withdrawalsDisablers
       )}`
     );

@@ -46,7 +46,7 @@ async function main() {
       {
         tokenRateOracle: {
           proxyAdmin: deploymentConfig.optimism.tokenRateOracleProxyAdmin,
-          admin: deploymentConfig.optimism.tokenRateOracleAdmin,
+          admin: optDeployer.address,
           constructor: {
             tokenRateOutdatedDelay: deploymentConfig.optimism.tokenRateOutdatedDelay,
             maxAllowedL2ToL1ClockLag: deploymentConfig.optimism.maxAllowedL2ToL1ClockLag,
@@ -84,7 +84,8 @@ async function main() {
     optDeployer,
     deploymentConfig,
     l1DeployScript,
-    l2DeployScript
+    l2DeployScript,
+    false
   );
 
   await prompt.proceed();
