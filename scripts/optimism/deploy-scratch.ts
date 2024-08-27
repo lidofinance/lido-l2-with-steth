@@ -30,39 +30,39 @@ async function main() {
   const [l1DeployScript, l2DeployScript] = await deploymentAll(networkName, { logger: console })
     .deployAllScript(
       {
-        l1TokenNonRebasable: deploymentConfig.l1TokenNonRebasable,
-        l1TokenRebasable: deploymentConfig.l1RebasableToken,
-        accountingOracle: deploymentConfig.accountingOracle,
-        l2GasLimitForPushingTokenRate: deploymentConfig.l2GasLimitForPushingTokenRate,
-        lido: deploymentConfig.lido,
+        l1TokenNonRebasable: deploymentConfig.ethereum.l1TokenNonRebasable,
+        l1TokenRebasable: deploymentConfig.ethereum.l1RebasableToken,
+        accountingOracle: deploymentConfig.ethereum.accountingOracle,
+        l2GasLimitForPushingTokenRate: deploymentConfig.ethereum.l2GasLimitForPushingTokenRate,
+        lido: deploymentConfig.ethereum.lido,
 
         deployer: ethDeployer,
         admins: {
-          proxy: deploymentConfig.l1.proxyAdmin,
+          proxy: deploymentConfig.ethereum.bridgeProxyAdmin,
           bridge: ethDeployer.address
         },
         deployOffset: 0,
       },
       {
         tokenRateOracle: {
-          tokenRateOutdatedDelay: deploymentConfig.tokenRateOutdatedDelay,
-          maxAllowedL2ToL1ClockLag: deploymentConfig.maxAllowedL2ToL1ClockLag,
-          maxAllowedTokenRateDeviationPerDayBp: deploymentConfig.maxAllowedTokenRateDeviationPerDayBp,
-          oldestRateAllowedInPauseTimeSpan: deploymentConfig.oldestRateAllowedInPauseTimeSpan,
-          minTimeBetweenTokenRateUpdates: deploymentConfig.minTimeBetweenTokenRateUpdates,
-          tokenRate: deploymentConfig.initialTokenRateValue,
-          l1Timestamp: deploymentConfig.initialTokenRateL1Timestamp
+          tokenRateOutdatedDelay: deploymentConfig.optimism.tokenRateOutdatedDelay,
+          maxAllowedL2ToL1ClockLag: deploymentConfig.optimism.maxAllowedL2ToL1ClockLag,
+          maxAllowedTokenRateDeviationPerDayBp: deploymentConfig.optimism.maxAllowedTokenRateDeviationPerDayBp,
+          oldestRateAllowedInPauseTimeSpan: deploymentConfig.optimism.oldestRateAllowedInPauseTimeSpan,
+          minTimeBetweenTokenRateUpdates: deploymentConfig.optimism.minTimeBetweenTokenRateUpdates,
+          tokenRate: deploymentConfig.optimism.initialTokenRateValue,
+          l1Timestamp: deploymentConfig.optimism.initialTokenRateL1Timestamp
         },
         l2TokenNonRebasable: {
-          version: deploymentConfig.l2TokenNonRebasableVersion
+          version: deploymentConfig.optimism.l2TokenNonRebasableDomainVersion
         },
         l2TokenRebasable: {
-          version: deploymentConfig.l2TokenRebasableVersion
+          version: deploymentConfig.optimism.l2TokenRebasableDomainVersion
         },
 
         deployer: optDeployer,
         admins: {
-          proxy: deploymentConfig.l2.proxyAdmin,
+          proxy: deploymentConfig.optimism.bridgeProxyAdmin,
           bridge: optDeployer.address,
         },
         deployOffset: 0,
@@ -75,7 +75,8 @@ async function main() {
     optDeployer,
     deploymentConfig,
     l1DeployScript,
-    l2DeployScript
+    l2DeployScript,
+    true
   );
 
   await prompt.proceed();
@@ -92,7 +93,7 @@ async function main() {
     opStackTokenRatePusher: l1DeployScript.opStackTokenRatePusherImplAddress,
     ethDeployer: ethDeployer,
     ethProvider: ethProvider,
-    notifierOwner: deploymentConfig.tokenRateNotifierOwner
+    notifierOwner: deploymentConfig.ethereum.tokenRateNotifierOwner
   });
 
   const l1BridgingManagement = new BridgingManagement(
@@ -107,8 +108,8 @@ async function main() {
     { logger: console }
   );
 
-  await l1BridgingManagement.setup(deploymentConfig.l1);
-  await l2BridgingManagement.setup(deploymentConfig.l2);
+  await l1BridgingManagement.setup(deploymentConfig.ethereum);
+  await l2BridgingManagement.setup(deploymentConfig.optimism);
 }
 
 main().catch((error) => {
