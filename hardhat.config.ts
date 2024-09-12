@@ -28,6 +28,8 @@ const config: HardhatUserConfig = {
   },
   networks: {
     hardhat: {
+      gasPrice: 0,
+      initialBaseFeePerGas: 0,
       chains: {
         11155420: {
           hardforkHistory: {
