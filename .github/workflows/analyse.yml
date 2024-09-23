@@ -19,7 +19,7 @@ jobs:
       - name: Setup node.js version
         uses: actions/setup-node@v3
         with:
-          node-version: 16.x
+          node-version: 20.x
           cache: "npm"
 
       - name: Install node deps
@@ -62,7 +62,7 @@ jobs:
       - name: Setup node.js version
         uses: actions/setup-node@v3
         with:
-          node-version: 16.x
+          node-version: 20.x
 
       - name: Install solhint
         run: >
