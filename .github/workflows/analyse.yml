@@ -4,10 +4,13 @@ on: [pull_request]
 
 jobs:
   slither:
+    name: Slither
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
       security-events: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -50,7 +53,9 @@ jobs:
           sarif_file: results.sarif
 
   solhint:
+    name: Solhint
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
