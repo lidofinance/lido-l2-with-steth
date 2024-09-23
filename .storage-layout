@@ -117,8 +117,9 @@
 ➡ TokenRateOracle
 =======================
 
-| Name | Type | Slot | Offset | Bytes | Contract |
-|------|------|------|--------|-------|----------|
+| Name   | Type                                              | Slot | Offset | Bytes | Contract                                               |
+|--------|---------------------------------------------------|------|--------|-------|--------------------------------------------------------|
+| _roles | mapping(bytes32 => struct AccessControl.RoleData) | 0    | 0      | 32    | contracts/optimism/TokenRateOracle.sol:TokenRateOracle |
 
 =======================
 ➡ Versioned
