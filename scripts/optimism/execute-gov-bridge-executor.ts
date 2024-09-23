@@ -11,10 +11,6 @@ async function main() {
 
   const GOV_BRIDGE_EXECUTOR = testing.env.OPT_GOV_BRIDGE_EXECUTOR();
 
-  const [l1LDOHolder] = ethOptNetwork.getSigners(
-    env.string("TESTING_OPT_LDO_HOLDER_PRIVATE_KEY"),
-    { forking: isForking }
-  );
   const [, optRunner] = ethOptNetwork.getSigners(env.privateKey(), {
     forking: isForking,
   });

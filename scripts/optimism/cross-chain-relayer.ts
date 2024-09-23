@@ -34,7 +34,7 @@ async function main() {
   );
 
   // 1. Catch Event
-  const optimismPortalAddress = "0x16Fc5058F25648194471939df75CF27A2fdC48BC";
+  const optimismPortalAddress = networkName == "mainnet" ? "0xbEb5Fc579115071764c7423A4f12eDde41f106Ed" : "0x16Fc5058F25648194471939df75CF27A2fdC48BC";
 
   const l1MessngerAbi = [
     "event SentMessage(address indexed target, address sender, bytes message, uint256 messageNonce, uint256 gasLimit)"
