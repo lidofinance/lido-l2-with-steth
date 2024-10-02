@@ -6,35 +6,35 @@ import { bridgingTestsSuit, ctxFactory } from "./_bridging-non-rebasable";
 bridgingTestsSuit(
   scenario(
     "Optimism :: Bridging X non-rebasable token integration test",
-    ctxFactory(
-      true,
-      false,
-      wei.toBigNumber(wei`0.001 ether`),
-      wei.toBigNumber(wei`0.001 ether`)
-    )
+    ctxFactory({
+      useNewDataFormatOnL1: true,
+      useNewDataFormatOnL2: false,
+      depositAmount: wei.toBigNumber(wei`0.001 ether`),
+      withdrawalAmount: wei.toBigNumber(wei`0.001 ether`)
+    })
   )
 );
 
 bridgingTestsSuit(
   scenario(
     "Optimism :: Bridging 1 wei non-rebasable token integration test",
-    ctxFactory(
-      true,
-      false,
-      wei.toBigNumber(wei`1 wei`),
-      wei.toBigNumber(wei`1 wei`)
-    )
+    ctxFactory({
+      useNewDataFormatOnL1: true,
+      useNewDataFormatOnL2: false,
+      depositAmount: wei.toBigNumber(wei`1 wei`),
+      withdrawalAmount: wei.toBigNumber(wei`1 wei`)
+    })
   )
 );
 
 bridgingTestsSuit(
   scenario(
     "Optimism :: Bridging zero non-rebasable token integration test",
-    ctxFactory(
-      true,
-      false,
-      BigNumber.from('0'),
-      BigNumber.from('0')
-    )
+    ctxFactory({
+      useNewDataFormatOnL1: true,
+      useNewDataFormatOnL2: false,
+      depositAmount: BigNumber.from('0'),
+      withdrawalAmount: BigNumber.from('0')
+    })
   )
 );

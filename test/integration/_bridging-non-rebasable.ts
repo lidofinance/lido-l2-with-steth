@@ -529,13 +529,20 @@ export function bridgingTestsSuit(scenarioInstance: ScenarioTest<ContextType>) {
     .run();
 }
 
-export function ctxFactory(
+export function ctxFactory(options: {
   useNewDataFormatOnL1: boolean,
   useNewDataFormatOnL2: boolean,
   depositAmount: BigNumber,
   withdrawalAmount: BigNumber
-) {
+}) {
   return async () => {
+    const {
+      useNewDataFormatOnL1,
+      useNewDataFormatOnL2,
+      depositAmount,
+      withdrawalAmount,
+  } = options;
+
     const networkName = env.network("TESTING_OPT_NETWORK", "mainnet");
     const tokenRateDecimals = BigNumber.from(27);
 
