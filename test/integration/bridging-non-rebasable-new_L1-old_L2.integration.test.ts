@@ -8,7 +8,7 @@ bridgingTestsSuit(
     "Optimism :: Bridging X non-rebasable token integration test",
     ctxFactory(
       true,
-      true,
+      false,
       wei.toBigNumber(wei`0.001 ether`),
       wei.toBigNumber(wei`0.001 ether`)
     )
@@ -20,7 +20,7 @@ bridgingTestsSuit(
     "Optimism :: Bridging 1 wei non-rebasable token integration test",
     ctxFactory(
       true,
-      true,
+      false,
       wei.toBigNumber(wei`1 wei`),
       wei.toBigNumber(wei`1 wei`)
     )
@@ -32,7 +32,7 @@ bridgingTestsSuit(
     "Optimism :: Bridging zero non-rebasable token integration test",
     ctxFactory(
       true,
-      true,
+      false,
       BigNumber.from('0'),
       BigNumber.from('0')
     )
