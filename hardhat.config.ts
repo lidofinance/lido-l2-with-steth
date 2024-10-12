@@ -27,6 +27,17 @@ const config: HardhatUserConfig = {
     ],
   },
   networks: {
+    hardhat: {
+      gasPrice: 0,
+      initialBaseFeePerGas: 0,
+      chains: {
+        11155420: {
+          hardforkHistory: {
+            london: 13983909
+          }
+        }
+      }
+    },
     // Ethereum Public Chains
     eth_mainnet: {
       url: env.string("RPC_ETH_MAINNET", ""),

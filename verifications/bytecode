@@ -1,0 +1,37 @@
+#!/bin/zsh -e
+
+export RPC_URL="https://mainnet.infura.io/v3/"
+export ETHERSCAN_API_KEY=""
+export API_URL="https://api.etherscan.io/api?"
+
+eth=(
+  "0x76943C0D61395d8F2edF9060e1533529cAe05dE6" # l1TokenBridge
+  "0x168Cfea1Ad879d7032B3936eF3b0E90790b6B6D4" # l1TokenBridgeImpl
+  "0xe6793B9e4FbA7DE0ee833F9D02bba7DB5EB27823" # l1TokenRateNotifier
+  "0xd54c1c6413caac3477AC14b2a80D5398E3c32FfE" # l1OpStackTokenRatePusher
+)
+
+for address in $eth; do
+  export CONTRACT=$address
+  yarn run tsx scripts/verify-bytecode.ts
+done
+
+export RPC_URL="https://optimism-mainnet.infura.io/v3/"
+export ETHERSCAN_API_KEY=""
+export API_URL="https://api-optimistic.etherscan.io/api?"
+
+opt=(
+  "0x8E01013243a96601a86eb3153F0d9Fa4fbFb6957" # l2TokenBridge
+  "0x2734602C0CEbbA68662552CacD5553370B283E2E" # l2TokenBridgeImpl
+  "0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb" # l2WstETH
+  "0xFe57042De76c8D6B1DF0E9E2047329fd3e2B7334" # l2WstETHImpl
+  "0x76A50b8c7349cCDDb7578c6627e79b5d99D24138" # l2StETH
+  "0xe9b65dA5DcBe92f1b397991C464FF568Dc98D761" # l2StETHImpl
+  "0x294ED1f214F4e0ecAE31C3Eae4F04EBB3b36C9d0" # l2TokenRateOracle
+  "0x4bF0d419793d8722b8391efaD4c9cE78F460CEd3" # l2TokenRateOracleImpl
+)
+
+for address in $opt; do
+  export CONTRACT=$address
+  yarn run tsx scripts/verify-bytecode.ts
+done

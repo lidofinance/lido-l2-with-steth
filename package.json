@@ -1,27 +1,24 @@
 {
-  "name": "lido-l2",
-  "version": "1.0.0",
+  "name": "lido-l2-optimism",
+  "version": "2.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "compile": "hardhat compile",
     "compile:force": "hardhat compile --force",
     "coverage": "hardhat coverage --testfiles './test/**/*.unit.test.ts'",
-    "test:e2e": "hardhat test ./test/**/*.e2e.test.ts",
-    "test:unit": "hardhat test ./test/**/*.unit.test.ts",
-    "test:integration": "hardhat test ./test/**/*.integration.test.ts",
     "fork:eth:mainnet": "hardhat node:fork eth_mainnet 8545",
     "fork:eth:sepolia": "hardhat node:fork eth_sepolia 8545",
     "fork:opt:sepolia": "hardhat node:fork opt_sepolia 9545",
     "fork:opt:mainnet": "hardhat node:fork opt_mainnet 9545",
-    "optimism:deploy": "ts-node --files ./scripts/optimism/deploy-bridge.ts",
-    "optimism:finalize-message": "ts-node --files ./scripts/optimism/finalize-message.ts",
-    "optimism:test:e2e": "hardhat test ./test/optimism/*.e2e.test.ts",
-    "optimism:test:unit": "hardhat test ./test/optimism/*.unit.test.ts",
-    "optimism:test:integration": "hardhat test ./test/optimism/*.integration.test.ts",
-    "optimism:test:acceptance": "hardhat test ./test/optimism/*.acceptance.test.ts",
-    "optimism:test:executor": "hardhat test ./test/bridge-executor/optimism.integration.test.ts",
-    "optimism:test:launch": "REVERT=false hardhat test ./test/optimism/{_launch.test.ts,bridging.integration.test.ts}"
+    "deploy": "ts-node --files ./scripts/optimism/deploy-scratch.ts",
+    "deploy-new-steth-contracts": "ts-node --files ./scripts/optimism/deploy-new-steth-contracts.ts",
+    "finalize-message": "ts-node --files ./scripts/optimism/finalize-message.ts",
+    "test:e2e": "hardhat test ./test/e2e/*.e2e.test.ts",
+    "test:managing-e2e": "hardhat test ./test/managing-e2e/*.e2e.test.ts",
+    "test:unit": "hardhat test ./test/unit/*.unit.test.ts",
+    "test:integration": "hardhat test ./test/integration/*.integration.test.ts",
+    "test:launch": "REVERT=false hardhat test ./test/optimism/{_launch.test.ts,bridging.integration.test.ts}"
   },
   "keywords": [],
   "author": "",
@@ -47,22 +44,25 @@
     "eslint-plugin-prettier": "^3.4.1",
     "eslint-plugin-promise": "^5.2.0",
     "ethereum-waffle": "^3.4.4",
+    "ethereumjs-util": "^7.0.8",
     "ethers": "^5.6.2",
     "hardhat": "^2.12.2",
     "hardhat-gas-reporter": "^1.0.8",
     "prettier": "^2.6.1",
     "prettier-plugin-solidity": "^1.0.0-beta.13",
     "solhint": "^3.3.7",
-    "solidity-coverage": "^0.7.21",
+    "solidity-coverage": "0.8.12",
     "ts-node": "^10.7.0",
     "typechain": "^5.2.0",
     "typescript": "^4.6.3"
   },
   "dependencies": {
-    "@eth-optimism/sdk": "3.2.0",
+    "@eth-optimism/sdk": "3.2.3",
     "@ethersproject/providers": "^5.6.8",
     "@lidofinance/evm-script-decoder": "^0.2.2",
     "@openzeppelin/contracts": "4.6.0",
-    "chalk": "4.1.2"
-  }
+    "chalk": "4.1.2",
+    "p-limit": "3.1.0"
+  },
+  "packageManager": "yarn@1.22.22+sha1.ac34549e6aa8e7ead463a7407e1c7390f61a6610"
 }

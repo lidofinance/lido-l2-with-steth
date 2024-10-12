@@ -2,28 +2,57 @@
   {
     "artifactPath": "artifacts/contracts/proxy/OssifiableProxy.sol/OssifiableProxy.json",
     "sourcePath": "contracts/proxy/OssifiableProxy.sol",
-    "name": "L2ERC20TokenBridge proxy",
-    "address": "0x8E01013243a96601a86eb3153F0d9Fa4fbFb6957"
+    "name": "L2ERC20ExtendedTokensBridge proxy",
+    "address": "0x8E01013243a96601a86eb3153F0d9Fa4fbFb6957",
+    "txHash": "0xd0a75128fcedaa0acfe5ccb2740a1a47a6a8e47bca844dee23e7b4cc747ea4d1"
   },
   {
-    "artifactPath": "artifacts/contracts/optimism/L2ERC20TokenBridge.sol/L2ERC20TokenBridge.json",
-    "sourcePath": "contracts/optimism/L2ERC20TokenBridge.sol",
-    "name": "L2ERC20TokenBridge",
-    "address": "0x23B96aDD54c479C6784Dd504670B5376B808f4C7",
-    "txHash": "0x5d69e9c6ec1d634f0d90812c2189c925993d1fffbc9b0b416fdc123e15407c56"
+    "artifactPath": "artifacts/contracts/optimism/L2ERC20ExtendedTokensBridge.sol/L2ERC20ExtendedTokensBridge.json",
+    "sourcePath": "contracts/optimism/L2ERC20ExtendedTokensBridge.sol",
+    "name": "L2ERC20ExtendedTokensBridge",
+    "address": "0x2734602C0CEbbA68662552CacD5553370B283E2E",
+    "txHash": "0x0a134229615d192e64c6528b898895b023fb0642f34345dbe1fabe77c15bdc2b"
   },
   {
     "artifactPath": "artifacts/contracts/proxy/OssifiableProxy.sol/OssifiableProxy.json",
     "sourcePath": "contracts/proxy/OssifiableProxy.sol",
-    "name": "WstETH ERC20Bridged proxy",
+    "name": "WstETH ERC20BridgedPermit proxy",
     "address": "0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb",
     "txHash": "0x0feeb1ee2c7b4f02eddb1d69c3d3af4a814f290fa5ad328ce21748939c0c1830"
   },
   {
-    "artifactPath": "artifacts/contracts/token/ERC20Bridged.sol/ERC20Bridged.json",
-    "sourcePath": "contracts/token/ERC20Bridged.sol",
-    "name": "WstETH ERC20Bridged",
-    "address": "0x92834c37dF982A13bb0f8C3F6608E26F0546538e",
-    "txHash": "0x3632289e9e09f9f279b881bec30d31138a05b400e3a5dd7e2bf0173e8b8dc072"
+    "artifactPath": "artifacts/contracts/token/ERC20BridgedPermit.sol/ERC20BridgedPermit.json",
+    "sourcePath": "contracts/token/ERC20BridgedPermit.sol",
+    "name": "WstETH ERC20BridgedPermit",
+    "address": "0xFe57042De76c8D6B1DF0E9E2047329fd3e2B7334",
+    "txHash": "0xafbab090715c389697c65625e4a283e775c8d39536e5bf55c05e872a048a97d8"
+  },
+  {
+    "artifactPath": "artifacts/contracts/proxy/OssifiableProxy.sol/OssifiableProxy.json",
+    "sourcePath": "contracts/proxy/OssifiableProxy.sol",
+    "name": "StETH ERC20RebasableBridgedPermit proxy",
+    "address": "0x76A50b8c7349cCDDb7578c6627e79b5d99D24138",
+    "txHash": "0xd05b38ee8b24acf693fe088d728dfc84260f9cdd48ec89f477e56d2fbefa4e63"
+  },
+  {
+    "artifactPath": "artifacts/contracts/token/ERC20RebasableBridgedPermit.sol/ERC20RebasableBridgedPermit.json",
+    "sourcePath": "contracts/token/ERC20RebasableBridgedPermit.sol",
+    "name": "StETH ERC20RebasableBridgedPermit",
+    "address": "0xe9b65dA5DcBe92f1b397991C464FF568Dc98D761",
+    "txHash": "0x66485d129f26144afb074cfeef6bee512e29683f668264e056380e2ba85fc8b9"
+  },
+  {
+    "artifactPath": "artifacts/contracts/proxy/OssifiableProxy.sol/OssifiableProxy.json",
+    "sourcePath": "contracts/proxy/OssifiableProxy.sol",
+    "name": "TokenRateOracle proxy",
+    "address": "0x294ED1f214F4e0ecAE31C3Eae4F04EBB3b36C9d0",
+    "txHash": "0x673bafadeacce69550e8b74880ac99f44933f4085ee717df97be4d194f7b230d"
+  },
+  {
+    "artifactPath": "artifacts/contracts/optimism/TokenRateOracle.sol/TokenRateOracle.json",
+    "sourcePath": "contracts/optimism/TokenRateOracle.sol",
+    "name": "TokenRateOracle",
+    "address": "0x4bF0d419793d8722b8391efaD4c9cE78F460CEd3",
+    "txHash": "0xe1d712a6a74264efdd6e1477a959d2a77e2a11d3470f0ee7de0ab966a034cc93"
   }
 ]
