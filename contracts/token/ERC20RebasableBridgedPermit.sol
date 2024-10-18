@@ -10,7 +10,6 @@ import {Versioned} from "../utils/Versioned.sol";
 /// @author kovalgek
 /// @notice extends ERC20RebasableBridged functionality that allows to use permits and versioning.
 contract ERC20RebasableBridgedPermit is ERC20RebasableBridged, PermitExtension, Versioned {
-
     /// @param name_ The name of the token
     /// @param symbol_ The symbol of the token
     /// @param version_ The current major version of the signing domain (aka token version)
@@ -27,17 +26,9 @@ contract ERC20RebasableBridgedPermit is ERC20RebasableBridged, PermitExtension, 
         address tokenRateOracle_,
         address bridge_
     )
-        ERC20RebasableBridged(
-            name_,
-            symbol_,
-            decimals_,
-            tokenToWrapFrom_,
-            tokenRateOracle_,
-            bridge_
-        )
+        ERC20RebasableBridged(name_, symbol_, decimals_, tokenToWrapFrom_, tokenRateOracle_, bridge_)
         PermitExtension(name_, version_)
-    {
-    }
+    {}
 
     /// @notice Initializes the contract from scratch.
     /// @param name_ The name of the token

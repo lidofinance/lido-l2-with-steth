@@ -19,10 +19,7 @@ contract ERC20Core is IERC20 {
     mapping(address => mapping(address => uint256)) public allowance;
 
     /// @inheritdoc IERC20
-    function approve(address spender_, uint256 amount_)
-        external
-        returns (bool)
-    {
+    function approve(address spender_, uint256 amount_) external returns (bool) {
         _approve(msg.sender, spender_, amount_);
         return true;
     }
@@ -34,11 +31,7 @@ contract ERC20Core is IERC20 {
     }
 
     /// @inheritdoc IERC20
-    function transferFrom(
-        address from_,
-        address to_,
-        uint256 amount_
-    ) external returns (bool) {
+    function transferFrom(address from_, address to_, uint256 amount_) external returns (bool) {
         _spendAllowance(from_, msg.sender, amount_);
         _transfer(from_, to_, amount_);
         return true;
@@ -48,11 +41,11 @@ contract ERC20Core is IERC20 {
     /// @param from_ An address of the sender of the tokens
     /// @param to_  An address of the recipient of the tokens
     /// @param amount_ An amount of tokens to transfer
-    function _transfer(
-        address from_,
-        address to_,
-        uint256 amount_
-    ) internal onlyNonZeroAccount(from_) onlyNonZeroAccount(to_) {
+    function _transfer(address from_, address to_, uint256 amount_)
+        internal
+        onlyNonZeroAccount(from_)
+        onlyNonZeroAccount(to_)
+    {
         _decreaseBalance(from_, amount_);
         balanceOf[to_] += amount_;
         emit Transfer(from_, to_, amount_);
@@ -63,11 +56,7 @@ contract ERC20Core is IERC20 {
     /// @param owner_ An address of the account to spend allowance
     /// @param spender_  An address of the spender of the tokens
     /// @param amount_ An amount of allowance spend
-    function _spendAllowance(
-        address owner_,
-        address spender_,
-        uint256 amount_
-    ) internal {
+    function _spendAllowance(address owner_, address spender_, uint256 amount_) internal {
         uint256 currentAllowance = allowance[owner_][spender_];
         if (currentAllowance == type(uint256).max) {
             return;
@@ -84,11 +73,12 @@ contract ERC20Core is IERC20 {
     /// @param owner_ An address of the account to set allowance
     /// @param spender_  An address of the tokens spender
     /// @param amount_ An amount of tokens to allow to spend
-    function _approve(
-        address owner_,
-        address spender_,
-        uint256 amount_
-    ) internal virtual onlyNonZeroAccount(owner_) onlyNonZeroAccount(spender_) {
+    function _approve(address owner_, address spender_, uint256 amount_)
+        internal
+        virtual
+        onlyNonZeroAccount(owner_)
+        onlyNonZeroAccount(spender_)
+    {
         allowance[owner_][spender_] = amount_;
         emit Approval(owner_, spender_, amount_);
     }
@@ -96,10 +86,7 @@ contract ERC20Core is IERC20 {
     /// @dev Creates amount_ tokens and assigns them to account_, increasing the total supply
     /// @param account_ An address of the account to mint tokens
     /// @param amount_ An amount of tokens to mint
-    function _mint(address account_, uint256 amount_)
-        internal
-        onlyNonZeroAccount(account_)
-    {
+    function _mint(address account_, uint256 amount_) internal onlyNonZeroAccount(account_) {
         totalSupply += amount_;
         balanceOf[account_] += amount_;
         emit Transfer(address(0), account_, amount_);
@@ -108,10 +95,7 @@ contract ERC20Core is IERC20 {
     /// @dev Destroys amount_ tokens from account_, reducing the total supply.
     /// @param account_ An address of the account to mint tokens
     /// @param amount_ An amount of tokens to mint
-    function _burn(address account_, uint256 amount_)
-        internal
-        onlyNonZeroAccount(account_)
-    {
+    function _burn(address account_, uint256 amount_) internal onlyNonZeroAccount(account_) {
         _decreaseBalance(account_, amount_);
         totalSupply -= amount_;
         emit Transfer(account_, address(0), amount_);

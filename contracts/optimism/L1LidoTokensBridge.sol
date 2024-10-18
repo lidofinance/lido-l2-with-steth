@@ -10,7 +10,6 @@ import {TokenRateAndUpdateTimestampProvider} from "./TokenRateAndUpdateTimestamp
 /// @author kovalgek
 /// @notice Hides wstETH concept from other contracts to keep `L1ERC20ExtendedTokensBridge` reusable.
 contract L1LidoTokensBridge is L1ERC20ExtendedTokensBridge, TokenRateAndUpdateTimestampProvider, Versioned {
-
     /// @param messenger_ L1 messenger address being used for cross-chain communications
     /// @param l2TokenBridge_ Address of the corresponding L2 bridge
     /// @param l1TokenNonRebasable_ Address of the bridged token in the L1 chain
@@ -26,17 +25,17 @@ contract L1LidoTokensBridge is L1ERC20ExtendedTokensBridge, TokenRateAndUpdateTi
         address l2TokenNonRebasable_,
         address l2TokenRebasable_,
         address accountingOracle_
-    ) L1ERC20ExtendedTokensBridge(
-        messenger_,
-        l2TokenBridge_,
-        l1TokenNonRebasable_,
-        l1TokenRebasable_,
-        l2TokenNonRebasable_,
-        l2TokenRebasable_
-    ) TokenRateAndUpdateTimestampProvider(
-        l1TokenNonRebasable_,
-        accountingOracle_
-    ) {}
+    )
+        L1ERC20ExtendedTokensBridge(
+            messenger_,
+            l2TokenBridge_,
+            l1TokenNonRebasable_,
+            l1TokenRebasable_,
+            l2TokenNonRebasable_,
+            l2TokenRebasable_
+        )
+        TokenRateAndUpdateTimestampProvider(l1TokenNonRebasable_, accountingOracle_)
+    {}
 
     /// @notice Initializes the contract from scratch.
     /// @param admin_ Address of the account to grant the DEFAULT_ADMIN_ROLE
@@ -53,7 +52,7 @@ contract L1LidoTokensBridge is L1ERC20ExtendedTokensBridge, TokenRateAndUpdateTi
         _initializeContractVersionTo(2);
     }
 
-    function _tokenRate() override internal view returns (uint256 rate, uint256 updateTimestamp) {
+    function _tokenRate() internal view override returns (uint256 rate, uint256 updateTimestamp) {
         return _getTokenRateAndUpdateTimestamp();
     }
 }

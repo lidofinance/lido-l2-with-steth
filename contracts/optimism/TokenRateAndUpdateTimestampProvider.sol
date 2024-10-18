@@ -26,7 +26,6 @@ interface IERC20WstETH {
 /// @author kovalgek
 /// @notice Provides token rate and update timestamp.
 abstract contract TokenRateAndUpdateTimestampProvider {
-
     /// @notice Non-rebasable token of Core Lido procotol.
     address public immutable WSTETH;
 
@@ -59,9 +58,8 @@ abstract contract TokenRateAndUpdateTimestampProvider {
         rate = IERC20WstETH(WSTETH).getStETHByWstETH(10 ** TOKEN_RATE_DECIMALS);
 
         /// @dev github.com/ethereum/consensus-specs/blob/dev/specs/bellatrix/beacon-chain.md#compute_timestamp_at_slot
-        updateTimestamp = GENESIS_TIME + SECONDS_PER_SLOT * IAccountingOracle(
-            ACCOUNTING_ORACLE
-        ).getLastProcessingRefSlot();
+        updateTimestamp =
+            GENESIS_TIME + SECONDS_PER_SLOT * IAccountingOracle(ACCOUNTING_ORACLE).getLastProcessingRefSlot();
     }
 
     error ErrorZeroAddressWstETH();

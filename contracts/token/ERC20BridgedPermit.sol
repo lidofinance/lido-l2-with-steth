@@ -10,23 +10,15 @@ import {Versioned} from "../utils/Versioned.sol";
 /// @author kovalgek
 /// @notice extends ERC20Bridged functionality that allows to use permits and versioning.
 contract ERC20BridgedPermit is ERC20Bridged, PermitExtension, Versioned {
-
     /// @param name_ The name of the token
     /// @param symbol_ The symbol of the token
     /// @param version_ The current major version of the signing domain (aka token version)
     /// @param decimals_ The decimals places of the token
     /// @param bridge_ The bridge address which allows to mint/burn tokens
-    constructor(
-        string memory name_,
-        string memory symbol_,
-        string memory version_,
-        uint8 decimals_,
-        address bridge_
-    )
+    constructor(string memory name_, string memory symbol_, string memory version_, uint8 decimals_, address bridge_)
         ERC20Bridged(name_, symbol_, decimals_, bridge_)
         PermitExtension(name_, version_)
-    {
-    }
+    {}
 
     /// @notice Initializes the contract from scratch.
     /// @param name_ The name of the token

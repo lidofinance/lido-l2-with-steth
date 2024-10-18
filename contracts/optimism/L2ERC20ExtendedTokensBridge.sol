@@ -47,12 +47,10 @@ contract L2ERC20ExtendedTokensBridge is
         address l1TokenRebasable_,
         address l2TokenNonRebasable_,
         address l2TokenRebasable_
-    ) CrossDomainEnabled(messenger_) RebasableAndNonRebasableTokens (
-        l1TokenNonRebasable_,
-        l1TokenRebasable_,
-        l2TokenNonRebasable_,
-        l2TokenRebasable_
-    ) {
+    )
+        CrossDomainEnabled(messenger_)
+        RebasableAndNonRebasableTokens(l1TokenNonRebasable_, l1TokenRebasable_, l2TokenNonRebasable_, l2TokenRebasable_)
+    {
         if (l1TokenBridge_ == address(0)) {
             revert ErrorZeroAddressL1Bridge();
         }
@@ -80,12 +78,8 @@ contract L2ERC20ExtendedTokensBridge is
     }
 
     /// @inheritdoc IL2ERC20Bridge
-    function withdraw(
-        address l2Token_,
-        uint256 amount_,
-        uint32 l1Gas_,
-        bytes calldata data_
-    ) external
+    function withdraw(address l2Token_, uint256 amount_, uint32 l1Gas_, bytes calldata data_)
+        external
         whenWithdrawalsEnabled
         onlySupportedL2Token(l2Token_)
     {
@@ -97,13 +91,8 @@ contract L2ERC20ExtendedTokensBridge is
     }
 
     /// @inheritdoc IL2ERC20Bridge
-    function withdrawTo(
-        address l2Token_,
-        address to_,
-        uint256 amount_,
-        uint32 l1Gas_,
-        bytes calldata data_
-    ) external
+    function withdrawTo(address l2Token_, address to_, uint256 amount_, uint32 l1Gas_, bytes calldata data_)
+        external
         whenWithdrawalsEnabled
         onlyNonZeroAccount(to_)
         onlySupportedL2Token(l2Token_)
@@ -168,7 +157,12 @@ contract L2ERC20ExtendedTokensBridge is
 
         bytes memory message = abi.encodeWithSelector(
             IL1ERC20Bridge.finalizeERC20Withdrawal.selector,
-            _getL1Token(l2Token_), l2Token_, from_, to_, nonRebasableAmountToWithdraw, data_
+            _getL1Token(l2Token_),
+            l2Token_,
+            from_,
+            to_,
+            nonRebasableAmountToWithdraw,
+            data_
         );
         sendCrossDomainMessage(L1_TOKEN_BRIDGE, l1Gas_, message);
     }
@@ -178,11 +172,7 @@ contract L2ERC20ExtendedTokensBridge is
     /// @param to_ Account that token mints for.
     /// @param nonRebasableTokenAmount_ Amount of non-rebasable token.
     /// @return returns amount of minted tokens.
-    function _mintTokens(
-        address l2Token_,
-        address to_,
-        uint256 nonRebasableTokenAmount_
-    ) internal returns (uint256) {
+    function _mintTokens(address l2Token_, address to_, uint256 nonRebasableTokenAmount_) internal returns (uint256) {
         if (nonRebasableTokenAmount_ == 0) {
             return 0;
         }
@@ -199,11 +189,7 @@ contract L2ERC20ExtendedTokensBridge is
     /// @param from_ Account which tokens are burns.
     /// @param amount_ Amount of token to burn.
     /// @return returns amount of non-rebasable token to withdraw.
-    function _burnTokens(
-        address l2Token_,
-        address from_,
-        uint256 amount_
-    ) internal returns (uint256) {
+    function _burnTokens(address l2Token_, address from_, uint256 amount_) internal returns (uint256) {
         if (amount_ == 0) {
             return 0;
         }

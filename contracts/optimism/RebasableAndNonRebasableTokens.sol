@@ -6,7 +6,6 @@ pragma solidity 0.8.10;
 /// @author psirex, kovalgek
 /// @notice Contains the logic for validation of tokens used in the bridging process
 contract RebasableAndNonRebasableTokens {
-
     /// @notice Address of the bridged non rebasable token in the L1 chain
     address public immutable L1_TOKEN_NON_REBASABLE;
 
@@ -54,8 +53,8 @@ contract RebasableAndNonRebasableTokens {
     }
 
     function _getL1Token(address l2Token_) internal view returns (address) {
-        if (l2Token_ == L2_TOKEN_NON_REBASABLE) { return L1_TOKEN_NON_REBASABLE; }
-        if (l2Token_ == L2_TOKEN_REBASABLE) { return L1_TOKEN_REBASABLE; }
+        if (l2Token_ == L2_TOKEN_NON_REBASABLE) return L1_TOKEN_NON_REBASABLE;
+        if (l2Token_ == L2_TOKEN_REBASABLE) return L1_TOKEN_REBASABLE;
         revert ErrorUnsupportedL2Token(l2Token_);
     }
 

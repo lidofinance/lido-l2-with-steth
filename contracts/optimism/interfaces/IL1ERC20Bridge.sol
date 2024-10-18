@@ -36,13 +36,8 @@ interface IL1ERC20Bridge {
     /// @param data_ Optional data to forward to L2. This data is provided
     ///        solely as a convenience for external contracts. Aside from enforcing a maximum
     ///        length, these contracts provide no guarantees about its content.
-    function depositERC20(
-        address l1Token_,
-        address l2Token_,
-        uint256 amount_,
-        uint32 l2Gas_,
-        bytes calldata data_
-    ) external;
+    function depositERC20(address l1Token_, address l2Token_, uint256 amount_, uint32 l2Gas_, bytes calldata data_)
+        external;
 
     /// @notice deposit an amount of ERC20 to a recipient's balance on L2.
     /// @param l1Token_ Address of the L1 ERC20 we are depositing

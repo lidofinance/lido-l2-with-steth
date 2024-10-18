@@ -16,19 +16,9 @@ contract CrossDomainMessengerStub is ICrossDomainMessenger {
         xDomainMessageSender = value;
     }
 
-    function sendMessage(
-        address _target,
-        bytes calldata _message,
-        uint32 _gasLimit
-    ) external {
+    function sendMessage(address _target, bytes calldata _message, uint32 _gasLimit) external {
         messageNonce += 1;
-        emit SentMessage(
-            _target,
-            msg.sender,
-            _message,
-            messageNonce,
-            _gasLimit
-        );
+        emit SentMessage(_target, msg.sender, _message, messageNonce, _gasLimit);
     }
 
     function relayMessage(
@@ -37,15 +27,9 @@ contract CrossDomainMessengerStub is ICrossDomainMessenger {
         bytes memory _message,
         uint256 // _messageNonce
     ) public {
-        (bool success, ) = _target.call(_message);
+        (bool success,) = _target.call(_message);
         require(success, "CALL_FAILED");
     }
 
-    event SentMessage(
-        address indexed target,
-        address sender,
-        bytes message,
-        uint256 messageNonce,
-        uint256 gasLimit
-    );
+    event SentMessage(address indexed target, address sender, bytes message, uint256 messageNonce, uint256 gasLimit);
 }
