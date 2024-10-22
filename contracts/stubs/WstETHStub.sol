@@ -12,7 +12,6 @@ import {IERC20Wrapper} from "../token/interfaces/IERC20Wrapper.sol";
 /// @author kovalgek
 /// @dev represents wstETH on L1. For testing purposes.
 contract WstETHStub is IERC20Wrapper, IERC20WstETH, ERC20 {
-
     IERC20 public stETH;
     address public bridge;
     uint256 private immutable TOTAL_POOLED_ETHER;
@@ -29,7 +28,7 @@ contract WstETHStub is IERC20Wrapper, IERC20WstETH, ERC20 {
         stETH = stETH_;
         TOTAL_POOLED_ETHER = totalPooledEther_;
         TOTAL_SHARES = totalShares_;
-        _mint(msg.sender, 1000000 * 10**40);
+        _mint(msg.sender, 1000000 * 10 ** 40);
     }
 
     function wrap(uint256 _stETHAmount) external returns (uint256) {
@@ -68,7 +67,7 @@ contract WstETHStub is IERC20Wrapper, IERC20WstETH, ERC20 {
     }
 
     function _getSharesByPooledEth(uint256 ethAmount_) internal view returns (uint256) {
-        return ethAmount_ *  TOTAL_SHARES / TOTAL_POOLED_ETHER;
+        return ethAmount_ * TOTAL_SHARES / TOTAL_POOLED_ETHER;
     }
 
     function setDecimalsShift(uint256 decimalsShift_) external {

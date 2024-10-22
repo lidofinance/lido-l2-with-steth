@@ -6,6 +6,7 @@ import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
+import "@foundry-rs/hardhat-forge";
 
 import "./tasks/fork-node";
 import env from "./utils/env";

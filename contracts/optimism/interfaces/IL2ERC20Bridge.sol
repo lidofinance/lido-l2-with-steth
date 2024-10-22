@@ -36,12 +36,7 @@ interface IL2ERC20Bridge {
     /// @param data_ Optional data to forward to L1. This data is provided
     ///     solely as a convenience for external contracts. Aside from enforcing a maximum
     ///     length, these contracts provide no guarantees about its content.
-    function withdraw(
-        address l2Token_,
-        uint256 amount_,
-        uint32 l1Gas_,
-        bytes calldata data_
-    ) external;
+    function withdraw(address l2Token_, uint256 amount_, uint32 l1Gas_, bytes calldata data_) external;
 
     /// @notice Initiates a withdraw of some token to a recipient's account on L1.
     /// @param l2Token_ Address of L2 token where withdrawal is initiated.
@@ -51,13 +46,7 @@ interface IL2ERC20Bridge {
     /// @param data_ Optional data to forward to L1. This data is provided
     ///     solely as a convenience for external contracts. Aside from enforcing a maximum
     ///     length, these contracts provide no guarantees about its content.
-    function withdrawTo(
-        address l2Token_,
-        address to_,
-        uint256 amount_,
-        uint32 l1Gas_,
-        bytes calldata data_
-    ) external;
+    function withdrawTo(address l2Token_, address to_, uint256 amount_, uint32 l1Gas_, bytes calldata data_) external;
 
     /// @notice Completes a deposit from L1 to L2, and credits funds to the recipient's balance of
     ///     this L2 token. This call will fail if it did not originate from a corresponding deposit

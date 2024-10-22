@@ -9,7 +9,6 @@ import {ITokenRatePusher} from "./interfaces/ITokenRatePusher.sol";
 
 /// @notice An interface to subscribe on the `stETH` token rebases (defined in the `Lido` core contract)
 interface IPostTokenRebaseReceiver {
-
     /// @notice Is called in the context of `Lido.handleOracleReport` to notify the subscribers about each token rebase
     function handlePostTokenRebase(
         uint256 _reportTimestamp,
@@ -101,7 +100,7 @@ contract TokenRateNotifier is Ownable, IPostTokenRebaseReceiver {
         uint256, /* preTotalEther      */
         uint256, /* postTotalShares    */
         uint256, /* postTotalEther     */
-        uint256  /* sharesMintedAsFees */
+        uint256 /* sharesMintedAsFees */
     ) external {
         if (msg.sender != LIDO) {
             revert ErrorNotAuthorizedRebaseCaller();
@@ -117,10 +116,7 @@ contract TokenRateNotifier is Ownable, IPostTokenRebaseReceiver {
                 ///      "out of gas" error. Here we assume that the pushTokenRate() method doesn't
                 ///      have reverts with empty error data except "out of gas".
                 if (lowLevelRevertData.length == 0) revert ErrorTokenRateNotifierRevertedWithNoData();
-                emit PushTokenRateFailed(
-                    observers[obIndex],
-                    lowLevelRevertData
-                );
+                emit PushTokenRateFailed(observers[obIndex], lowLevelRevertData);
             }
         }
     }

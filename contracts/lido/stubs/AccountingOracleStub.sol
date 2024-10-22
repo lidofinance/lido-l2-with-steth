@@ -7,7 +7,6 @@ import {IAccountingOracle} from "../../optimism/TokenRateAndUpdateTimestampProvi
 
 /// @dev For testing purposes.
 contract AccountingOracleStub is IAccountingOracle {
-
     uint256 private immutable genesisTime;
     uint256 private immutable secondsPerSlot;
     uint256 private immutable lastProcessingRefSlot;

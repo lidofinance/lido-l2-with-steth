@@ -21,18 +21,13 @@ contract BridgingManager is AccessControl {
         bool isWithdrawalsEnabled;
     }
 
-    bytes32 public constant DEPOSITS_ENABLER_ROLE =
-        keccak256("BridgingManager.DEPOSITS_ENABLER_ROLE");
-    bytes32 public constant DEPOSITS_DISABLER_ROLE =
-        keccak256("BridgingManager.DEPOSITS_DISABLER_ROLE");
-    bytes32 public constant WITHDRAWALS_ENABLER_ROLE =
-        keccak256("BridgingManager.WITHDRAWALS_ENABLER_ROLE");
-    bytes32 public constant WITHDRAWALS_DISABLER_ROLE =
-        keccak256("BridgingManager.WITHDRAWALS_DISABLER_ROLE");
+    bytes32 public constant DEPOSITS_ENABLER_ROLE = keccak256("BridgingManager.DEPOSITS_ENABLER_ROLE");
+    bytes32 public constant DEPOSITS_DISABLER_ROLE = keccak256("BridgingManager.DEPOSITS_DISABLER_ROLE");
+    bytes32 public constant WITHDRAWALS_ENABLER_ROLE = keccak256("BridgingManager.WITHDRAWALS_ENABLER_ROLE");
+    bytes32 public constant WITHDRAWALS_DISABLER_ROLE = keccak256("BridgingManager.WITHDRAWALS_DISABLER_ROLE");
 
     /// @dev The location of the slot with State
-    bytes32 private constant STATE_SLOT =
-        keccak256("BridgingManager.bridgingState");
+    bytes32 private constant STATE_SLOT = keccak256("BridgingManager.bridgingState");
 
     /// @notice Initializes the contract to grant DEFAULT_ADMIN_ROLE to the admin_ address
     /// @dev This method might be called only once
@@ -75,11 +70,7 @@ contract BridgingManager is AccessControl {
     }
 
     /// @notice Disables the deposits if they aren't disabled yet
-    function disableDeposits()
-        external
-        whenDepositsEnabled
-        onlyRole(DEPOSITS_DISABLER_ROLE)
-    {
+    function disableDeposits() external whenDepositsEnabled onlyRole(DEPOSITS_DISABLER_ROLE) {
         _loadState().isDepositsEnabled = false;
         emit DepositsDisabled(msg.sender);
     }
@@ -94,11 +85,7 @@ contract BridgingManager is AccessControl {
     }
 
     /// @notice Disables the withdrawals if they aren't disabled yet
-    function disableWithdrawals()
-        external
-        whenWithdrawalsEnabled
-        onlyRole(WITHDRAWALS_DISABLER_ROLE)
-    {
+    function disableWithdrawals() external whenWithdrawalsEnabled onlyRole(WITHDRAWALS_DISABLER_ROLE) {
         _loadState().isWithdrawalsEnabled = false;
         emit WithdrawalsDisabled(msg.sender);
     }

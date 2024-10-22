@@ -20,7 +20,6 @@ interface ITokenRateOracle is ITokenRateUpdatable, IChainlinkAggregatorInterface
 ///         If the L1 rate differs, it can be pushed permissionlessly via OpStackTokenRatePusher.
 /// @dev Token rate updates can be delivered from two sources: L1 token rate pusher and L2 bridge.
 contract TokenRateOracle is ITokenRateOracle, CrossDomainEnabled, AccessControl, Versioned {
-
     using UnstructuredStorage for bytes32;
 
     /// @dev Used to store historical data of rate and times.
@@ -154,8 +153,10 @@ contract TokenRateOracle is ITokenRateOracle, CrossDomainEnabled, AccessControl,
             revert ErrorAlreadyPaused();
         }
         TokenRateData memory tokenRateData = _getTokenRateByIndex(tokenRateIndex_);
-        if (tokenRateIndex_ != _getStorageTokenRates().length - 1 &&
-            tokenRateData.rateReceivedL2Timestamp < block.timestamp - OLDEST_RATE_ALLOWED_IN_PAUSE_TIME_SPAN) {
+        if (
+            tokenRateIndex_ != _getStorageTokenRates().length - 1
+                && tokenRateData.rateReceivedL2Timestamp < block.timestamp - OLDEST_RATE_ALLOWED_IN_PAUSE_TIME_SPAN
+        ) {
             revert ErrorTokenRateUpdateTooOld();
         }
         _removeElementsAfterIndex(tokenRateIndex_);
@@ -167,10 +168,10 @@ contract TokenRateOracle is ITokenRateOracle, CrossDomainEnabled, AccessControl,
     /// @notice Resume token rate updates applying provided token rate.
     /// @param tokenRate_ a new token rate that applies after resuming.
     /// @param rateUpdatedL1Timestamp_ L1 time when rate was updated on L1 side.
-    function resumeTokenRateUpdates(
-        uint256 tokenRate_,
-        uint256 rateUpdatedL1Timestamp_
-    ) external onlyRole(RATE_UPDATE_ENABLER_ROLE) {
+    function resumeTokenRateUpdates(uint256 tokenRate_, uint256 rateUpdatedL1Timestamp_)
+        external
+        onlyRole(RATE_UPDATE_ENABLER_ROLE)
+    {
         if (!_isPaused()) {
             revert ErrorAlreadyResumed();
         }
@@ -206,13 +207,11 @@ contract TokenRateOracle is ITokenRateOracle, CrossDomainEnabled, AccessControl,
     }
 
     /// @inheritdoc IChainlinkAggregatorInterface
-    function latestRoundData() external view returns (
-        uint80 roundId_,
-        int256 answer_,
-        uint256 startedAt_,
-        uint256 updatedAt_,
-        uint80 answeredInRound_
-    ) {
+    function latestRoundData()
+        external
+        view
+        returns (uint80 roundId_, int256 answer_, uint256 startedAt_, uint256 updatedAt_, uint80 answeredInRound_)
+    {
         TokenRateData memory tokenRateData = _getLastTokenRate();
         return (
             uint80(tokenRateData.rateUpdatedL1Timestamp),
@@ -235,10 +234,7 @@ contract TokenRateOracle is ITokenRateOracle, CrossDomainEnabled, AccessControl,
     }
 
     /// @inheritdoc ITokenRateUpdatable
-    function updateRate(
-        uint256 tokenRate_,
-        uint256 rateUpdatedL1Timestamp_
-    ) external onlyBridgeOrTokenRatePusher {
+    function updateRate(uint256 tokenRate_, uint256 rateUpdatedL1Timestamp_) external onlyBridgeOrTokenRatePusher {
         if (_isPaused()) {
             emit TokenRateUpdateAttemptDuringPause();
             return;
@@ -273,11 +269,10 @@ contract TokenRateOracle is ITokenRateOracle, CrossDomainEnabled, AccessControl,
         }
 
         /// @dev allow token rate to be within some configurable range that depens on time it wasn't updated.
-        if (!_isTokenRateWithinAllowedRange(
-            tokenRateData.tokenRate,
-            tokenRate_,
-            tokenRateData.rateUpdatedL1Timestamp,
-            rateUpdatedL1Timestamp_)
+        if (
+            !_isTokenRateWithinAllowedRange(
+                tokenRateData.tokenRate, tokenRate_, tokenRateData.rateUpdatedL1Timestamp, rateUpdatedL1Timestamp_
+            )
         ) {
             revert ErrorTokenRateIsOutOfRange(tokenRate_, rateUpdatedL1Timestamp_);
         }
@@ -293,8 +288,8 @@ contract TokenRateOracle is ITokenRateOracle, CrossDomainEnabled, AccessControl,
 
     /// @notice Returns flag that shows that token rate can be considered outdated.
     function isLikelyOutdated() external view returns (bool) {
-        return (block.timestamp > _getLastTokenRate().rateReceivedL2Timestamp + TOKEN_RATE_OUTDATED_DELAY) ||
-            _isPaused();
+        return
+            (block.timestamp > _getLastTokenRate().rateReceivedL2Timestamp + TOKEN_RATE_OUTDATED_DELAY) || _isPaused();
     }
 
     /// @notice Allow tokenRate deviation from the previous value to be
@@ -306,39 +301,41 @@ contract TokenRateOracle is ITokenRateOracle, CrossDomainEnabled, AccessControl,
         uint256 newRateL1Timestamp_
     ) internal view returns (bool) {
         uint256 allowedTokenRateDeviation = _allowedTokenRateDeviation(newRateL1Timestamp_, currentRateL1Timestamp_);
-        return newTokenRate_ <= _maxTokenRateLimit(currentTokenRate_, allowedTokenRateDeviation) &&
-               newTokenRate_ >= _minTokenRateLimit(currentTokenRate_, allowedTokenRateDeviation);
+        return newTokenRate_ <= _maxTokenRateLimit(currentTokenRate_, allowedTokenRateDeviation)
+            && newTokenRate_ >= _minTokenRateLimit(currentTokenRate_, allowedTokenRateDeviation);
     }
 
     /// @dev Returns the allowed token deviation depending on the number of days passed since the last update.
-    function _allowedTokenRateDeviation(
-        uint256 newRateL1Timestamp_,
-        uint256 currentRateL1Timestamp_
-    ) internal view returns (uint256) {
+    function _allowedTokenRateDeviation(uint256 newRateL1Timestamp_, uint256 currentRateL1Timestamp_)
+        internal
+        view
+        returns (uint256)
+    {
         uint256 rateL1TimestampDiff = newRateL1Timestamp_ - currentRateL1Timestamp_;
         uint256 roundedUpNumberOfDays = (rateL1TimestampDiff + ONE_DAY_SECONDS - 1) / ONE_DAY_SECONDS;
         return roundedUpNumberOfDays * MAX_ALLOWED_TOKEN_RATE_DEVIATION_PER_DAY_BP;
     }
 
     /// @dev Returns the maximum allowable value for the token rate.
-    function _maxTokenRateLimit(
-        uint256 currentTokenRate,
-        uint256 allowedTokenRateDeviation
-    ) internal pure returns (uint256) {
-        uint256 maxTokenRateLimit = currentTokenRate * (BASIS_POINT_SCALE + allowedTokenRateDeviation) /
-            BASIS_POINT_SCALE;
+    function _maxTokenRateLimit(uint256 currentTokenRate, uint256 allowedTokenRateDeviation)
+        internal
+        pure
+        returns (uint256)
+    {
+        uint256 maxTokenRateLimit =
+            currentTokenRate * (BASIS_POINT_SCALE + allowedTokenRateDeviation) / BASIS_POINT_SCALE;
         return Math.min(maxTokenRateLimit, MAX_SANE_TOKEN_RATE);
     }
 
     /// @dev Returns the minimum allowable value for the token rate.
-    function _minTokenRateLimit(
-        uint256 currentTokenRate,
-        uint256 allowedTokenRateDeviation
-    ) internal pure returns (uint256) {
+    function _minTokenRateLimit(uint256 currentTokenRate, uint256 allowedTokenRateDeviation)
+        internal
+        pure
+        returns (uint256)
+    {
         uint256 minTokenRateLimit = MIN_SANE_TOKEN_RATE;
         if (allowedTokenRateDeviation <= BASIS_POINT_SCALE) {
-            minTokenRateLimit = (currentTokenRate * (BASIS_POINT_SCALE - allowedTokenRateDeviation) /
-            BASIS_POINT_SCALE);
+            minTokenRateLimit = (currentTokenRate * (BASIS_POINT_SCALE - allowedTokenRateDeviation) / BASIS_POINT_SCALE);
         }
         return Math.max(minTokenRateLimit, MIN_SANE_TOKEN_RATE);
     }
@@ -353,14 +350,16 @@ contract TokenRateOracle is ITokenRateOracle, CrossDomainEnabled, AccessControl,
         return false;
     }
 
-    function _addTokenRate(
-        uint256 tokenRate_, uint256 rateUpdatedL1Timestamp_, uint256 rateReceivedL2Timestamp_
-    ) internal {
-        _getStorageTokenRates().push(TokenRateData({
-            tokenRate: uint128(tokenRate_),
-            rateUpdatedL1Timestamp: uint64(rateUpdatedL1Timestamp_),
-            rateReceivedL2Timestamp: uint64(rateReceivedL2Timestamp_)
-        }));
+    function _addTokenRate(uint256 tokenRate_, uint256 rateUpdatedL1Timestamp_, uint256 rateReceivedL2Timestamp_)
+        internal
+    {
+        _getStorageTokenRates().push(
+            TokenRateData({
+                tokenRate: uint128(tokenRate_),
+                rateUpdatedL1Timestamp: uint64(rateUpdatedL1Timestamp_),
+                rateReceivedL2Timestamp: uint64(rateReceivedL2Timestamp_)
+            })
+        );
     }
 
     function _getLastTokenRate() internal view returns (TokenRateData storage) {
@@ -374,7 +373,7 @@ contract TokenRateOracle is ITokenRateOracle, CrossDomainEnabled, AccessControl,
         return _getStorageTokenRates()[tokenRateIndex_];
     }
 
-    function _getStorageTokenRates() internal pure returns (TokenRateData [] storage result) {
+    function _getStorageTokenRates() internal pure returns (TokenRateData[] storage result) {
         bytes32 position = TOKEN_RATES_DATA_SLOT;
         assembly {
             result.slot := position

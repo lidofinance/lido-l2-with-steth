@@ -15,13 +15,7 @@ interface IChainlinkAggregatorInterface {
     function latestRoundData()
         external
         view
-        returns (
-            uint80 roundId_,
-            int256 answer_,
-            uint256 startedAt_,
-            uint256 updatedAt_,
-            uint80 answeredInRound_
-        );
+        returns (uint80 roundId_, int256 answer_, uint256 startedAt_, uint256 updatedAt_, uint80 answeredInRound_);
 
     /// @notice get the lastest token rate.
     /// @return wstETH/stETH token rate. It is a chainlink convention to return int256.

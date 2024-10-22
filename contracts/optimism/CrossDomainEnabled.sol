@@ -23,11 +23,7 @@ contract CrossDomainEnabled {
     /// @param message_ Data to send to the target (usually calldata to a function with
     ///     `onlyFromCrossDomainAccount()`)
     /// @param gasLimit_ gasLimit for the receipt of the message on the target domain.
-    function sendCrossDomainMessage(
-        address crossDomainTarget_,
-        uint32 gasLimit_,
-        bytes memory message_
-    ) internal {
+    function sendCrossDomainMessage(address crossDomainTarget_, uint32 gasLimit_, bytes memory message_) internal {
         MESSENGER.sendMessage(crossDomainTarget_, message_, gasLimit_);
     }
 

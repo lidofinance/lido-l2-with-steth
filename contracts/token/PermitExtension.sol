@@ -24,8 +24,7 @@ abstract contract PermitExtension is IERC2612, EIP712 {
 
     /// @dev Typehash constant for ERC-2612 (Permit)
     /// keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)")
-    bytes32 internal constant PERMIT_TYPEHASH =
-        0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
+    bytes32 internal constant PERMIT_TYPEHASH = 0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
 
     /// @dev Location of the slot with EIP5267Metadata
     bytes32 private constant EIP5267_METADATA_SLOT = keccak256("PermitExtension.eip5267MetadataSlot");
@@ -62,31 +61,21 @@ abstract contract PermitExtension is IERC2612, EIP712 {
     /// @param value_ An amount of tokens to allow to spend.
     /// @param deadline_ The time at which the signature expires (unix time). Must be a timestamp in the future.
     /// @param signature_ Unstructured bytes signature signed by an EOA wallet or a contract wallet.
-    function permit(
-        address owner_,
-        address spender_,
-        uint256 value_,
-        uint256 deadline_,
-        bytes calldata signature_
-    ) external {
+    function permit(address owner_, address spender_, uint256 value_, uint256 deadline_, bytes calldata signature_)
+        external
+    {
         _permit(owner_, spender_, value_, deadline_, signature_);
     }
 
-    function _permit(
-        address owner_,
-        address spender_,
-        uint256 value_,
-        uint256 deadline_,
-        bytes memory signature_
-    ) internal {
+    function _permit(address owner_, address spender_, uint256 value_, uint256 deadline_, bytes memory signature_)
+        internal
+    {
         if (block.timestamp > deadline_) {
             revert ErrorDeadlineExpired();
         }
 
         bytes32 hash = _hashTypedDataV4(
-            keccak256(
-                abi.encode(PERMIT_TYPEHASH, owner_, spender_, value_, _useNonce(owner_), deadline_)
-            )
+            keccak256(abi.encode(PERMIT_TYPEHASH, owner_, spender_, value_, _useNonce(owner_), deadline_))
         );
 
         if (!SignatureChecker.isValidSignatureNow(owner_, hash, signature_)) {

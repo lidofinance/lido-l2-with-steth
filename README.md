@@ -84,6 +84,38 @@ To run the deployment of the ERC20 token gateway for the Ethereum <-> Optimism c
 npm run optimism:deploy
 ```
 
+### Deploying all L1 and L2 Contracts with Foundry
+
+Follow these steps to deploy both the wstETH and stETH Lido bridges from scratch to a new Optimism L2.
+
+1. Run forge build:
+
+```bash
+npm run forge:build
+```
+
+2. Enter the env variables under `Forge Deployment Scripts`
+
+Note: there are some duplicates to the scripts provided for the Hardhat test, but have been collated for ease of use.
+
+3. Run local tests
+
+```bash
+npm run forge:test
+```
+
+4. Deploy L1 contracts
+
+```bash
+npm run forge:deployL1
+```
+
+4. Deploy L2 contracts
+
+```bash
+npm run forge:deployL2
+```
+
 ## Tests running
 
 ### Unit tests

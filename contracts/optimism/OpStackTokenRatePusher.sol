@@ -12,7 +12,6 @@ import {TokenRateAndUpdateTimestampProvider} from "./TokenRateAndUpdateTimestamp
 /// @author kovalgek
 /// @notice Pushes token rate to L2 Oracle.
 contract OpStackTokenRatePusher is ITokenRatePusher, CrossDomainEnabled, TokenRateAndUpdateTimestampProvider, ERC165 {
-
     /// @notice Oracle address on L2 for receiving token rate.
     address public immutable L2_TOKEN_RATE_ORACLE;
 
@@ -53,10 +52,7 @@ contract OpStackTokenRatePusher is ITokenRatePusher, CrossDomainEnabled, TokenRa
 
     /// @inheritdoc ERC165
     function supportsInterface(bytes4 _interfaceId) public view virtual override returns (bool) {
-        return (
-            _interfaceId == type(ITokenRatePusher).interfaceId
-            || super.supportsInterface(_interfaceId)
-        );
+        return (_interfaceId == type(ITokenRatePusher).interfaceId || super.supportsInterface(_interfaceId));
     }
 
     error ErrorZeroAddressTokenRateOracle();
