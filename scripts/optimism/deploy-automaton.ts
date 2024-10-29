@@ -5,8 +5,9 @@ import deployment from "../../utils/deployment";
 import { BridgingManagement } from "../../utils/bridging-management";
 import deploymentAll from "../../utils/optimism/deploymentForAutomaton";
 import { TokenRateOracleManagement } from "../../utils/tokenRateOracle-management";
+import * as fs from 'fs';
 
-export async function deploy() {
+async function main() {
   const networkName = env.network();
   const ethOptNetwork = network.multichain(["eth", "opt"], networkName);
 
@@ -110,5 +111,14 @@ export async function deploy() {
     rateUpdatesEnablers: deploymentConfig.optimism.tokenRateUpdateEnablers
   });
 
-  return {l1DeployScript, l2DeployScript};
+  const deployResult = JSON.stringify({
+    ethterum: l1DeployScript,
+    optimism: l2DeployScript
+  });
+  fs.writeFileSync('deployResult.json', JSON.stringify(deployResult, null, 2), 'utf-8');
 }
+
+main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
