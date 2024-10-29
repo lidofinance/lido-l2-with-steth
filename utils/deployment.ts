@@ -15,12 +15,15 @@ interface EthereumDeploymentConfig extends BridgingManagerSetupConfig {
   l1TokenBridge: string;
   lido: string;
   tokenRateNotifierOwner: string;
+  l1CrossDomainMessenger: string;
 }
 
 interface OptimismDeploymentConfig extends BridgingManagerSetupConfig {
   bridgeProxyAdmin: string;
 
   govBridgeExecutor: string;
+
+  l2CrossDomainMessenger: string;
 
   /// Oracle
   tokenRateOracleProxyAdmin: string;
@@ -57,11 +60,12 @@ interface MultiChainDeploymentConfig {
 export function loadMultiChainDeploymentConfig(): MultiChainDeploymentConfig {
   return {
     ethereum: {
+      l1CrossDomainMessenger: env.address("L1_CROSSDOMAIN_MESSENGER", "0x0000000000000000000000000000000000000000"),
       l1TokenNonRebasable: env.address("L1_NON_REBASABLE_TOKEN"),
       l1RebasableToken: env.address("L1_REBASABLE_TOKEN"),
       accountingOracle: env.address("ACCOUNTING_ORACLE"),
       l2GasLimitForPushingTokenRate: BigNumber.from(env.string("L2_GAS_LIMIT_FOR_PUSHING_TOKEN_RATE")),
-      l1TokenBridge: env.address("L1_TOKEN_BRIDGE"),
+      l1TokenBridge: env.address("L1_TOKEN_BRIDGE", "0x0000000000000000000000000000000000000000"),
       lido: env.address("LIDO"),
       tokenRateNotifierOwner: env.address("TOKEN_RATE_NOTIFIER_OWNER"),
 
@@ -76,6 +80,7 @@ export function loadMultiChainDeploymentConfig(): MultiChainDeploymentConfig {
       withdrawalsDisablers: env.addresses("L1_WITHDRAWALS_DISABLERS", []),
     },
     optimism: {
+      l2CrossDomainMessenger: env.address("L2_CROSSDOMAIN_MESSENGER", "0x0000000000000000000000000000000000000000"),
       govBridgeExecutor: env.address("GOV_BRIDGE_EXECUTOR"),
 
       /// TokenRateOracle
@@ -94,7 +99,7 @@ export function loadMultiChainDeploymentConfig(): MultiChainDeploymentConfig {
       initialTokenRateL1Timestamp: BigNumber.from(env.string("INITIAL_TOKEN_RATE_L1_TIMESTAMP")),
 
       // wstETH
-      l2TokenNonRebasableAddress: env.address("L2_TOKEN_NON_REBASABLE"),
+      l2TokenNonRebasableAddress: env.address("L2_TOKEN_NON_REBASABLE", "0x0000000000000000000000000000000000000000"),
       l2TokenNonRebasableDomainVersion: env.string("L2_TOKEN_NON_REBASABLE_SIGNING_DOMAIN_VERSION"),
 
       // stETH
@@ -102,7 +107,7 @@ export function loadMultiChainDeploymentConfig(): MultiChainDeploymentConfig {
       l2TokenRebasableProxyAdmin: env.string("L2_TOKEN_REBASABLE_PROXY_ADMIN"),
 
       // Bridge
-      l2TokenBridge: env.address("L2_TOKEN_BRIDGE"),
+      l2TokenBridge: env.address("L2_TOKEN_BRIDGE", "0x0000000000000000000000000000000000000000"),
 
       bridgeProxyAdmin: env.address("L2_PROXY_ADMIN"),
       bridgeAdmin: env.address("L2_BRIDGE_ADMIN"),
