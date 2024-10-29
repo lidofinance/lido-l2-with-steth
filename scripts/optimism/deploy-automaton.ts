@@ -111,11 +111,18 @@ async function main() {
     rateUpdatesEnablers: deploymentConfig.optimism.tokenRateUpdateEnablers
   });
 
+
   const deployResult = JSON.stringify({
-    ethterum: l1DeployScript,
+    ethereum: l1DeployScript,
     optimism: l2DeployScript
-  });
-  fs.writeFileSync('deployResult.json', JSON.stringify(deployResult, null, 2), 'utf-8');
+  }, null, 2);
+
+  const fileName = 'deployResult.json';
+  try {
+    fs.writeFileSync(fileName, `${deployResult}\n`, { encoding: "utf8", flag: "w" });
+  } catch (error) {
+    throw new Error(`Failed to write network state file ${fileName}: ${(error as Error).message}`);
+  }
 }
 
 main().catch((error) => {
