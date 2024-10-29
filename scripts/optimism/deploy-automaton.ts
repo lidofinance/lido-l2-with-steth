@@ -6,7 +6,7 @@ import { BridgingManagement } from "../../utils/bridging-management";
 import deploymentAll from "../../utils/optimism/deploymentForAutomaton";
 import { TokenRateOracleManagement } from "../../utils/tokenRateOracle-management";
 
-async function deploy() {
+export async function deploy() {
   const networkName = env.network();
   const ethOptNetwork = network.multichain(["eth", "opt"], networkName);
 
