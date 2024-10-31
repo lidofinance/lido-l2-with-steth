@@ -34,6 +34,9 @@ export default {
   OPT_L1_TOKEN_RATE_NOTIFIER() {
     return env.address("TESTING_OPT_L1_TOKEN_RATE_NOTIFIER");
   },
+  OPT_L1_OP_STACK_TOKEN_RATE_PUSHER() {
+    return env.address("TESTING_OPT_L1_OP_STACK_TOKEN_RATE_PUSHER");
+  },
   OPT_GOV_BRIDGE_EXECUTOR() {
     return env.address("TESTING_OPT_GOV_BRIDGE_EXECUTOR");
   },

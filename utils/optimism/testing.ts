@@ -16,7 +16,8 @@ import {
   ERC20RebasableBridgedPermit__factory,
   AccountingOracleStub__factory,
   TokenRateNotifier__factory,
-  StETHStub__factory
+  StETHStub__factory,
+  OpStackTokenRatePusher__factory
 } from "../../typechain";
 import addresses from "./addresses";
 import contracts from "./contracts";
@@ -166,6 +167,7 @@ async function loadDeployedBridges(
     ...connectBridgeContracts(
       {
         tokenRateNotifier: testingUtils.env.OPT_L1_TOKEN_RATE_NOTIFIER(),
+        opStackTokenRatePusher: testingUtils.env.OPT_L1_OP_STACK_TOKEN_RATE_PUSHER(),
         tokenRateOracle: testingUtils.env.OPT_L2_TOKEN_RATE_ORACLE(),
         l2Token: testingUtils.env.OPT_L2_NON_REBASABLE_TOKEN(),
         l2TokenRebasable: testingUtils.env.OPT_L2_REBASABLE_TOKEN(),
@@ -334,6 +336,7 @@ async function deployTestBridge(
     ...connectBridgeContracts(
       {
         tokenRateNotifier: ethDeployScript.tokenRateNotifierImplAddress,
+        opStackTokenRatePusher: ethDeployScript.opStackTokenRatePusherImplAddress,
         tokenRateOracle: optDeployScript.tokenRateOracleProxyAddress,
         l2Token: optDeployScript.tokenProxyAddress,
         l2TokenRebasable: optDeployScript.tokenRebasableProxyAddress,
@@ -349,6 +352,7 @@ async function deployTestBridge(
 function connectBridgeContracts(
   addresses: {
     tokenRateNotifier: string;
+    opStackTokenRatePusher: string;
     tokenRateOracle: string;
     l2Token: string;
     l2TokenRebasable: string;
@@ -360,6 +364,10 @@ function connectBridgeContracts(
 ) {
   const tokenRateNotifier = TokenRateNotifier__factory.connect(
     addresses.tokenRateNotifier,
+    ethSignerOrProvider
+  );
+  const opStackTokenRatePusher = OpStackTokenRatePusher__factory.connect(
+    addresses.opStackTokenRatePusher,
     ethSignerOrProvider
   );
   const l1LidoTokensBridge = L1LidoTokensBridge__factory.connect(
@@ -384,6 +392,7 @@ function connectBridgeContracts(
   );
   return {
     tokenRateNotifier,
+    opStackTokenRatePusher,
     tokenRateOracle,
     l2Token,
     l2TokenRebasable,
