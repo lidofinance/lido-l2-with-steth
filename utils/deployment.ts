@@ -5,33 +5,24 @@ import env from "./env";
 import { DeployScript } from "./deployment/DeployScript";
 import { BridgingManagerSetupConfig } from "./bridging-management";
 
-interface EthereumDeploymentConfig extends BridgingManagerSetupConfig {
-  bridgeProxyAdmin: string;
-
+interface EthereumAutomatonDeploymentConfig extends BridgingManagerSetupConfig {
+  accountingOracle: string;
   l1TokenNonRebasable: string;
   l1RebasableToken: string;
-  accountingOracle: string;
   l2GasLimitForPushingTokenRate: BigNumber;
-  l1TokenBridge: string;
-  lido: string;
-  tokenRateNotifierOwner: string;
+  proxyAdmin: string;
   l1CrossDomainMessenger: string;
 }
 
-interface OptimismDeploymentConfig extends BridgingManagerSetupConfig {
-  bridgeProxyAdmin: string;
-
+interface OptimismAutomatonDeploymentConfig extends BridgingManagerSetupConfig {
   govBridgeExecutor: string;
-
   l2CrossDomainMessenger: string;
 
   /// Oracle
-  tokenRateOracleProxyAdmin: string;
   tokenRateOracleAdmin: string;
   tokenRateUpdateEnabled: boolean;
   tokenRateUpdateDisablers?: string[],
   tokenRateUpdateEnablers?: string[],
-
   tokenRateOutdatedDelay: BigNumber;
   maxAllowedL2ToL1ClockLag: BigNumber;
   maxAllowedTokenRateDeviationPerDayBp: BigNumber;
@@ -41,36 +32,35 @@ interface OptimismDeploymentConfig extends BridgingManagerSetupConfig {
   initialTokenRateL1Timestamp: BigNumber;
 
   /// L2 wstETH address to upgrade
-  l2TokenNonRebasableAddress: string;
+  l2TokenNonRebasableName?: string;
+  l2TokenNonRebasableSymbol?: string;
   l2TokenNonRebasableDomainVersion: string;
 
   /// L2 stETH
+  l2TokenRebasableName?: string;
+  l2TokenRebasableSymbol?: string;
   l2TokenRebasableDomainVersion: string;
-  l2TokenRebasableProxyAdmin: string;
 
   /// bridge
-  l2TokenBridge: string;
+  proxyAdmin: string;
 }
 
 interface MultiChainDeploymentConfig {
-  ethereum: EthereumDeploymentConfig;
-  optimism: OptimismDeploymentConfig;
+  ethereum: EthereumAutomatonDeploymentConfig;
+  optimism: OptimismAutomatonDeploymentConfig;
 }
 
 export function loadMultiChainDeploymentConfig(): MultiChainDeploymentConfig {
   return {
     ethereum: {
-      l1CrossDomainMessenger: env.address("L1_CROSSDOMAIN_MESSENGER", "0x0000000000000000000000000000000000000000"),
+      l1CrossDomainMessenger: env.address("L1_CROSSDOMAIN_MESSENGER"),
       l1TokenNonRebasable: env.address("L1_NON_REBASABLE_TOKEN"),
       l1RebasableToken: env.address("L1_REBASABLE_TOKEN"),
       accountingOracle: env.address("ACCOUNTING_ORACLE"),
       l2GasLimitForPushingTokenRate: BigNumber.from(env.string("L2_GAS_LIMIT_FOR_PUSHING_TOKEN_RATE")),
-      l1TokenBridge: env.address("L1_TOKEN_BRIDGE", "0x0000000000000000000000000000000000000000"),
-      lido: env.address("LIDO"),
-      tokenRateNotifierOwner: env.address("TOKEN_RATE_NOTIFIER_OWNER"),
 
       // Bridge
-      bridgeProxyAdmin: env.address("L1_PROXY_ADMIN"),
+      proxyAdmin: env.address("L1_PROXY_ADMIN"),
       bridgeAdmin: env.address("L1_BRIDGE_ADMIN"),
       depositsEnabled: env.bool("L1_DEPOSITS_ENABLED", false),
       withdrawalsEnabled: env.bool("L1_WITHDRAWALS_ENABLED", false),
@@ -80,11 +70,10 @@ export function loadMultiChainDeploymentConfig(): MultiChainDeploymentConfig {
       withdrawalsDisablers: env.addresses("L1_WITHDRAWALS_DISABLERS", []),
     },
     optimism: {
-      l2CrossDomainMessenger: env.address("L2_CROSSDOMAIN_MESSENGER", "0x0000000000000000000000000000000000000000"),
+      l2CrossDomainMessenger: env.address("L2_CROSSDOMAIN_MESSENGER"),
       govBridgeExecutor: env.address("GOV_BRIDGE_EXECUTOR"),
 
       /// TokenRateOracle
-      tokenRateOracleProxyAdmin: env.address("TOKEN_RATE_ORACLE_PROXY_ADMIN"),
       tokenRateOracleAdmin: env.address("TOKEN_RATE_ORACLE_ADMIN"),
       tokenRateUpdateEnabled: env.bool("TOKEN_RATE_UPDATE_ENABLED", true),
       tokenRateUpdateDisablers: env.addresses("TOKEN_RATE_UPDATE_DISABLERS", []),
@@ -99,17 +88,17 @@ export function loadMultiChainDeploymentConfig(): MultiChainDeploymentConfig {
       initialTokenRateL1Timestamp: BigNumber.from(env.string("INITIAL_TOKEN_RATE_L1_TIMESTAMP")),
 
       // wstETH
-      l2TokenNonRebasableAddress: env.address("L2_TOKEN_NON_REBASABLE", "0x0000000000000000000000000000000000000000"),
+      l2TokenNonRebasableName: env.string("L2_TOKEN_NON_REBASABLE_NAME"),
+      l2TokenNonRebasableSymbol: env.string("L2_TOKEN_NON_REBASABLE_SYMBOL"),
       l2TokenNonRebasableDomainVersion: env.string("L2_TOKEN_NON_REBASABLE_SIGNING_DOMAIN_VERSION"),
 
       // stETH
+      l2TokenRebasableName: env.string("L2_TOKEN_REBASABLE_NAME"),
+      l2TokenRebasableSymbol: env.string("L2_TOKEN_REBASABLE_SYMBOL"),
       l2TokenRebasableDomainVersion: env.string("L2_TOKEN_REBASABLE_SIGNING_DOMAIN_VERSION"),
-      l2TokenRebasableProxyAdmin: env.string("L2_TOKEN_REBASABLE_PROXY_ADMIN"),
 
       // Bridge
-      l2TokenBridge: env.address("L2_TOKEN_BRIDGE", "0x0000000000000000000000000000000000000000"),
-
-      bridgeProxyAdmin: env.address("L2_PROXY_ADMIN"),
+      proxyAdmin: env.address("L2_PROXY_ADMIN"),
       bridgeAdmin: env.address("L2_BRIDGE_ADMIN"),
       depositsEnabled: env.bool("L2_DEPOSITS_ENABLED", false),
       withdrawalsEnabled: env.bool("L2_WITHDRAWALS_ENABLED", false),
@@ -159,7 +148,7 @@ export async function printMultiChainDeploymentConfig(
 
 async function printEthereumDeploymentConfig(
   deployer: Wallet,
-  params: EthereumDeploymentConfig,
+  params: EthereumAutomatonDeploymentConfig,
   scratchDeploy: boolean
 ) {
   const pad = " ".repeat(4);
@@ -167,17 +156,14 @@ async function printEthereumDeploymentConfig(
   console.log(`${pad}· Chain ID: ${chainId}`);
   console.log(`${pad}· Deployer: ${chalk.underline(deployer.address)}`);
 
+  console.log(`${pad}·· Proxy Admin: ${chalk.underline(params.proxyAdmin)}`);
   console.log(`${pad}· l1TokenNonRebasable: ${chalk.underline(params.l1TokenNonRebasable)}`);
   console.log(`${pad}· l1RebasableToken: ${chalk.underline(params.l1RebasableToken)}`);
   console.log(`${pad}· accountingOracle: ${chalk.underline(params.accountingOracle)}`);
   console.log(`${pad}· l2GasLimitForPushingTokenRate: ${chalk.underline(params.l2GasLimitForPushingTokenRate)}`);
-  console.log(`${pad}· l1TokenBridge: ${chalk.underline(params.l1TokenBridge)}`);
-  console.log(`${pad}· lido: ${chalk.underline(params.lido)}`);
-  console.log(`${pad}· tokenRateNotifierOwner: ${chalk.underline(params.tokenRateNotifierOwner)}`);
 
   if(scratchDeploy) {
     console.log(`${pad}· Ethereum Bridge`);
-    console.log(`${pad}·· Proxy Admin: ${chalk.underline(params.bridgeProxyAdmin)}`);
     console.log(`${pad}·· Bridge Admin: ${chalk.underline(params.bridgeAdmin)}`);
     console.log(`${pad}·· Deposits Enabled: ${params.depositsEnabled}`);
     console.log(
@@ -204,15 +190,15 @@ async function printEthereumDeploymentConfig(
 
 async function printOptimismDeploymentConfig(
   deployer: Wallet,
-  params: OptimismDeploymentConfig,
+  params: OptimismAutomatonDeploymentConfig,
   scratchDeploy: boolean
 ) {
   const pad = " ".repeat(4);
   const chainId = await deployer.getChainId();
   console.log(`${pad}· Chain ID: ${chainId}`);
   console.log(`${pad}· Deployer: ${chalk.underline(deployer.address)}`);
+  console.log(`${pad}·· Proxy Admin: ${chalk.underline(params.proxyAdmin)}`);
   console.log(`${pad}· govBridgeExecutor: ${chalk.underline(params.govBridgeExecutor)}`);
-  console.log(`${pad}· tokenRateOracleProxyAdmin: ${chalk.underline(params.tokenRateOracleProxyAdmin)}`);
   console.log(`${pad}· tokenRateOracleAdmin: ${chalk.underline(params.tokenRateOracleAdmin)}`);
   console.log(`${pad}· tokenRateUpdateEnabled: ${chalk.underline(params.tokenRateUpdateEnabled)}`);
   console.log(`${pad}· tokenRateUpdateDisablers: ${chalk.underline(params.tokenRateUpdateDisablers)}`);
@@ -224,15 +210,11 @@ async function printOptimismDeploymentConfig(
   console.log(`${pad}· minTimeBetweenTokenRateUpdates: ${chalk.underline(params.minTimeBetweenTokenRateUpdates)}`);
   console.log(`${pad}· initialTokenRateValue: ${chalk.underline(params.initialTokenRateValue)}`);
   console.log(`${pad}· initialTokenRateL1Timestamp: ${chalk.underline(params.initialTokenRateL1Timestamp)}`);
-  console.log(`${pad}· l2TokenNonRebasableAddress: ${chalk.underline(params.l2TokenNonRebasableAddress)}`);
   console.log(`${pad}· l2TokenNonRebasableDomainVersion: ${chalk.underline(params.l2TokenNonRebasableDomainVersion)}`);
-  console.log(`${pad}· l2TokenRebasableProxyAdmin: ${chalk.underline(params.l2TokenRebasableProxyAdmin)}`);
   console.log(`${pad}· l2TokenRebasableDomainVersion: ${chalk.underline(params.l2TokenRebasableDomainVersion)}`);
-  console.log(`${pad}· l2TokenBridge: ${chalk.underline(params.l2TokenBridge)}`);
 
   if (scratchDeploy) {
     console.log(`${pad}· Optimism Bridge`);
-    console.log(`${pad}·· Proxy Admin: ${chalk.underline(params.bridgeProxyAdmin)}`);
     console.log(`${pad}·· Admin: ${chalk.underline(params.bridgeAdmin)}`);
     console.log(`${pad}·· Deposits Enabled: ${params.depositsEnabled}`);
     console.log(

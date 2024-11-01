@@ -35,7 +35,7 @@ async function main() {
 
         deployer: ethDeployer,
         admins: {
-          proxy: deploymentConfig.ethereum.bridgeProxyAdmin,
+          proxy: deploymentConfig.ethereum.proxyAdmin,
           bridge: ethDeployer.address
         },
         deployOffset: 0,
@@ -52,15 +52,19 @@ async function main() {
           l1Timestamp: deploymentConfig.optimism.initialTokenRateL1Timestamp
         },
         l2TokenNonRebasable: {
+          name: deploymentConfig.optimism.l2TokenNonRebasableName,
+          symbol: deploymentConfig.optimism.l2TokenNonRebasableSymbol,
           version: deploymentConfig.optimism.l2TokenNonRebasableDomainVersion
         },
         l2TokenRebasable: {
+          name: deploymentConfig.optimism.l2TokenRebasableName,
+          symbol: deploymentConfig.optimism.l2TokenRebasableSymbol,
           version: deploymentConfig.optimism.l2TokenRebasableDomainVersion
         },
 
         deployer: optDeployer,
         admins: {
-          proxy: deploymentConfig.optimism.bridgeProxyAdmin,
+          proxy: deploymentConfig.optimism.proxyAdmin,
           bridge: optDeployer.address,
         },
         deployOffset: 0,
