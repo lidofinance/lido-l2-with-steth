@@ -13,7 +13,6 @@ scenario("Optimism :: Token Rate Oracle integration test", ctxFactory)
       tokenRateOracle,
       opTokenRatePusher,
       l1CrossDomainMessenger,
-      lido,
       accountingOracle
     } = ctx;
 
@@ -21,8 +20,10 @@ scenario("Optimism :: Token Rate Oracle integration test", ctxFactory)
       tokenRate,
     } = ctx.constants;
 
+    const account = ctx.accounts.accountA;
+
     const tx = await opTokenRatePusher
-      .connect(lido)
+      .connect(account.l1Signer)
       .pushTokenRate();
 
     const messageNonce = await l1CrossDomainMessenger.messageNonce();
@@ -132,8 +133,6 @@ async function ctxFactory() {
     ...contracts
   } = await optimism.testing(networkName).getIntegrationTestSetup();
 
-  const lidoAsEOA = await testing.impersonate(env.address("LIDO"), l1Provider);
-
   const tokenRateDecimals = BigNumber.from(27);
   const tokenRate = getExchangeRate(tokenRateDecimals, totalPooledEther, totalShares);
 
@@ -168,7 +167,6 @@ async function ctxFactory() {
     l1Token,
     accountingOracle,
     l1Provider,
-    lido: lidoAsEOA,
     accounts: {
       accountA,
       l1CrossDomainMessengerAliased
