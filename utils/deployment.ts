@@ -15,7 +15,6 @@ interface EthereumAutomatonDeploymentConfig extends BridgingManagerSetupConfig {
 }
 
 interface OptimismAutomatonDeploymentConfig extends BridgingManagerSetupConfig {
-  govBridgeExecutor: string;
   l2CrossDomainMessenger: string;
 
   /// Oracle
@@ -71,7 +70,6 @@ export function loadMultiChainDeploymentConfig(): MultiChainDeploymentConfig {
     },
     optimism: {
       l2CrossDomainMessenger: env.address("L2_CROSSDOMAIN_MESSENGER"),
-      govBridgeExecutor: env.address("GOV_BRIDGE_EXECUTOR"),
 
       /// TokenRateOracle
       tokenRateOracleAdmin: env.address("TOKEN_RATE_ORACLE_ADMIN"),
@@ -198,7 +196,6 @@ async function printOptimismDeploymentConfig(
   console.log(`${pad}· Chain ID: ${chainId}`);
   console.log(`${pad}· Deployer: ${chalk.underline(deployer.address)}`);
   console.log(`${pad}·· Proxy Admin: ${chalk.underline(params.proxyAdmin)}`);
-  console.log(`${pad}· govBridgeExecutor: ${chalk.underline(params.govBridgeExecutor)}`);
   console.log(`${pad}· tokenRateOracleAdmin: ${chalk.underline(params.tokenRateOracleAdmin)}`);
   console.log(`${pad}· tokenRateUpdateEnabled: ${chalk.underline(params.tokenRateUpdateEnabled)}`);
   console.log(`${pad}· tokenRateUpdateDisablers: ${chalk.underline(params.tokenRateUpdateDisablers)}`);
