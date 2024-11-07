@@ -136,6 +136,7 @@ export default function testing(networkName: NetworkName) {
       ).deploy();
       const stubBytecode = await ethProvider.send("eth_getCode", [
         stub.address,
+        "latest"
       ]);
 
       await ethProvider.send("hardhat_setCode", [
