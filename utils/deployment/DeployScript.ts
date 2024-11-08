@@ -8,6 +8,7 @@ import {
   Wallet,
 } from "ethers";
 import network from "../network";
+import * as fs from 'fs';
 
 interface TypechainFactoryConstructor<
   T extends ContractFactory = ContractFactory
@@ -56,6 +57,7 @@ export class DeployScript {
   private readonly steps: DeployStep<ContractFactory>[] = [];
   private contracts: Contract[] = [];
   public readonly deployer: Wallet;
+  private resultJson: any;
 
   constructor(deployer: Wallet, logger?: Logger) {
     this.deployer = deployer;
@@ -77,6 +79,14 @@ export class DeployScript {
     }
     this.contracts = res;
     return res;
+  }
+
+  saveResultToFile(fileName: string) {
+    try {
+      fs.writeFileSync(fileName, `${this.resultJson}\n`, { encoding: "utf8", flag: "w" });
+    } catch (error) {
+      throw new Error(`Failed to write network state file ${fileName}: ${(error as Error).message}`);
+    }
   }
 
   print(printOptions?: PrintOptions) {
@@ -113,6 +123,7 @@ export class DeployScript {
       contract.address,
       this._getStepInfo(index)
     );
+    this.resultJson[contract.address] = this._getStepInfo(index).args;
     return contract;
   }
 
