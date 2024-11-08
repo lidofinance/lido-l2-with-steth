@@ -115,8 +115,8 @@ async function main() {
     rateUpdatesEnablers: deploymentConfig.optimism.tokenRateUpdateEnablers
   });
 
-  l1DeployScript.saveResultToFile("l1DeployArgs.json");
-  l2DeployScript.saveResultToFile("l2DeployArgs.json");
+  await l1DeployScript.saveResultToFile("l1DeployArgs.json");
+  await l2DeployScript.saveResultToFile("l2DeployArgs.json");
 
   const deployResult = JSON.stringify({
     ethereum: l1DeployScript,

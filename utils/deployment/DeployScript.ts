@@ -57,7 +57,7 @@ export class DeployScript {
   private readonly steps: DeployStep<ContractFactory>[] = [];
   private contracts: Contract[] = [];
   public readonly deployer: Wallet;
-  private resultJson: any;
+  private resultJson: { [key: string]: any } = {};
 
   constructor(deployer: Wallet, logger?: Logger) {
     this.deployer = deployer;
@@ -81,12 +81,14 @@ export class DeployScript {
     return res;
   }
 
-  saveResultToFile(fileName: string) {
-    try {
-      fs.writeFileSync(fileName, `${this.resultJson}\n`, { encoding: "utf8", flag: "w" });
-    } catch (error) {
-      throw new Error(`Failed to write network state file ${fileName}: ${(error as Error).message}`);
-    }
+  async saveResultToFile(fileName: string) {
+    console.log("this.resultJson=",this.resultJson);
+    fs.writeFile(fileName, JSON.stringify(this.resultJson, null, 2), { encoding: "utf8", flag: "w" }, function(err) {
+      if (err) {
+          return console.error(err);
+      }
+      console.log("File created!");
+    });
   }
 
   print(printOptions?: PrintOptions) {
@@ -119,11 +121,13 @@ export class DeployScript {
     if (step.afterDeploy) {
       step.afterDeploy(contract);
     }
+    const stepInfo = this._getStepInfo(index);
     await this._printVerificationCommand(
       contract.address,
-      this._getStepInfo(index)
+      stepInfo
     );
-    this.resultJson[contract.address] = this._getStepInfo(index).args;
+    const arsString = stepInfo.args.map((a) => `"${a.value}"`).join(" ");
+    this.resultJson[contract.address] = arsString;
     return contract;
   }
 
