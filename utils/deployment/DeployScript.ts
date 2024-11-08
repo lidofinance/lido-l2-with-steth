@@ -169,6 +169,8 @@ export class DeployScript {
       11155111: "eth_sepolia",
       10: "opt_mainnet",
       11155420: "opt_sepolia",
+      130: "uni_mainnet",
+      1301: "uni_sepolia",
       31337: "hardhat",
     };
     const networkName = networkNameByChainId[chainId] || "<NETWORK_NAME>";

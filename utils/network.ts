@@ -19,6 +19,10 @@ const HARDHAT_NETWORK_NAMES = {
     sepolia: "opt_sepolia",
     mainnet: "opt_mainnet",
   },
+  uni: {
+    sepolia: "uni_sepolia",
+    mainnet: "uni_mainnet",
+  }
 };
 
 const HARDHAT_NETWORK_NAMES_FORK = {
@@ -29,6 +33,10 @@ const HARDHAT_NETWORK_NAMES_FORK = {
   opt: {
     sepolia: "opt_sepolia_fork",
     mainnet: "opt_mainnet_fork",
+  },
+  uni: {
+    sepolia: "uni_sepolia_fork",
+    mainnet: "uni_mainnet_fork",
   },
 };
 

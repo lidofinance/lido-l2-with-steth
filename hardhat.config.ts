@@ -69,6 +69,22 @@ const config: HardhatUserConfig = {
     opt_sepolia_fork: {
       url: "http://localhost:9545",
     },
+
+    // Unichain Public Chains
+    uni_mainnet: {
+      url: env.string("RPC_UNI_MAINNET", ""),
+    },
+    uni_sepolia: {
+      url: env.string("RPC_UNI_SEPOLIA", ""),
+    },
+
+    // Unichain Fork Chains
+    uni_mainnet_fork: {
+      url: "http://localhost:9545",
+    },
+    uni_sepolia_fork: {
+      url: "http://localhost:9545",
+    },
   },
   gasReporter: {
     enabled: env.string("REPORT_GAS", "false") !== "false",
@@ -80,6 +96,7 @@ const config: HardhatUserConfig = {
       sepolia: env.string("ETHERSCAN_API_KEY_ETH", ""),
       optimisticEthereum: env.string("ETHERSCAN_API_KEY_OPT", ""),
       "opt_sepolia": env.string("ETHERSCAN_API_KEY_OPT", ""),
+      "uni_sepolia": env.string("ETHERSCAN_API_KEY_OPT", ""),
     },
 
     customChains: [
@@ -92,13 +109,21 @@ const config: HardhatUserConfig = {
           },
         },
         {
-            network: 'opt_sepolia',
-            chainId: 11155420,
-            urls: {
-              apiURL: 'https://api-sepolia-optimism.etherscan.io/api',
-              browserURL: 'https://sepolia-optimism.etherscan.io',
-            },
+          network: 'opt_sepolia',
+          chainId: 11155420,
+          urls: {
+            apiURL: 'https://api-sepolia-optimism.etherscan.io/api',
+            browserURL: 'https://sepolia-optimism.etherscan.io',
           },
+        },
+        {
+          network: 'uni_sepolia',
+          chainId: 1301,
+          urls: {
+            apiURL: 'https://api-sepolia.uniscan.xyz/api',
+            browserURL: 'https://api-sepolia.uniscan.xyz',
+          },
+        },
       ],
   },
   typechain: {
