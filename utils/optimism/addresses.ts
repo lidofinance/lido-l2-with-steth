@@ -7,11 +7,11 @@ const OptimismMainnetAddresses: OptContractAddresses = {
 };
 
 const OptimismSepoliaAddresses: OptContractAddresses = {
-  L1CrossDomainMessenger: "0x58Cc85b8D04EA49cC6DBd3CbFFd00B4B8D6cb3ef",
+  L1CrossDomainMessenger: "0x448A37330A60494E666F6DD60aD48d930AEbA381",
   L2CrossDomainMessenger: "0x4200000000000000000000000000000000000007",
 };
 
-export default function addresses(  
+export default function addresses(
   networkName: NetworkName,
   options: CommonOptions = {}
 ) {
