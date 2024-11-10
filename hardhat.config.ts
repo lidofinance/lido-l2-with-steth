@@ -1,7 +1,7 @@
 import * as dotenv from "dotenv";
 
 import { HardhatUserConfig } from "hardhat/config";
-import "@nomiclabs/hardhat-etherscan";
+import "@nomicfoundation/hardhat-verify";
 import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
@@ -120,8 +120,8 @@ const config: HardhatUserConfig = {
           network: 'uni_sepolia',
           chainId: 1301,
           urls: {
-            apiURL: 'https://api-sepolia.uniscan.xyz/api',
-            browserURL: 'https://api-sepolia.uniscan.xyz',
+            apiURL: 'https://unichain-sepolia.blockscout.com/api',
+            browserURL: 'https://unichain-sepolia.blockscout.com/',
           },
         },
       ],
