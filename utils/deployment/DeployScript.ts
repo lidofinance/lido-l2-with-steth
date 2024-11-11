@@ -126,7 +126,7 @@ export class DeployScript {
       contract.address,
       stepInfo
     );
-    const arsString = stepInfo.args.map((a) => `"${a.value}"`).join(" ");
+    const arsString = stepInfo.args.map((a) => `${a.value}`);
     this.resultJson[contract.address] = arsString;
     return contract;
   }
