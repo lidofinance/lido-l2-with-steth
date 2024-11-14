@@ -17,6 +17,10 @@ function prompt(question: string, availableAnswers?: string[]) {
 }
 
 async function promptProceed() {
+  if (process.env.L2_DEPLOY_SKIP_PROMPTS) {
+    return;
+  }
+
   const positiveAnswers = ["y", "yes"];
   const negativeAnswers = ["n", "no"];
   const answer = await prompt("Do you want to proceed? [yes/no]", [
