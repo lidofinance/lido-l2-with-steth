@@ -110,7 +110,7 @@ export function loadMultiChainDeploymentConfig(): MultiChainDeploymentConfig {
 
 export async function printDeploymentConfig() {
   const pad = " ".repeat(4);
-  console.log(`${pad}· Network: ${env.string("NETWORK")}`);
+//  console.log(`${pad}· Network: ${env.string("NETWORK")}`);
   console.log(`${pad}· Forking: ${env.bool("FORKING")}`);
 }
 

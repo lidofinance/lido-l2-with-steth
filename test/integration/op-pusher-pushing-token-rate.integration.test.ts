@@ -1,6 +1,5 @@
 import { assert } from "chai";
 import { BigNumber } from "ethers";
-import env from "../../utils/env";
 import { wei } from "../../utils/wei";
 import optimism from "../../utils/optimism";
 import testing, { scenario } from "../../utils/testing";
@@ -121,8 +120,6 @@ scenario("Optimism :: Token Rate Oracle integration test", ctxFactory)
   .run();
 
 async function ctxFactory() {
-  const networkName = env.network("TESTING_OPT_NETWORK", "mainnet");
-
   const {
     totalPooledEther,
     totalShares,
@@ -131,15 +128,15 @@ async function ctxFactory() {
     l1ERC20ExtendedTokensBridgeAdmin,
     l2ERC20ExtendedTokensBridgeAdmin,
     ...contracts
-  } = await optimism.testing(networkName).getIntegrationTestSetup();
+  } = await optimism.testing().getIntegrationTestSetup();
 
   const tokenRateDecimals = BigNumber.from(27);
   const tokenRate = getExchangeRate(tokenRateDecimals, totalPooledEther, totalShares);
 
-  const optContracts = optimism.contracts(networkName, { forking: true });
+  const optContracts = optimism.contracts({ forking: true });
   const l2CrossDomainMessenger = optContracts.L2CrossDomainMessenger;
 
-  await optimism.testing(networkName).stubL1CrossChainMessengerContract();
+  await optimism.testing().stubL1CrossChainMessengerContract();
 
   const l1CrossDomainMessengerAliased = await testing.impersonate(
     testing.accounts.applyL1ToL2Alias(optContracts.L1CrossDomainMessengerStub.address),

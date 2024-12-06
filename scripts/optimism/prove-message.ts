@@ -3,16 +3,14 @@ import env from "../../utils/env";
 import network from "../../utils/network";
 
 async function main() {
-  const networkName = env.network();
   const [l1Signer, l2Signer] = network
-    .multichain(["eth", "opt"], networkName)
     .getSigners(env.privateKey(), { forking: false });
 
   const txHash = env.string("TX_HASH");
 
   const crossChainMessenger = new CrossChainMessenger({
-    l1ChainId: network.chainId("eth", networkName),
-    l2ChainId: network.chainId("opt", networkName),
+    l1ChainId: network.chainId("l1"),
+    l2ChainId: network.chainId("l2"),
     l1SignerOrProvider: l1Signer,
     l2SignerOrProvider: l2Signer,
     bedrock: true,

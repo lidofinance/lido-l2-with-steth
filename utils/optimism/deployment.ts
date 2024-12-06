@@ -2,7 +2,7 @@ import { assert } from "chai";
 import { BigNumber, Wallet } from "ethers";
 import addresses from "./addresses";
 import { OptDeploymentOptions, DeployScriptParams } from "./types";
-import network, { NetworkName } from "../network";
+import network from "../network";
 import { DeployScript, Logger } from "../deployment/DeployScript";
 import {
   ERC20BridgedPermit__factory,
@@ -117,10 +117,9 @@ export class L2DeployAllScript extends DeployScript {
 ///      ERC20RebasableBridgedPermit + Proxy
 ///      L2ERC20ExtendedTokensBridge + Proxy
 export default function deploymentAll(
-  networkName: NetworkName,
   options: OptDeploymentOptions = {}
 ) {
-  const optAddresses = addresses(networkName, options);
+  const optAddresses = addresses();
   return {
     async deployAllScript(
       l1Params: OptL1DeployScriptParams,

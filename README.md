@@ -52,7 +52,6 @@ The configuration of the deployment scripts happens via the ENV variables. The f
 - [`L2_TOKEN`](#L2_TOKEN) - address of the non-rebasable token on L2.
 - [`L2_TOKEN_RATE_ORACLE`](#L2_TOKEN_RATE_ORACLE) - address of token rate oracle on L2.
 - [`GOV_BRIDGE_EXECUTOR`](#GOV_BRIDGE_EXECUTOR) - address of bridge executor.
-- [`NETWORK`](#NETWORK) - name of the network environments used by deployment scripts. Allowed values: `mainnet`, `sepolia`.
 - [`FORKING`](#FORKING) - run deployment in the forking network instead of real ones
 - [`ETH_DEPLOYER_PRIVATE_KEY`](#ETH_DEPLOYER_PRIVATE_KEY) - The private key of the deployer account in the Ethereum network is used during the deployment process.
 - [`OPT_DEPLOYER_PRIVATE_KEY`](#OPT_DEPLOYER_PRIVATE_KEY) - The private key of the deployer account in the Optimism network is used during the deployment process.
@@ -101,14 +100,14 @@ npm run optimism:test:unit
 
 ### Integration tests
 
-Before running integration tests, run the hardhat forked nodes in the standalone tabs corresponding to `TESTING_OPT_NETWORK` env variable or if it's not set use `mainnet` network. Example of the commands for the `mainnet` network:
+Before running integration tests, run the hardhat forked nodes in the standalone tabs. Example of the commands:
 
 ```bash
-# Required to run Optimism integraton tests
-npm run fork:eth:mainnet
+# Required to run integration tests
+npm run fork:l1
 
-# Required to run Optimism integration tests
-npm run fork:opt:mainnet
+# Required to run integration tests
+npm run fork:l2
 
 The integration tests might be run via the following commands:
 
@@ -129,7 +128,6 @@ TESTING_USE_DEPLOYED_CONTRACTS=true
 TESTING_L1_TOKENS_HOLDER=
 
 # Addresses of the Optimism bridge
-TESTING_OPT_NETWORK=
 TESTING_OPT_L1_TOKEN=
 TESTING_OPT_L2_TOKEN=
 TESTING_OPT_L1_ERC20_TOKEN_BRIDGE=
@@ -160,7 +158,6 @@ Additionally, tests might be run on the deployed contracts. To do it, set the fo
 TESTING_PRIVATE_KEY=
 
 # Addresses of the Optimism bridge
-TESTING_OPT_NETWORK=
 TESTING_OPT_L1_TOKEN=
 TESTING_OPT_L2_TOKEN=
 TESTING_OPT_L1_ERC20_TOKEN_BRIDGE=
@@ -228,12 +225,6 @@ Address of the existing non-rebasable token to deploy a new bridge for on the Et
 #### `REBASABLE_TOKEN`
 
 Address of the existing rebasable token to deploy new bridge for on the Ethereum chain.
-
-#### `NETWORK`
-
-> Default value: `mainnet`
-
-Name of the network environments used by deployment scripts. Might be one of: `mainnet`, `sepolia`.
 
 #### `FORKING`
 
@@ -348,10 +339,6 @@ The array of addresses to grant `WITHDRAWALS_DISABLER_ROLE` on L2 bridge/gateway
 ### Acceptance Integration & E2E Testing
 
 The following variables are used in the process of the Integration & E2E testing.
-
-#### `TESTING_OPT_NETWORK`
-
-Name of the network environments used for Optimism Integration & E2E testing. Might be one of: `mainnet`, `sepolia`.
 
 #### `TESTING_OPT_L1_TOKEN`
 

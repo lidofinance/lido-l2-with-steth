@@ -1,5 +1,5 @@
 import contracts from "./contracts";
-import network, { NetworkName } from "../network";
+import network from "../network";
 import { CommonOptions } from "./types";
 import { CrossChainMessenger, MessageStatus } from "@eth-optimism/sdk";
 
@@ -15,19 +15,17 @@ interface MessageData {
 }
 
 export default function messaging(
-  networkName: NetworkName,
   options: ContractsOptions
 ) {
   const [ethProvider, optProvider] = network
-    .multichain(["eth", "opt"], networkName)
     .getProviders(options);
 
-  const optContracts = contracts(networkName, options);
+  const optContracts = contracts(options);
   const crossChainMessenger = new CrossChainMessenger({
-    l2ChainId: network.chainId("opt", networkName),
+    l1ChainId: network.chainId("l1"),
+    l2ChainId: network.chainId("l2"),
     l1SignerOrProvider: ethProvider,
     l2SignerOrProvider: optProvider,
-    l1ChainId: network.chainId("eth", networkName),
   });
   return {
     prepareL2Message(msg: MessageData) {

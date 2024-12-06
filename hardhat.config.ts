@@ -38,53 +38,18 @@ const config: HardhatUserConfig = {
         }
       }
     },
-    // Ethereum Public Chains
-    eth_mainnet: {
-      url: env.string("RPC_ETH_MAINNET", ""),
+    l1: {
+      url: env.string("L1_PRC", ""),
     },
-    eth_sepolia: {
-      url: env.string("RPC_ETH_SEPOLIA", ""),
+    l2: {
+      url: env.string("L2_PRC", ""),
     },
-
-    // Ethereum Fork Chains
-    eth_mainnet_fork: {
-      url: "http://localhost:8545",
+    l1_fork: {
+      url: "http://localhost:8545"
     },
-    eth_sepolia_fork: {
-      url: "http://localhost:8545",
-    },
-
-    // Optimism Public Chains
-    opt_mainnet: {
-      url: env.string("RPC_OPT_MAINNET", ""),
-    },
-    opt_sepolia: {
-      url: env.string("RPC_OPT_SEPOLIA", ""),
-    },
-
-    // Optimism Fork Chains
-    opt_mainnet_fork: {
-      url: "http://localhost:9545",
-    },
-    opt_sepolia_fork: {
-      url: "http://localhost:9545",
-    },
-
-    // Unichain Public Chains
-    uni_mainnet: {
-      url: env.string("RPC_UNI_MAINNET", ""),
-    },
-    uni_sepolia: {
-      url: env.string("RPC_UNI_SEPOLIA", ""),
-    },
-
-    // Unichain Fork Chains
-    uni_mainnet_fork: {
-      url: "http://localhost:9545",
-    },
-    uni_sepolia_fork: {
-      url: "http://localhost:9545",
-    },
+    l2_fork: {
+      url: "http://localhost:9545"
+    }
   },
   gasReporter: {
     enabled: env.string("REPORT_GAS", "false") !== "false",

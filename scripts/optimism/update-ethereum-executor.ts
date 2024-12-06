@@ -12,14 +12,12 @@ const GOV_BRIDGE_EXECUTOR = "";
 
 async function main() {
   const isForking = env.forking();
-  const networkName = env.network();
-  const ethOptNetwork = network.multichain(["eth", "opt"], networkName);
 
-  const [l1LDOHolder] = ethOptNetwork.getSigners(
+  const [l1LDOHolder] = network.getSigners(
     env.string("TESTING_OPT_LDO_HOLDER_PRIVATE_KEY"),
     { forking: isForking }
   );
-  const [, optRunner] = ethOptNetwork.getSigners(env.privateKey(), {
+  const [, optRunner] = network.getSigners(env.privateKey(), {
     forking: isForking,
   });
 
@@ -27,12 +25,9 @@ async function main() {
     GOV_BRIDGE_EXECUTOR,
     optRunner
   );
-
+  const networkName = "sepolia";
   const newEthExecutorLidoDAO = lido(networkName, l1LDOHolder);
-  const oldEthExecutorLidoDAO = lido(
-    networkName === "mainnet" ? "mainnet_test" : networkName,
-    l1LDOHolder
-  );
+  const oldEthExecutorLidoDAO = lido(networkName, l1LDOHolder);
   const prevEthGovExecutorAddress =
     await govBridgeExecutor.getEthereumGovernanceExecutor();
 
@@ -59,7 +54,7 @@ async function main() {
 
   console.log(`Preparing the voting tx...`);
 
-  const optAddresses = optimism.addresses(networkName);
+  const optAddresses = optimism.addresses();
 
   // Prepare data for Governance Bridge Executor
   const executorCalldata = await govBridgeExecutor.interface.encodeFunctionData(
@@ -79,7 +74,7 @@ async function main() {
   );
 
   const { callvalue, calldata } = await optimism
-    .messaging(networkName, { forking: isForking })
+    .messaging({ forking: isForking })
     .prepareL2Message({
       calldata: executorCalldata,
       recipient: GOV_BRIDGE_EXECUTOR,
@@ -121,7 +116,7 @@ async function main() {
 
   console.log(`Waiting for L2 transaction...`);
   await optimism
-    .messaging(networkName, { forking: isForking })
+    .messaging({ forking: isForking })
     .waitForL2Message(executeTxReceipt.transactionHash);
 
   console.log(`Message delivered to L2`);

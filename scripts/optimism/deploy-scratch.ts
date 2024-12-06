@@ -7,18 +7,16 @@ import deploymentAll from "../../utils/optimism/deployment";
 import { TokenRateNotifierManagement } from "../../utils/tokenRateNotifier-management";
 
 async function main() {
-  const networkName = env.network();
-  const ethOptNetwork = network.multichain(["eth", "opt"], networkName);
 
-  const [ethDeployer] = ethOptNetwork.getSigners(env.privateKey(), {
+  const [ethDeployer] = network.getSigners(env.privateKey(), {
     forking: env.forking()
   });
 
-  const [ethProvider] = ethOptNetwork.getProviders({
+  const [ethProvider] = network.getProviders({
     forking: env.forking()
   });
 
-  const [, optDeployer] = ethOptNetwork.getSigners(
+  const [, optDeployer] = network.getSigners(
     env.string("OPT_DEPLOYER_PRIVATE_KEY"),
     {
       forking: env.forking()
@@ -27,7 +25,7 @@ async function main() {
 
   const deploymentConfig = deployment.loadMultiChainDeploymentConfig();
 
-  const [l1DeployScript, l2DeployScript] = await deploymentAll(networkName, { logger: console })
+  const [l1DeployScript, l2DeployScript] = await deploymentAll({ logger: console })
     .deployAllScript(
       {
         l1TokenNonRebasable: deploymentConfig.ethereum.l1TokenNonRebasable,

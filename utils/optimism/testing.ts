@@ -24,15 +24,14 @@ import contracts from "./contracts";
 import deploymentAll from "./deployment";
 import testingUtils from "../testing";
 import { BridgingManagement } from "../bridging-management";
-import network, { NetworkName, SignerOrProvider } from "../network";
+import network, { SignerOrProvider } from "../network";
 
-export default function testing(networkName: NetworkName) {
-  const optAddresses = addresses(networkName);
-  const ethOptNetworks = network.multichain(["eth", "opt"], networkName);
+export default function testing() {
+  const optAddresses = addresses();
 
   return {
     async getAcceptanceTestSetup() {
-      const [ethProvider, optProvider] = ethOptNetworks.getProviders({
+      const [ethProvider, optProvider] = network.getProviders({
         forking: true,
       });
 
@@ -41,7 +40,7 @@ export default function testing(networkName: NetworkName) {
         optProvider
       );
 
-      await printLoadedTestConfig(networkName, bridgeContracts);
+      await printLoadedTestConfig(bridgeContracts);
 
       return {
         l1Provider: ethProvider,
@@ -51,14 +50,14 @@ export default function testing(networkName: NetworkName) {
     },
     async getIntegrationTestSetup() {
       const hasDeployedContracts = testingUtils.env.USE_DEPLOYED_CONTRACTS(false);
-      const [ethProvider, optProvider] = ethOptNetworks.getProviders({ forking: true });
+      const [ethProvider, optProvider] = network.getProviders({ forking: true });
 
       var totalPooledEther = BigNumber.from('9309904612343950493629678');
       var totalShares = BigNumber.from('7975822843597609202337218');
 
       const bridgeContracts = hasDeployedContracts
         ? await loadDeployedBridges(ethProvider, optProvider)
-        : await deployTestBridge(networkName, totalPooledEther, totalShares, ethProvider, optProvider);
+        : await deployTestBridge(totalPooledEther, totalShares, ethProvider, optProvider);
 
       if (hasDeployedContracts) {
         totalPooledEther = await bridgeContracts.l1TokenRebasable.getTotalPooledEther();
@@ -80,13 +79,12 @@ export default function testing(networkName: NetworkName) {
 
       if (hasDeployedContracts) {
         await printLoadedTestConfig(
-          networkName,
           bridgeContracts,
           l1TokensHolder
         );
       }
 
-      const optContracts = contracts(networkName, { forking: true });
+      const optContracts = contracts({ forking: true });
 
       return {
         totalPooledEther: totalPooledEther,
@@ -109,16 +107,16 @@ export default function testing(networkName: NetworkName) {
     },
     async getE2ETestSetup() {
       const testerPrivateKey = testingUtils.env.TESTING_PRIVATE_KEY();
-      const [ethProvider, optProvider] = ethOptNetworks.getProviders({
+      const [ethProvider, optProvider] = network.getProviders({
         forking: false,
       });
-      const [l1Tester, l2Tester] = ethOptNetworks.getSigners(testerPrivateKey, {
+      const [l1Tester, l2Tester] = network.getSigners(testerPrivateKey, {
         forking: false,
       });
 
       const bridgeContracts = await loadDeployedBridges(l1Tester, l2Tester);
 
-      await printLoadedTestConfig(networkName, bridgeContracts, l1Tester);
+      await printLoadedTestConfig(bridgeContracts, l1Tester);
 
       return {
         l1Tester,
@@ -129,7 +127,7 @@ export default function testing(networkName: NetworkName) {
       };
     },
     async stubL1CrossChainMessengerContract() {
-      const [ethProvider] = ethOptNetworks.getProviders({ forking: true });
+      const [ethProvider] = network.getProviders({ forking: true });
       const deployer = testingUtils.accounts.deployer(ethProvider);
       const stub = await new CrossDomainMessengerStub__factory(
         deployer
@@ -182,7 +180,6 @@ async function loadDeployedBridges(
 }
 
 async function deployTestBridge(
-  networkName: NetworkName,
   totalPooledEther: BigNumber,
   totalShares: BigNumber,
   ethProvider: JsonRpcProvider,
@@ -254,9 +251,8 @@ async function deployTestBridge(
     lastProcessingRefSlot
   );
 
-  const [ethDeployScript, optDeployScript] = await deploymentAll(
-    networkName
-  ).deployAllScript(
+  const [ethDeployScript, optDeployScript] = await deploymentAll()
+    .deployAllScript(
     {
       l1TokenNonRebasable: l1TokenNonRebasable.address,
       l1TokenRebasable: l1TokenRebasable.address,
@@ -403,7 +399,6 @@ function connectBridgeContracts(
 }
 
 async function printLoadedTestConfig(
-  networkName: NetworkName,
   bridgeContracts: {
     l1Token: IERC20;
     l1TokenRebasable: IERC20;
@@ -417,7 +412,7 @@ async function printLoadedTestConfig(
   console.log(
     "In case of unexpected fails, please, make sure that you are forking correct Ethereum/Optimism networks"
   );
-  console.log(`  · Network Name: ${networkName}`);
+  //console.log(`  · Network Id: ${networkName}`);
   console.log(`  · L1 Token: ${bridgeContracts.l1Token.address}`);
   console.log(`  · L2 Token: ${bridgeContracts.l2Token.address}`);
   if (l1TokensHolder) {

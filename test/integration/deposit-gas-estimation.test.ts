@@ -1,6 +1,4 @@
 import { assert } from "chai";
-
-import env from "../../utils/env";
 import { wei } from "../../utils/wei";
 import optimism from "../../utils/optimism";
 import testing, { scenario } from "../../utils/testing";
@@ -128,22 +126,16 @@ scenario("Optimism :: Bridging integration test", ctxFactory)
     const gasDifference = receipt1.gasUsed.sub(receipt0.gasUsed);
     console.log("gasUsed difference=", gasDifference);
   })
-
-
-
   .run();
 
 async function ctxFactory() {
-  const networkName = env.network("TESTING_OPT_NETWORK", "mainnet");
-  console.log("networkName=", networkName);
-
   const {
     l1Provider,
     l2Provider,
     l1ERC20ExtendedTokensBridgeAdmin,
     l2ERC20ExtendedTokensBridgeAdmin,
     ...contracts
-  } = await optimism.testing(networkName).getIntegrationTestSetup();
+  } = await optimism.testing().getIntegrationTestSetup();
 
   const l1Snapshot = await l1Provider.send("evm_snapshot", []);
   const l2Snapshot = await l2Provider.send("evm_snapshot", []);

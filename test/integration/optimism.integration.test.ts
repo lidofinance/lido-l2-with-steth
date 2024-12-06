@@ -1,7 +1,6 @@
 import { assert } from "chai";
 import { BigNumber } from 'ethers'
 import { wei } from "../../utils/wei";
-import env from "../../utils/env";
 import optimism from "../../utils/optimism";
 import testing, { scenario } from "../../utils/testing";
 import { BridgingManagerRole } from "../../utils/bridging-management";
@@ -200,9 +199,7 @@ scenario("Optimism :: Bridge Executor integration test", ctxFactory)
   .run();
 
 async function ctxFactory() {
-  const networkName = env.network("TESTING_OPT_NETWORK", "mainnet");
   const [l1Provider, l2Provider] = network
-    .multichain(["eth", "opt"], networkName)
     .getProviders({ forking: true });
 
   const l1Deployer = testing.accounts.deployer(l1Provider);
@@ -255,7 +252,7 @@ async function ctxFactory() {
     decimals: 18
   };
 
-  await optimism.testing(networkName).stubL1CrossChainMessengerContract();
+  await optimism.testing().stubL1CrossChainMessengerContract();
 
   const l1TokenRebasable = await new StETHStub__factory(l1Deployer).deploy(
     l1TokenRebasableName,
@@ -276,7 +273,7 @@ async function ctxFactory() {
     lastProcessingRefSlot
   );
 
-  const optAddresses = optimism.addresses(networkName);
+  const optAddresses = optimism.addresses();
   const testingOnDeployedContracts = testing.env.USE_DEPLOYED_CONTRACTS(false);
 
   const govBridgeExecutor = testingOnDeployedContracts
@@ -294,9 +291,8 @@ async function ctxFactory() {
   const l1EthGovExecutorAddress =
     await govBridgeExecutor.getEthereumGovernanceExecutor();
 
-  const [, optDeployScript] = await deploymentAll(
-    networkName
-  ).deployAllScript(
+  const [, optDeployScript] = await deploymentAll()
+    .deployAllScript(
     {
       l1TokenNonRebasable: l1TokenNonRebasable.address,
       l1TokenRebasable: l1TokenRebasable.address,
@@ -358,7 +354,7 @@ async function ctxFactory() {
     l2Deployer
   );
 
-  const optContracts = optimism.contracts(networkName, { forking: true });
+  const optContracts = optimism.contracts({ forking: true });
 
   const l1CrossDomainMessengerAliased = await testing.impersonate(
     testing.accounts.applyL1ToL2Alias(

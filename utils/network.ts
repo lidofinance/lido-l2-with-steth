@@ -6,39 +6,8 @@ import { HardhatRuntimeEnvironment, HttpNetworkConfig } from "hardhat/types";
 
 import env from "./env";
 
-type ChainNameShort = "opt" | "eth";
-export type NetworkName = "sepolia" | "mainnet";
+type ChainNameShort = "l1" | "l2";
 export type SignerOrProvider = Signer | Provider;
-
-const HARDHAT_NETWORK_NAMES = {
-  eth: {
-    sepolia: "eth_sepolia",
-    mainnet: "eth_mainnet",
-  },
-  opt: {
-    sepolia: "opt_sepolia",
-    mainnet: "opt_mainnet",
-  },
-  uni: {
-    sepolia: "uni_sepolia",
-    mainnet: "uni_mainnet",
-  }
-};
-
-const HARDHAT_NETWORK_NAMES_FORK = {
-  eth: {
-    sepolia: "eth_sepolia_fork",
-    mainnet: "eth_mainnet_fork",
-  },
-  opt: {
-    sepolia: "opt_sepolia_fork",
-    mainnet: "opt_mainnet_fork",
-  },
-  uni: {
-    sepolia: "uni_sepolia_fork",
-    mainnet: "uni_mainnet_fork",
-  },
-};
 
 export function getConfig(networkName: string, hre: HardhatRuntimeEnvironment) {
   const config = hre.config.networks[networkName];
@@ -80,57 +49,24 @@ function loadAccount(rpcURL: string, accountPrivateKeyName: string) {
   return new Wallet(privateKey, getProvider(rpcURL));
 }
 
-export function multichain(
-  chainNames: ChainNameShort[],
-  networkName: NetworkName
-) {
-  return {
-    getNetworks(options: { forking: boolean }) {
-      const hardhatNetworkNames = options.forking
-        ? HARDHAT_NETWORK_NAMES_FORK
-        : HARDHAT_NETWORK_NAMES;
-
-      const res: HttpNetworkConfig[] = [];
-      for (const chainName of chainNames) {
-        const hardhatNetworkName = hardhatNetworkNames[chainName][networkName];
-        if (hardhatNetworkName === "NOT_DEPLOYED") {
-          throw new Error(
-            `Chain "${chainName}" doesn't support "${hardhatNetworkName}" network`
-          );
-        }
-        res.push(getConfig(hardhatNetworkName, hre));
-      }
-      return res;
-    },
-    getProviders(options: { forking: boolean }) {
-      return this.getNetworks(options).map((network) =>
-        getProvider(network.url)
-      );
-    },
-    getSigners(privateKey: string, options: { forking: boolean }) {
-      return this.getProviders(options).map(
-        (provider) => new Wallet(privateKey, provider)
-      );
-    },
-  };
+export function getProviders(options: { forking: boolean }) {
+  if (options.forking) {
+    return [getProvider(getConfig("l1_fork", hre).url), getProvider(getConfig("l2_fork", hre).url)];
+  }
+  return [getProvider(getConfig("l1", hre).url), getProvider(getConfig("l2", hre).url)];
 }
 
-function getChainId(protocol: ChainNameShort, networkName: NetworkName) {
-  const chainIds = {
-    eth: {
-      mainnet: 1,
-      sepolia: 11155111,
-    },
-    opt: {
-      mainnet: 10,
-      sepolia: 11155420,
-    },
-  };
-  const chainId = chainIds[protocol][networkName];
-  if (!chainId) {
-    throw new Error(`Network for ${protocol} ${networkName} doesn't declared`);
+export function getSigners(privateKey: string, options: { forking: boolean }) {
+  return getProviders(options).map(
+    (provider) => new Wallet(privateKey, provider)
+  );
+}
+
+function getChainId(protocol: ChainNameShort) {
+  if (protocol == "l1") {
+    return env.number("L1_CHAIN_ID");
   }
-  return chainId;
+  return env.number("L2_CHAIN_ID");
 }
 
 function getBlockExplorerBaseUrlByChainId(chainId: number) {
@@ -150,7 +86,8 @@ function getBlockExplorerBaseUrlByChainId(chainId: number) {
 export default {
   blockExplorerBaseUrl: getBlockExplorerBaseUrlByChainId,
   chainId: getChainId,
-  multichain,
+  getProviders,
+  getSigners,
   getConfig,
   getProvider,
   loadAccount,

@@ -1,13 +1,11 @@
 import {
   CrossChainMessenger,
-  DAIBridgeAdapter,
   MessageStatus,
 } from "@eth-optimism/sdk";
 import { assert } from "chai";
 import { TransactionResponse } from "@ethersproject/providers";
 import { LidoBridgeAdapter } from "../../utils/optimism/LidoBridgeAdapter";
 
-import env from "../../utils/env";
 import { wei } from "../../utils/wei";
 import network from "../../utils/network";
 import optimism from "../../utils/optimism";
@@ -90,8 +88,7 @@ scenario("Optimism :: Bridging non-rebasable via depositTo/withdrawTo E2E test",
   .run();
 
 async function ctxFactory() {
-  const networkName = env.network("TESTING_OPT_NETWORK", "sepolia");
-  const testingSetup = await optimism.testing(networkName).getE2ETestSetup();
+  const testingSetup = await optimism.testing().getE2ETestSetup();
 
   return {
     depositAmount: wei`0.0001 ether`,
@@ -103,8 +100,8 @@ async function ctxFactory() {
     l1LidoTokensBridge: testingSetup.l1LidoTokensBridge,
     l2ERC20ExtendedTokensBridge: testingSetup.l2ERC20ExtendedTokensBridge,
     crossChainMessenger: new CrossChainMessenger({
-      l2ChainId: network.chainId("opt", networkName),
-      l1ChainId: network.chainId("eth", networkName),
+      l1ChainId: network.chainId("l1"),
+      l2ChainId: network.chainId("l2"),
       l1SignerOrProvider: testingSetup.l1Tester,
       l2SignerOrProvider: testingSetup.l2Tester,
       bridges: {

@@ -8,14 +8,12 @@ import { TokenRateOracleManagement } from "../../utils/tokenRateOracle-managemen
 import * as fs from 'fs';
 
 async function main() {
-  const networkName = env.network();
-  const ethOptNetwork = network.multichain(["eth", "opt"], networkName);
 
-  const [ethDeployer] = ethOptNetwork.getSigners(env.privateKey(), {
+  const [ethDeployer] = network.getSigners(env.privateKey(), {
     forking: env.forking()
   });
 
-  const [, optDeployer] = ethOptNetwork.getSigners(
+  const [, optDeployer] = network.getSigners(
     env.string("OPT_DEPLOYER_PRIVATE_KEY"),
     {
       forking: env.forking()

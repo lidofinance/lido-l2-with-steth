@@ -2,7 +2,7 @@ import { assert } from "chai";
 import { BigNumber, Wallet } from "ethers";
 import addresses from "./addresses";
 import { OptDeploymentOptions, DeployScriptParams } from "./types";
-import network, { NetworkName } from "../network";
+import network from "../network";
 import { DeployScript, Logger } from "../deployment/DeployScript";
 import {
   ERC20BridgedPermit__factory,
@@ -125,10 +125,9 @@ export class L2UpgradeScript extends DeployScript {
 ///     Non-rebasable token (wstETH) new Impl with Permissions
 
 export default function deploy(
-  networkName: NetworkName,
   options: OptDeploymentOptions = {}
 ) {
-  const optAddresses = addresses(networkName, options);
+  const optAddresses = addresses();
   return {
     async deployScript(
       l1Params: OptL1UpgradeScriptParams,
