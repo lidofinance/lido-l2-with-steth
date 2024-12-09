@@ -59,13 +59,13 @@ async function main() {
           l1Timestamp: deploymentConfig.l2.initialTokenRateL1Timestamp
         },
         l2TokenNonRebasable: {
-          address: deploymentConfig.l2.l2TokenNonRebasableAddress,
+          address: deploymentConfig.l2.l2TokenNonRebasable,
           name: deploymentConfig.l2.l2TokenNonRebasableName,
           symbol: deploymentConfig.l2.l2TokenRebasableSymbol,
           version: deploymentConfig.l2.l2TokenNonRebasableDomainVersion
         },
         l2TokenRebasable: {
-          proxyAdmin: deploymentConfig.l2.l2TokenRebasableProxyAdmin,
+          proxyAdmin: deploymentConfig.l2.proxyAdmin,
           name: deploymentConfig.l2.l2TokenRebasableName,
           symbol: deploymentConfig.l2.l2TokenRebasableSymbol,
           version: deploymentConfig.l2.l2TokenRebasableDomainVersion

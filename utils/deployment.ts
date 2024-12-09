@@ -26,8 +26,7 @@ interface L1AutomatonDeploymentConfig extends BridgingManagerSetupConfig {
 
 interface L2StETHDeploymentConfig extends L2ScratchDeploymentConfig {
   l2TokenBridge: string;
-  l2TokenNonRebasableAddress: string;
-  l2TokenRebasableProxyAdmin: string;
+  l2TokenNonRebasable: string;
 }
 
 interface L2ScratchDeploymentConfig extends L2AutomatonDeploymentConfig {
@@ -81,16 +80,15 @@ interface MultiChainAutomatonDeploymentConfig {
 export function loadL1StETHDeploymentConfig(): L1StETHDeploymentConfig {
   return {
     ...loadL1ScratchDeploymentConfig(),
-    l1TokenBridge: env.address(""),
+    l1TokenBridge: env.address("L1_TOKEN_BRIDGE"),
   }
 }
 
 export function loadL2StETHDeploymentConfig(): L2StETHDeploymentConfig {
   return {
     ...loadL2ScratchDeploymentConfig(),
-    l2TokenBridge: env.address(""),
-    l2TokenNonRebasableAddress: env.address(""),
-    l2TokenRebasableProxyAdmin: env.address(""),
+    l2TokenBridge: env.address("L2_TOKEN_BRIDGE"),
+    l2TokenNonRebasable: env.address("L2_TOKEN_NON_REBASABLE"),
   }
 }
 
@@ -98,7 +96,7 @@ export function loadL1ScratchDeploymentConfig(): L1ScratchDeploymentConfig {
   return {
     ...loadL1AutomatonDeploymentConfig(),
     lido: env.address("LIDO"),
-    tokenRateNotifierOwner: env.address("LIDO"),
+    tokenRateNotifierOwner: env.address("TOKEN_RATE_NOTIFIER_OWNER"),
   };
 }
 
