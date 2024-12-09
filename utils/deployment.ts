@@ -5,16 +5,35 @@ import env from "./env";
 import { DeployScript } from "./deployment/DeployScript";
 import { BridgingManagerSetupConfig } from "./bridging-management";
 
-interface EthereumAutomatonDeploymentConfig extends BridgingManagerSetupConfig {
+
+interface L1StETHDeploymentConfig extends L1ScratchDeploymentConfig {
+  l1TokenBridge: string;
+}
+
+interface L1ScratchDeploymentConfig extends L1AutomatonDeploymentConfig {
+  lido: string;
+  tokenRateNotifierOwner: string;
+}
+
+interface L1AutomatonDeploymentConfig extends BridgingManagerSetupConfig {
+  l1CrossDomainMessenger: string;
+  proxyAdmin: string;
   accountingOracle: string;
   l1TokenNonRebasable: string;
   l1RebasableToken: string;
   l2GasLimitForPushingTokenRate: BigNumber;
-  proxyAdmin: string;
-  l1CrossDomainMessenger: string;
 }
 
-interface OptimismAutomatonDeploymentConfig extends BridgingManagerSetupConfig {
+interface L2StETHDeploymentConfig extends L2ScratchDeploymentConfig {
+  l2TokenBridge: string;
+  l2TokenNonRebasableAddress: string;
+  l2TokenRebasableProxyAdmin: string;
+}
+
+interface L2ScratchDeploymentConfig extends L2AutomatonDeploymentConfig {
+}
+
+interface L2AutomatonDeploymentConfig extends BridgingManagerSetupConfig {
   l2CrossDomainMessenger: string;
 
   /// Oracle
@@ -44,67 +63,130 @@ interface OptimismAutomatonDeploymentConfig extends BridgingManagerSetupConfig {
   proxyAdmin: string;
 }
 
-interface MultiChainDeploymentConfig {
-  ethereum: EthereumAutomatonDeploymentConfig;
-  optimism: OptimismAutomatonDeploymentConfig;
+interface MultiChainStETHDeploymentConfig {
+  l1: L1StETHDeploymentConfig;
+  l2: L2StETHDeploymentConfig;
 }
 
-export function loadMultiChainDeploymentConfig(): MultiChainDeploymentConfig {
+interface MultiChainScratchDeploymentConfig {
+  l1: L1ScratchDeploymentConfig;
+  l2: L2ScratchDeploymentConfig;
+}
+
+interface MultiChainAutomatonDeploymentConfig {
+  l1: L1AutomatonDeploymentConfig;
+  l2: L2AutomatonDeploymentConfig;
+}
+
+export function loadL1StETHDeploymentConfig(): L1StETHDeploymentConfig {
   return {
-    ethereum: {
-      l1CrossDomainMessenger: env.address("L1_CROSSDOMAIN_MESSENGER"),
-      l1TokenNonRebasable: env.address("L1_NON_REBASABLE_TOKEN"),
-      l1RebasableToken: env.address("L1_REBASABLE_TOKEN"),
-      accountingOracle: env.address("ACCOUNTING_ORACLE"),
-      l2GasLimitForPushingTokenRate: BigNumber.from(env.string("L2_GAS_LIMIT_FOR_PUSHING_TOKEN_RATE")),
+    ...loadL1ScratchDeploymentConfig(),
+    l1TokenBridge: env.address(""),
+  }
+}
 
-      // Bridge
-      proxyAdmin: env.address("L1_PROXY_ADMIN"),
-      bridgeAdmin: env.address("L1_BRIDGE_ADMIN"),
-      depositsEnabled: env.bool("L1_DEPOSITS_ENABLED", false),
-      withdrawalsEnabled: env.bool("L1_WITHDRAWALS_ENABLED", false),
-      depositsEnablers: env.addresses("L1_DEPOSITS_ENABLERS", []),
-      depositsDisablers: env.addresses("L1_DEPOSITS_DISABLERS", []),
-      withdrawalsEnablers: env.addresses("L1_WITHDRAWALS_ENABLERS", []),
-      withdrawalsDisablers: env.addresses("L1_WITHDRAWALS_DISABLERS", []),
-    },
-    optimism: {
-      l2CrossDomainMessenger: env.address("L2_CROSSDOMAIN_MESSENGER"),
+export function loadL2StETHDeploymentConfig(): L2StETHDeploymentConfig {
+  return {
+    ...loadL2ScratchDeploymentConfig(),
+    l2TokenBridge: env.address(""),
+    l2TokenNonRebasableAddress: env.address(""),
+    l2TokenRebasableProxyAdmin: env.address(""),
+  }
+}
 
-      /// TokenRateOracle
-      tokenRateOracleAdmin: env.address("TOKEN_RATE_ORACLE_ADMIN"),
-      tokenRateUpdateEnabled: env.bool("TOKEN_RATE_UPDATE_ENABLED", true),
-      tokenRateUpdateDisablers: env.addresses("TOKEN_RATE_UPDATE_DISABLERS", []),
-      tokenRateUpdateEnablers: env.addresses("TOKEN_RATE_UPDATE_ENABLERS", []),
+export function loadL1ScratchDeploymentConfig(): L1ScratchDeploymentConfig {
+  return {
+    ...loadL1AutomatonDeploymentConfig(),
+    lido: env.address("LIDO"),
+    tokenRateNotifierOwner: env.address("LIDO"),
+  };
+}
 
-      tokenRateOutdatedDelay: BigNumber.from(env.string("TOKEN_RATE_OUTDATED_DELAY")),
-      maxAllowedL2ToL1ClockLag: BigNumber.from(env.string("MAX_ALLOWED_L2_TO_L1_CLOCK_LAG")),
-      maxAllowedTokenRateDeviationPerDayBp: BigNumber.from(env.string("MAX_ALLOWED_TOKEN_RATE_DEVIATION_PER_DAY_BP")),
-      oldestRateAllowedInPauseTimeSpan: BigNumber.from(env.string("OLDEST_RATE_ALLOWED_IN_PAUSE_TIME_SPAN")),
-      minTimeBetweenTokenRateUpdates: BigNumber.from(env.string("MIN_TIME_BETWEEN_TOKEN_RATE_UPDATES")),
-      initialTokenRateValue: BigNumber.from(env.string("INITIAL_TOKEN_RATE_VALUE")),
-      initialTokenRateL1Timestamp: BigNumber.from(env.string("INITIAL_TOKEN_RATE_L1_TIMESTAMP")),
+export function loadL2ScratchDeploymentConfig(): L2ScratchDeploymentConfig {
+  return {
+    ...loadL2ScratchDeploymentConfig()
+  };
+}
 
-      // wstETH
-      l2TokenNonRebasableName: env.string("L2_TOKEN_NON_REBASABLE_NAME"),
-      l2TokenNonRebasableSymbol: env.string("L2_TOKEN_NON_REBASABLE_SYMBOL"),
-      l2TokenNonRebasableDomainVersion: env.string("L2_TOKEN_NON_REBASABLE_SIGNING_DOMAIN_VERSION"),
+export function loadL1AutomatonDeploymentConfig(): L1AutomatonDeploymentConfig {
+  return {
+    l1CrossDomainMessenger: env.address("L1_CROSSDOMAIN_MESSENGER"),
+    proxyAdmin: env.address("L1_PROXY_ADMIN"),
 
-      // stETH
-      l2TokenRebasableName: env.string("L2_TOKEN_REBASABLE_NAME"),
-      l2TokenRebasableSymbol: env.string("L2_TOKEN_REBASABLE_SYMBOL"),
-      l2TokenRebasableDomainVersion: env.string("L2_TOKEN_REBASABLE_SIGNING_DOMAIN_VERSION"),
+    l1TokenNonRebasable: env.address("L1_NON_REBASABLE_TOKEN"),
+    l1RebasableToken: env.address("L1_REBASABLE_TOKEN"),
+    accountingOracle: env.address("ACCOUNTING_ORACLE"),
+    l2GasLimitForPushingTokenRate: BigNumber.from(env.string("L2_GAS_LIMIT_FOR_PUSHING_TOKEN_RATE")),
 
-      // Bridge
-      proxyAdmin: env.address("L2_PROXY_ADMIN"),
-      bridgeAdmin: env.address("L2_BRIDGE_ADMIN"),
-      depositsEnabled: env.bool("L2_DEPOSITS_ENABLED", false),
-      withdrawalsEnabled: env.bool("L2_WITHDRAWALS_ENABLED", false),
-      depositsEnablers: env.addresses("L2_DEPOSITS_ENABLERS", []),
-      depositsDisablers: env.addresses("L2_DEPOSITS_DISABLERS", []),
-      withdrawalsEnablers: env.addresses("L2_WITHDRAWALS_ENABLERS", []),
-      withdrawalsDisablers: env.addresses("L2_WITHDRAWALS_DISABLERS", []),
-    },
+    // Bridge
+    bridgeAdmin: env.address("L1_BRIDGE_ADMIN"),
+    depositsEnabled: env.bool("L1_DEPOSITS_ENABLED", false),
+    withdrawalsEnabled: env.bool("L1_WITHDRAWALS_ENABLED", false),
+    depositsEnablers: env.addresses("L1_DEPOSITS_ENABLERS", []),
+    depositsDisablers: env.addresses("L1_DEPOSITS_DISABLERS", []),
+    withdrawalsEnablers: env.addresses("L1_WITHDRAWALS_ENABLERS", []),
+    withdrawalsDisablers: env.addresses("L1_WITHDRAWALS_DISABLERS", []),
+  };
+}
+
+export function loadL2AutomatonDeploymentConfig(): L2AutomatonDeploymentConfig {
+  return {
+    l2CrossDomainMessenger: env.address("L2_CROSSDOMAIN_MESSENGER"),
+    proxyAdmin: env.address("L2_PROXY_ADMIN"),
+
+    /// TokenRateOracle
+    tokenRateOracleAdmin: env.address("TOKEN_RATE_ORACLE_ADMIN"),
+    tokenRateUpdateEnabled: env.bool("TOKEN_RATE_UPDATE_ENABLED", true),
+    tokenRateUpdateDisablers: env.addresses("TOKEN_RATE_UPDATE_DISABLERS", []),
+    tokenRateUpdateEnablers: env.addresses("TOKEN_RATE_UPDATE_ENABLERS", []),
+
+    tokenRateOutdatedDelay: BigNumber.from(env.string("TOKEN_RATE_OUTDATED_DELAY")),
+    maxAllowedL2ToL1ClockLag: BigNumber.from(env.string("MAX_ALLOWED_L2_TO_L1_CLOCK_LAG")),
+    maxAllowedTokenRateDeviationPerDayBp: BigNumber.from(env.string("MAX_ALLOWED_TOKEN_RATE_DEVIATION_PER_DAY_BP")),
+    oldestRateAllowedInPauseTimeSpan: BigNumber.from(env.string("OLDEST_RATE_ALLOWED_IN_PAUSE_TIME_SPAN")),
+    minTimeBetweenTokenRateUpdates: BigNumber.from(env.string("MIN_TIME_BETWEEN_TOKEN_RATE_UPDATES")),
+    initialTokenRateValue: BigNumber.from(env.string("INITIAL_TOKEN_RATE_VALUE")),
+    initialTokenRateL1Timestamp: BigNumber.from(env.string("INITIAL_TOKEN_RATE_L1_TIMESTAMP")),
+
+    // wstETH
+    l2TokenNonRebasableName: env.string("L2_TOKEN_NON_REBASABLE_NAME"),
+    l2TokenNonRebasableSymbol: env.string("L2_TOKEN_NON_REBASABLE_SYMBOL"),
+    l2TokenNonRebasableDomainVersion: env.string("L2_TOKEN_NON_REBASABLE_SIGNING_DOMAIN_VERSION"),
+
+    // stETH
+    l2TokenRebasableName: env.string("L2_TOKEN_REBASABLE_NAME"),
+    l2TokenRebasableSymbol: env.string("L2_TOKEN_REBASABLE_SYMBOL"),
+    l2TokenRebasableDomainVersion: env.string("L2_TOKEN_REBASABLE_SIGNING_DOMAIN_VERSION"),
+
+    // Bridge
+    bridgeAdmin: env.address("L2_BRIDGE_ADMIN"),
+    depositsEnabled: env.bool("L2_DEPOSITS_ENABLED", false),
+    withdrawalsEnabled: env.bool("L2_WITHDRAWALS_ENABLED", false),
+    depositsEnablers: env.addresses("L2_DEPOSITS_ENABLERS", []),
+    depositsDisablers: env.addresses("L2_DEPOSITS_DISABLERS", []),
+    withdrawalsEnablers: env.addresses("L2_WITHDRAWALS_ENABLERS", []),
+    withdrawalsDisablers: env.addresses("L2_WITHDRAWALS_DISABLERS", []),
+  };
+}
+
+export function loadMultiChainStETHDeploymentConfig(): MultiChainStETHDeploymentConfig {
+  return {
+    l1: loadL1StETHDeploymentConfig(),
+    l2: loadL2StETHDeploymentConfig()
+  };
+}
+
+export function loadMultiChainAutomatonDeploymentConfig(): MultiChainAutomatonDeploymentConfig {
+  return {
+    l1: loadL1AutomatonDeploymentConfig(),
+    l2: loadL2AutomatonDeploymentConfig()
+  };
+}
+
+export function loadMultiChainScratchDeploymentConfig(): MultiChainScratchDeploymentConfig {
+  return {
+    l1: loadL1ScratchDeploymentConfig(),
+    l2: loadL2ScratchDeploymentConfig()
   };
 }
 
@@ -118,12 +200,12 @@ export async function printMultiChainDeploymentConfig(
   title: string,
   l1Deployer: Wallet,
   l2Deployer: Wallet,
-  deploymentParams: MultiChainDeploymentConfig,
+  deploymentParams: MultiChainAutomatonDeploymentConfig,
   l1DeployScript: DeployScript,
   l2DeployScript: DeployScript,
   scratchDeploy: boolean
 ) {
-  const { ethereum, optimism } = deploymentParams;
+  const { l1, l2 } = deploymentParams;
   console.log(chalk.bold(`${title}\n`));
 
   console.log(chalk.bold("  · Deployment Params:"));
@@ -131,13 +213,13 @@ export async function printMultiChainDeploymentConfig(
   console.log();
 
   console.log(chalk.bold("  · L1 Deployment Params:"));
-  await printEthereumDeploymentConfig(l1Deployer, ethereum, scratchDeploy);
+  await printEthereumDeploymentConfig(l1Deployer, l1, scratchDeploy);
   console.log();
   console.log(chalk.bold("  · L1 Deployment Actions:"));
   l1DeployScript.print({ padding: 6 });
 
   console.log(chalk.bold("  · L2 Deployment Params:"));
-  await printOptimismDeploymentConfig(l2Deployer, optimism, scratchDeploy);
+  await printOptimismDeploymentConfig(l2Deployer, l2, scratchDeploy);
   console.log();
   console.log(chalk.bold("  · L2 Deployment Actions:"));
   l2DeployScript.print({ padding: 6 });
@@ -146,7 +228,7 @@ export async function printMultiChainDeploymentConfig(
 
 async function printEthereumDeploymentConfig(
   deployer: Wallet,
-  params: EthereumAutomatonDeploymentConfig,
+  params: L1AutomatonDeploymentConfig,
   scratchDeploy: boolean
 ) {
   const pad = " ".repeat(4);
@@ -188,7 +270,7 @@ async function printEthereumDeploymentConfig(
 
 async function printOptimismDeploymentConfig(
   deployer: Wallet,
-  params: OptimismAutomatonDeploymentConfig,
+  params: L2AutomatonDeploymentConfig,
   scratchDeploy: boolean
 ) {
   const pad = " ".repeat(4);
@@ -237,6 +319,8 @@ async function printOptimismDeploymentConfig(
 }
 
 export default {
-  loadMultiChainDeploymentConfig,
+  loadMultiChainAutomatonDeploymentConfig,
+  loadMultiChainStETHDeploymentConfig,
+  loadMultiChainScratchDeploymentConfig,
   printMultiChainDeploymentConfig,
 };

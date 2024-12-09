@@ -15,7 +15,7 @@ export interface DeployScriptParams {
     deployer: Wallet;
     admins: {
         proxy: string;
-        bridge: string
+        bridge: string;
     };
     deployOffset: number;
 }

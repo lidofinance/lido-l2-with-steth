@@ -17,44 +17,42 @@ import {
 } from "../../typechain";
 
 interface OptL1UpgradeScriptParams extends DeployScriptParams {
+  l1CrossDomainMessenger: string;
   l1TokenNonRebasable: string;
   l1TokenRebasable: string;
   accountingOracle: string;
   l2GasLimitForPushingTokenRate: BigNumber;
   l1TokenBridge: string;
   lido: string;
+  tokenRateNotifierOwner: string;
 }
 
 interface OptL2UpgradeScriptParams extends DeployScriptParams {
+  l2CrossDomainMessenger: string;
   l2TokenBridge: string;
   l2TokenNonRebasable: {
     address: string;
+    version: string;
     name?: string;
     symbol?: string;
-    version: string;
     decimals?: BigNumber;
   };
   l2TokenRebasable: {
     proxyAdmin: string;
+    version: string;
     name?: string;
     symbol?: string;
-    version: string;
     decimals?: BigNumber;
   };
   tokenRateOracle: {
-    proxyAdmin: string;
     admin: string;
-    constructor: {
-      tokenRateOutdatedDelay: BigNumber;
-      maxAllowedL2ToL1ClockLag: BigNumber;
-      maxAllowedTokenRateDeviationPerDayBp: BigNumber;
-      oldestRateAllowedInPauseTimeSpan: BigNumber;
-      minTimeBetweenTokenRateUpdates: BigNumber;
-    }
-    initialize: {
-      tokenRate: BigNumber;
-      l1Timestamp: BigNumber;
-    }
+    tokenRateOutdatedDelay: BigNumber;
+    maxAllowedL2ToL1ClockLag: BigNumber;
+    maxAllowedTokenRateDeviationPerDayBp: BigNumber;
+    oldestRateAllowedInPauseTimeSpan: BigNumber;
+    minTimeBetweenTokenRateUpdates: BigNumber;
+    tokenRate: BigNumber;
+    l1Timestamp: BigNumber;
   }
 }
 
@@ -179,7 +177,7 @@ export default function deploy(
         .addStep({
           factory: TokenRateNotifier__factory,
           args: [
-            l1Params.deployer.address,
+            l1Params.tokenRateNotifierOwner,
             l1Params.lido,
             options?.overrides,
           ],
@@ -238,11 +236,11 @@ export default function deploy(
             optAddresses.L2CrossDomainMessenger,
             l2Params.l2TokenBridge,
             expectedL1OpStackTokenRatePusherImplAddress,
-            l2Params.tokenRateOracle.constructor.tokenRateOutdatedDelay,
-            l2Params.tokenRateOracle.constructor.maxAllowedL2ToL1ClockLag,
-            l2Params.tokenRateOracle.constructor.maxAllowedTokenRateDeviationPerDayBp,
-            l2Params.tokenRateOracle.constructor.oldestRateAllowedInPauseTimeSpan,
-            l2Params.tokenRateOracle.constructor.minTimeBetweenTokenRateUpdates,
+            l2Params.tokenRateOracle.tokenRateOutdatedDelay,
+            l2Params.tokenRateOracle.maxAllowedL2ToL1ClockLag,
+            l2Params.tokenRateOracle.maxAllowedTokenRateDeviationPerDayBp,
+            l2Params.tokenRateOracle.oldestRateAllowedInPauseTimeSpan,
+            l2Params.tokenRateOracle.minTimeBetweenTokenRateUpdates,
             options?.overrides,
           ],
           afterDeploy: (c) =>
@@ -252,13 +250,13 @@ export default function deploy(
           factory: OssifiableProxy__factory,
           args: [
             expectedL2TokenRateOracleImplAddress,
-            l2Params.tokenRateOracle.proxyAdmin,
+            l2Params.admins.proxy,
             TokenRateOracle__factory.createInterface().encodeFunctionData(
               "initialize",
               [
                 l2Params.tokenRateOracle.admin,
-                l2Params.tokenRateOracle.initialize.tokenRate,
-                l2Params.tokenRateOracle.initialize.l1Timestamp
+                l2Params.tokenRateOracle.tokenRate,
+                l2Params.tokenRateOracle.l1Timestamp
               ]
             ),
             options?.overrides,

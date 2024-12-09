@@ -36,6 +36,7 @@ interface OptL2DeployScriptParams extends DeployScriptParams {
     decimals?: number;
   };
   tokenRateOracle: {
+    admin: string;
     tokenRateOutdatedDelay: BigNumber;
     maxAllowedL2ToL1ClockLag: BigNumber;
     maxAllowedTokenRateDeviationPerDayBp: BigNumber;
@@ -277,7 +278,7 @@ export default function deploymentAll(
             TokenRateOracle__factory.createInterface().encodeFunctionData(
               "initialize",
               [
-                l2Params.admins.bridge,
+                l2Params.tokenRateOracle.admin,
                 l2Params.tokenRateOracle.tokenRate,
                 l2Params.tokenRateOracle.l1Timestamp
               ]

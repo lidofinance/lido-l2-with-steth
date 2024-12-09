@@ -17,14 +17,17 @@ import {
 } from "../../typechain";
 
 interface OptL1DeployScriptParams extends DeployScriptParams {
+  l1CrossDomainMessenger: string;
   l1TokenNonRebasable: string;
   l1TokenRebasable: string;
   accountingOracle: string;
   l2GasLimitForPushingTokenRate: BigNumber;
   lido: string;
+  tokenRateNotifierOwner: string;
 }
 
 interface OptL2DeployScriptParams extends DeployScriptParams {
+  l2CrossDomainMessenger: string;
   l2TokenNonRebasable: {
     name?: string;
     symbol?: string;
@@ -38,6 +41,7 @@ interface OptL2DeployScriptParams extends DeployScriptParams {
     decimals?: number;
   };
   tokenRateOracle: {
+    admin: string;
     tokenRateOutdatedDelay: BigNumber;
     maxAllowedL2ToL1ClockLag: BigNumber;
     maxAllowedTokenRateDeviationPerDayBp: BigNumber;
@@ -184,7 +188,7 @@ export default function deploymentAll(
         .addStep({
           factory: TokenRateNotifier__factory,
           args: [
-            l1Params.deployer.address,
+            l1Params.tokenRateNotifierOwner,
             l1Params.lido,
             options?.overrides,
           ],
