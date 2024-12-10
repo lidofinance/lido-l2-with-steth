@@ -47,7 +47,7 @@ function getAddressList(variableName: string, defaultValue?: string[]) {
 }
 
 function getPrivateKey() {
-  return getString("ETH_DEPLOYER_PRIVATE_KEY");
+  return getString("L1_DEPLOYER_PRIVATE_KEY");
 }
 
 function getForking() {

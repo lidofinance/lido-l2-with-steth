@@ -53,8 +53,8 @@ The configuration of the deployment scripts happens via the ENV variables. The f
 - [`L2_TOKEN_RATE_ORACLE`](#L2_TOKEN_RATE_ORACLE) - address of token rate oracle on L2.
 - [`GOV_BRIDGE_EXECUTOR`](#GOV_BRIDGE_EXECUTOR) - address of bridge executor.
 - [`FORKING`](#FORKING) - run deployment in the forking network instead of real ones
-- [`ETH_DEPLOYER_PRIVATE_KEY`](#ETH_DEPLOYER_PRIVATE_KEY) - The private key of the deployer account in the Ethereum network is used during the deployment process.
-- [`OPT_DEPLOYER_PRIVATE_KEY`](#OPT_DEPLOYER_PRIVATE_KEY) - The private key of the deployer account in the Optimism network is used during the deployment process.
+- [`L1_DEPLOYER_PRIVATE_KEY`](#L1_DEPLOYER_PRIVATE_KEY) - The private key of the deployer account in the Ethereum network is used during the deployment process.
+- [`L2_DEPLOYER_PRIVATE_KEY`](#L2_DEPLOYER_PRIVATE_KEY) - The private key of the deployer account in the Optimism network is used during the deployment process.
 - [`L1_PROXY_ADMIN`](#L1_PROXY_ADMIN) - The address to grant admin rights of the `OssifiableProxy` on the L1 bridge
 - [`L1_BRIDGE_ADMIN`](#L1_BRIDGE_ADMIN) - Address to grant the `DEFAULT_ADMIN_ROLE` on the L1 bridge
 - [`L2_PROXY_ADMIN`](#L2_PROXY_ADMIN) - The address to grant admin rights of the `OssifiableProxy` on the L2 bridge
@@ -178,39 +178,24 @@ The configuration of the project happens via set of ENV variables. The full list
 
 ### RPCs
 
-#### `RPC_URL_ETH_MAINNET`
+#### `L1_PRC_URL`
 
-Address of the RPC node for **Mainnet** Ethereum network.
+Address of the RPC node for **L1** Ethereum network.
 
-#### `RPC_ETH_SEPOLIA`
+#### `L2_PRC_URL`
 
-Address of the RPC node for **Sepolia** Ethereum network.
-
-#### `RPC_OPT_SEPOLIA`
-
-Address of the RPC node for **Sepolia** Optimism network.
-
-#### `RPC_OPT_MAINNET`
-
-> **Warning**
->
-> Please, don't use the default value for production deployments! The default RPC node might not be available or fail suddenly during the request.
-
-Address of the RPC node for **Mainnet** Optimism network.
-
-> Default value: `https://mainnet.optimism.io`
-
+Address of the RPC node for **L2** Ethereum network.
 
 ### Etherscan
 
 Below variables are required for successfull verification of the contracts on block explorer for certain networks.
 
-#### `ETHERSCAN_API_KEY_ETH`
+#### `L1_ETHERSCAN_API_KEY`
 
 API key from the [Etherscan](https://etherscan.io/) block explorer. See details here: https://info.etherscan.com/api-keys/
 
 
-#### `ETHERSCAN_API_KEY_OPT`
+#### `L2_ETHERSCAN_API_KEY`
 
 API key from the [Optimistic Ethereum](https://optimistic.etherscan.io/) block explorer.
 
@@ -232,11 +217,11 @@ Run deployment in the forking network instead of public ones
 
 > Default value: `true`
 
-#### `ETH_DEPLOYER_PRIVATE_KEY`
+#### `L1_DEPLOYER_PRIVATE_KEY`
 
 The private key of the deployer account in the Ethereum network is used during the deployment process.
 
-#### `OPT_DEPLOYER_PRIVATE_KEY`
+#### `L2_DEPLOYER_PRIVATE_KEY`
 
 The private key of the deployer account in the Optimism network is used during the deployment process.
 

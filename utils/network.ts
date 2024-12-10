@@ -62,25 +62,26 @@ export function getSigners(privateKey: string, options: { forking: boolean }) {
   );
 }
 
-function getChainId(protocol: ChainNameShort) {
-  if (protocol == "l1") {
-    return env.number("L1_CHAIN_ID");
+function getChainId(protocol: ChainNameShort): number {
+  switch (protocol) {
+    case "l1":
+      return env.number("L1_CHAIN_ID");
+    case "l2":
+      return env.number("L2_CHAIN_ID");
+    default:
+      throw new Error(`Unsupported protocol ${protocol}`);
   }
-  return env.number("L2_CHAIN_ID");
 }
 
-function getBlockExplorerBaseUrlByChainId(chainId: number) {
-  const baseUrlByChainId: Record<number, string> = {
-    // ethereum
-    1: "https://etherscan.io",
-    11155111: "https://sepolia.etherscan.io",
-    // optimism
-    10: "https://optimistic.etherscan.io",
-    11155420: "https://blockscout.com/optimism/sepolia",
-    // forked node
-    31337: "https://etherscan.io",
-  };
-  return baseUrlByChainId[chainId];
+function getBlockExplorerBaseUrlByChainId(chainId: number): string {
+  switch (chainId) {
+    case env.number("L1_CHAIN_ID"):
+      return env.string("L1_BLOCK_EXPLORER_URL");
+    case env.number("L2_CHAIN_ID"):
+      return env.string("L2_BLOCK_EXPLORER_URL");
+    default:
+      throw new Error(`Unsupported chainId ${chainId}`);
+  }
 }
 
 export default {

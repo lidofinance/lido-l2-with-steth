@@ -14,7 +14,7 @@ async function main() {
   });
 
   const [, l2Deployer] = network.getSigners(
-    env.string("OPT_DEPLOYER_PRIVATE_KEY"),
+    env.string("L2_DEPLOYER_PRIVATE_KEY"),
     {
       forking: env.forking()
     }

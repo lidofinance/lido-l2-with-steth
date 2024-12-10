@@ -9,6 +9,7 @@ import {
 } from "ethers";
 import network from "../network";
 import * as fs from 'fs';
+import env from "../../utils/env";
 
 interface TypechainFactoryConstructor<
   T extends ContractFactory = ContractFactory
@@ -82,12 +83,10 @@ export class DeployScript {
   }
 
   async saveResultToFile(fileName: string) {
-    console.log("this.resultJson=",this.resultJson);
     fs.writeFile(fileName, JSON.stringify(this.resultJson, null, 2), { encoding: "utf8", flag: "w" }, function(err) {
       if (err) {
           return console.error(err);
       }
-      console.log("File created!");
     });
   }
 
@@ -179,16 +178,7 @@ export class DeployScript {
     stepInfo: DeployStepInfo
   ) {
     const chainId = await this.deployer.getChainId();
-    const networkNameByChainId: Record<number, string> = {
-      1: "eth_mainnet",
-      11155111: "eth_sepolia",
-      10: "opt_mainnet",
-      11155420: "opt_sepolia",
-      130: "uni_mainnet",
-      1301: "uni_sepolia",
-      31337: "hardhat",
-    };
-    const networkName = networkNameByChainId[chainId] || "<NETWORK_NAME>";
+    const networkName = this._networkNameByChainId(chainId);
     const arsString = stepInfo.args.map((a) => `"${a.value}"`).join(" ");
     this._log("To verify the contract on Etherscan, use command:");
     this._log(
@@ -198,6 +188,17 @@ export class DeployScript {
 
   private _log(message: string = "") {
     this.logger?.log(message);
+  }
+
+  private _networkNameByChainId(chainId: number): string {
+    switch (chainId) {
+      case env.number("L1_CHAIN_ID"):
+        return "l1";
+      case env.number("L2_CHAIN_ID"):
+        return "l2";
+      default:
+        throw new Error(`Unsupported chainId ${chainId}`)
+    }
   }
 }
 

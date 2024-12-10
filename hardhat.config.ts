@@ -39,10 +39,10 @@ const config: HardhatUserConfig = {
       }
     },
     l1: {
-      url: env.string("L1_PRC", ""),
+      url: env.string("L1_PRC", "")
     },
     l2: {
-      url: env.string("L2_PRC", ""),
+      url: env.string("L2_PRC", "")
     },
     l1_fork: {
       url: "http://localhost:8545"
@@ -57,36 +57,24 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: {
-      mainnet: env.string("ETHERSCAN_API_KEY_ETH", ""),
-      sepolia: env.string("ETHERSCAN_API_KEY_ETH", ""),
-      optimisticEthereum: env.string("ETHERSCAN_API_KEY_OPT", ""),
-      "opt_sepolia": env.string("ETHERSCAN_API_KEY_OPT", ""),
-      "uni_sepolia": env.string("ETHERSCAN_API_KEY_OPT", ""),
+      "l1": env.string("L1_ETHERSCAN_API_KEY", ""),
+      "l2": env.string("L2_ETHERSCAN_API_KEY", ""),
     },
-
     customChains: [
         {
-          network: 'sepolia',
-          chainId: 11155111,
+          network: 'l1',
+          chainId: env.number("L1_CHAIN_ID"),
           urls: {
-            apiURL: 'https://api-sepolia.etherscan.io/api',
-            browserURL: 'https://sepolia.etherscan.io',
+            apiURL: `${env.string("L1_BLOCK_EXPLORER_URL")}/api`,
+            browserURL: env.string("L1_BLOCK_EXPLORER_URL"),
           },
         },
         {
-          network: 'opt_sepolia',
-          chainId: 11155420,
+          network: 'l2',
+          chainId: env.number("L2_CHAIN_ID"),
           urls: {
-            apiURL: 'https://api-sepolia-optimism.etherscan.io/api',
-            browserURL: 'https://sepolia-optimism.etherscan.io',
-          },
-        },
-        {
-          network: 'uni_sepolia',
-          chainId: 1301,
-          urls: {
-            apiURL: 'https://unichain-sepolia.blockscout.com/api',
-            browserURL: 'https://unichain-sepolia.blockscout.com/',
+            apiURL: `${env.string("L2_BLOCK_EXPLORER_URL")}/api`,
+            browserURL: env.string("L2_BLOCK_EXPLORER_URL"),
           },
         },
       ],
