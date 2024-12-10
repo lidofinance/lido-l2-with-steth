@@ -76,9 +76,9 @@ function getChainId(protocol: ChainNameShort): number {
 function getBlockExplorerBaseUrlByChainId(chainId: number): string {
   switch (chainId) {
     case env.number("L1_CHAIN_ID"):
-      return env.string("L1_BLOCK_EXPLORER_URL");
+      return env.string("L1_BLOCK_EXPLORER_BROWSER_URL");
     case env.number("L2_CHAIN_ID"):
-      return env.string("L2_BLOCK_EXPLORER_URL");
+      return env.string("L2_BLOCK_EXPLORER_BROWSER_URL");
     default:
       throw new Error(`Unsupported chainId ${chainId}`);
   }
