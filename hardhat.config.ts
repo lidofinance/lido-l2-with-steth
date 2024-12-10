@@ -39,10 +39,10 @@ const config: HardhatUserConfig = {
       }
     },
     l1: {
-      url: env.string("L1_PRC", "")
+      url: env.string("L1_PRC_URL", "")
     },
     l2: {
-      url: env.string("L2_PRC", "")
+      url: env.string("L2_PRC_URL", "")
     },
     l1_fork: {
       url: "http://localhost:8545"
