@@ -190,12 +190,12 @@ Address of the RPC node for **L2** Ethereum network.
 
 Below variables are required for successfull verification of the contracts on block explorer for certain networks.
 
-#### `L1_ETHERSCAN_API_KEY`
+#### `L1_BLOCK_EXPLORER_API_KEY`
 
 API key from the [Etherscan](https://etherscan.io/) block explorer. See details here: https://info.etherscan.com/api-keys/
 
 
-#### `L2_ETHERSCAN_API_KEY`
+#### `L2_BLOCK_EXPLORER_API_KEY`
 
 API key from the [Optimistic Ethereum](https://optimistic.etherscan.io/) block explorer.
 

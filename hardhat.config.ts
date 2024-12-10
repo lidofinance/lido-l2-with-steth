@@ -57,8 +57,8 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: {
-      "l1": env.string("L1_ETHERSCAN_API_KEY", ""),
-      "l2": env.string("L2_ETHERSCAN_API_KEY", ""),
+      "l1": env.string("L1_BLOCK_EXPLORER_API_KEY", ""),
+      "l2": env.string("L2_BLOCK_EXPLORER_API_KEY", ""),
     },
     customChains: [
         {
