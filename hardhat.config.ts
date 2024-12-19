@@ -63,18 +63,18 @@ const config: HardhatUserConfig = {
     customChains: [
         {
           network: 'l1',
-          chainId: env.number("L1_CHAIN_ID"),
+          chainId: env.number("L1_CHAIN_ID", ""),
           urls: {
-            apiURL: env.string("L1_BLOCK_EXPLORER_API_URL"),
-            browserURL: env.string("L1_BLOCK_EXPLORER_BROWSER_URL"),
+            apiURL: env.string("L1_BLOCK_EXPLORER_API_URL", ""),
+            browserURL: env.string("L1_BLOCK_EXPLORER_BROWSER_URL", ""),
           },
         },
         {
           network: 'l2',
-          chainId: env.number("L2_CHAIN_ID"),
+          chainId: env.number("L2_CHAIN_ID", ""),
           urls: {
-            apiURL: env.string("L2_BLOCK_EXPLORER_API_URL"),
-            browserURL: env.string("L2_BLOCK_EXPLORER_BROWSER_URL"),
+            apiURL: env.string("L2_BLOCK_EXPLORER_API_URL", ""),
+            browserURL: env.string("L2_BLOCK_EXPLORER_BROWSER_URL", ""),
           },
         },
       ],
