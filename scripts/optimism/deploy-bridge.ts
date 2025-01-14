@@ -3,7 +3,7 @@ import prompt from "../../utils/prompt";
 import network from "../../utils/network";
 import deployment from "../../utils/deployment";
 import { BridgingManagement } from "../../utils/bridging-management";
-import deployLidoOPStackBridge from "../../utils/optimism/deployAll";
+import deployAll from "../../utils/optimism/deployAll";
 import { TokenRateNotifierManagement } from "../../utils/tokenRateNotifier-management";
 
 async function main() {
@@ -25,7 +25,7 @@ async function main() {
 
   const deploymentConfig = deployment.loadMultiChainScratchDeploymentConfig();
 
-  const [l1DeployScript, l2DeployScript] = await deployLidoOPStackBridge(true, { logger: console })
+  const [l1DeployScript, l2DeployScript] = await deployAll(true, { logger: console })
     .deployAllScript(
       {
         lido: deploymentConfig.l1.lido,

@@ -3,7 +3,7 @@ import prompt from "../../utils/prompt";
 import network from "../../utils/network";
 import deployment from "../../utils/deployment";
 import { BridgingManagement } from "../../utils/bridging-management";
-import deployLidoOPStackBridge from "../../utils/optimism/deployAll";
+import deployAll from "../../utils/optimism/deployAll";
 import { TokenRateOracleManagement } from "../../utils/tokenRateOracle-management";
 import * as fs from 'fs';
 
@@ -22,7 +22,7 @@ async function main() {
 
   const deploymentConfig = deployment.loadMultiChainDeploymentConfig();
 
-  const [l1DeployScript, l2DeployScript] = await deployLidoOPStackBridge(false, { logger: console })
+  const [l1DeployScript, l2DeployScript] = await deployAll(false, { logger: console })
     .deployAllScript(
       {
         l1CrossDomainMessenger: deploymentConfig.l1.l1CrossDomainMessenger,

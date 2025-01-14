@@ -144,7 +144,7 @@ async function predictAllAddresses(l1Params: OptL1DeployScriptParams, l2Params: 
 }
 
 /// Deploy all contracts on new network from scratch.
-export default function deployLidoOPStackBridge(
+export default function deployAll(
   deployNotifier: boolean,
   options: OptDeploymentOptions = {}
 ) {

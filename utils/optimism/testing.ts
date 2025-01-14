@@ -21,7 +21,7 @@ import {
 } from "../../typechain";
 import addresses from "./addresses";
 import contracts from "./contracts";
-import deployLidoOPStackBridge from "./deployAll";
+import deployAll from "./deployAll";
 import testingUtils from "../testing";
 import { BridgingManagement } from "../bridging-management";
 import network, { SignerOrProvider } from "../network";
@@ -256,7 +256,7 @@ async function deployTestBridge(
     lastProcessingRefSlot
   );
 
-  const [ethDeployScript, optDeployScript] = await deployLidoOPStackBridge(true)
+  const [ethDeployScript, optDeployScript] = await deployAll(true)
     .deployAllScript(
     {
       l1TokenNonRebasable: l1TokenNonRebasable.address,

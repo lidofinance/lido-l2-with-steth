@@ -6,7 +6,7 @@ import testing, { scenario } from "../../utils/testing";
 import { BridgingManagerRole } from "../../utils/bridging-management";
 import { getExchangeRate } from "../../utils/testing/helpers";
 import { getBridgeExecutorParams } from "../../utils/bridge-executor";
-import deploymentAll from "../../utils/optimism/deployment";
+import deployAll from "../../utils/optimism/deployAll";
 import network from "../../utils/network";
 import {
   StETHStub__factory,
@@ -291,7 +291,7 @@ async function ctxFactory() {
   const l1EthGovExecutorAddress =
     await govBridgeExecutor.getEthereumGovernanceExecutor();
 
-  const [, optDeployScript] = await deploymentAll()
+  const [, optDeployScript] = await deployAll(true)
     .deployAllScript(
     {
       l1TokenNonRebasable: l1TokenNonRebasable.address,
@@ -299,6 +299,7 @@ async function ctxFactory() {
       accountingOracle: accountingOracle.address,
       l2GasLimitForPushingTokenRate: l2GasLimitForPushingTokenRate,
       lido: lido.address,
+      l1CrossDomainMessenger: optAddresses.L1CrossDomainMessenger,
 
       deployer: l1Deployer,
       admins: {
@@ -309,6 +310,7 @@ async function ctxFactory() {
     },
     {
       tokenRateOracle: {
+        admin: l2Deployer.address,
         tokenRateOutdatedDelay: tokenRateOutdatedDelay,
         maxAllowedL2ToL1ClockLag: maxAllowedL2ToL1ClockLag,
         maxAllowedTokenRateDeviationPerDayBp: maxAllowedTokenRateDeviationPerDay,
@@ -317,6 +319,7 @@ async function ctxFactory() {
         tokenRate: exchangeRate,
         l1Timestamp: l1Timestamp
       },
+      l2CrossDomainMessenger: optAddresses.L2CrossDomainMessenger,
       l2TokenNonRebasable: {
         name: l2TokenNonRebasable.name,
         symbol: l2TokenNonRebasable.symbol,
