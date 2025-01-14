@@ -21,7 +21,7 @@ import {
 } from "../../typechain";
 import addresses from "./addresses";
 import contracts from "./contracts";
-import deploymentAll from "./deployment";
+import deployLidoOPStackBridge from "./deployAll";
 import testingUtils from "../testing";
 import { BridgingManagement } from "../bridging-management";
 import network, { SignerOrProvider } from "../network";
@@ -232,6 +232,11 @@ async function deployTestBridge(
   const ethDeployer = testingUtils.accounts.deployer(ethProvider);
   const optDeployer = testingUtils.accounts.deployer(optProvider);
 
+  const crossDomainAddresses = addresses();
+  if (!crossDomainAddresses.L1CrossDomainMessenger || !crossDomainAddresses.L2CrossDomainMessenger) {
+    throw new Error('CrossDomainMessenger addresses are not defined');
+  }
+
   const l1TokenRebasable = await new StETHStub__factory(ethDeployer).deploy(
     l1TokenRebasableName,
     l1TokenRebasableSymbol
@@ -251,7 +256,7 @@ async function deployTestBridge(
     lastProcessingRefSlot
   );
 
-  const [ethDeployScript, optDeployScript] = await deploymentAll()
+  const [ethDeployScript, optDeployScript] = await deployLidoOPStackBridge(true)
     .deployAllScript(
     {
       l1TokenNonRebasable: l1TokenNonRebasable.address,
@@ -259,6 +264,7 @@ async function deployTestBridge(
       accountingOracle: accountingOracle.address,
       l2GasLimitForPushingTokenRate: l2GasLimitForPushingTokenRate,
       lido: lido,
+      l1CrossDomainMessenger: crossDomainAddresses.L1CrossDomainMessenger,
 
       deployer: ethDeployer,
       admins: { proxy: ethDeployer.address, bridge: ethDeployer.address },
@@ -266,6 +272,7 @@ async function deployTestBridge(
     },
     {
       tokenRateOracle: {
+        admin: optDeployer.address,
         tokenRateOutdatedDelay: tokenRateOutdatedDelay,
         maxAllowedL2ToL1ClockLag: maxAllowedL2ToL1ClockLag,
         maxAllowedTokenRateDeviationPerDayBp: maxAllowedTokenRateDeviationPerDay,
@@ -274,6 +281,7 @@ async function deployTestBridge(
         tokenRate: tokenRate,
         l1Timestamp: l1TokenRateUpdate
       },
+      l2CrossDomainMessenger: crossDomainAddresses.L2CrossDomainMessenger,
       l2TokenNonRebasable: {
         name: l2TokenNonRebasable.name,
         symbol: l2TokenNonRebasable.symbol,
@@ -295,6 +303,10 @@ async function deployTestBridge(
 
   await ethDeployScript.run();
   await optDeployScript.run();
+
+  if (!ethDeployScript.tokenRateNotifierImplAddress || !ethDeployScript.opStackTokenRatePusherImplAddress) {
+    throw new Error('Token rate notifier addresses are not defined');
+  }
 
   const tokenRateNotifier = TokenRateNotifier__factory.connect(
     ethDeployScript.tokenRateNotifierImplAddress,
