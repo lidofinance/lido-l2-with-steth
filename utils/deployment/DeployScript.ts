@@ -85,7 +85,7 @@ export class DeployScript {
   async saveResultToFile(fileName: string) {
     fs.writeFile(fileName, JSON.stringify(this.resultJson, null, 2), { encoding: "utf8", flag: "w" }, function(err) {
       if (err) {
-          return console.error(err);
+        return console.error(err);
       }
     });
   }

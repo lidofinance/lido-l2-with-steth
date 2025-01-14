@@ -321,6 +321,10 @@ The array of addresses to grant `WITHDRAWALS_ENABLER_ROLE` on L2 bridge/gateway.
 The array of addresses to grant `WITHDRAWALS_DISABLER_ROLE` on L2 bridge/gateway. The value must be in the form of JSON array of strings. For example:
 `["0x00000000219ab540356cbb839cbe05303d7705fa","0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"]`
 
+#### `L2_DEPLOY_SKIP_PROMPTS`
+
+Skip interactive prompts during L2 deployment if set to true.
+
 ### Acceptance Integration & E2E Testing
 
 The following variables are used in the process of the Integration & E2E testing.
@@ -377,3 +381,10 @@ The test Ether might be retrived via [Paradigm Faucet](https://faucet.paradigm.x
 
 The private key from the address which holds 50+% TLDO
 
+### Cross-Chain Relayer
+
+Utility that relays messages to L2.
+
+#### `L1_L2_PORTAL`
+
+An address of portal that relays messages.
