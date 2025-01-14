@@ -2,51 +2,50 @@ import env from "../../utils/env";
 import prompt from "../../utils/prompt";
 import network from "../../utils/network";
 import deployment from "../../utils/deployment";
+import { BridgingManagement } from "../../utils/bridging-management";
+import deployLidoOPStackBridge from "../../utils/optimism/deployAll";
 import { TokenRateNotifierManagement } from "../../utils/tokenRateNotifier-management";
-import { TokenRateOracleManagement } from "../../utils/tokenRateOracle-management";
-import deploy from "../../utils/optimism/deploymentStETH";
 
 async function main() {
 
   const [l1Deployer] = network.getSigners(env.privateKey(), {
-    forking: env.forking(),
+    forking: env.forking()
   });
-  const [ethProvider] = network.getProviders({
+
+  const [l1Provider] = network.getProviders({
     forking: env.forking()
   });
 
   const [, l2Deployer] = network.getSigners(
     env.string("L2_DEPLOYER_PRIVATE_KEY"),
     {
-      forking: env.forking(),
+      forking: env.forking()
     }
   );
 
-  const deploymentConfig = deployment.loadMultiChainStETHDeploymentConfig();
+  const deploymentConfig = deployment.loadMultiChainScratchDeploymentConfig();
 
-  const [l1DeployScript, l2DeployScript] = await deploy({ logger: console })
-    .deployScript(
+  const [l1DeployScript, l2DeployScript] = await deployLidoOPStackBridge(true, { logger: console })
+    .deployAllScript(
       {
+        lido: deploymentConfig.l1.lido,
+        tokenRateNotifierOwner: deploymentConfig.l1.tokenRateNotifierOwner,
+
         l1CrossDomainMessenger: deploymentConfig.l1.l1CrossDomainMessenger,
         l1TokenNonRebasable: deploymentConfig.l1.l1TokenNonRebasable,
         l1TokenRebasable: deploymentConfig.l1.l1RebasableToken,
         accountingOracle: deploymentConfig.l1.accountingOracle,
         l2GasLimitForPushingTokenRate: deploymentConfig.l1.l2GasLimitForPushingTokenRate,
 
-        l1TokenBridge: deploymentConfig.l1.l1TokenBridge,
-        lido: deploymentConfig.l1.lido,
-        tokenRateNotifierOwner: l1Deployer.address,
-
         deployer: l1Deployer,
         admins: {
           proxy: deploymentConfig.l1.proxyAdmin,
-          bridge: l1Deployer.address
+          bridge: l1Deployer.address,
         },
         deployOffset: 0,
       },
       {
         l2CrossDomainMessenger: deploymentConfig.l2.l2CrossDomainMessenger,
-        l2TokenBridge: deploymentConfig.l2.l2TokenBridge,
 
         tokenRateOracle: {
           admin: l2Deployer.address,
@@ -59,13 +58,11 @@ async function main() {
           l1Timestamp: deploymentConfig.l2.initialTokenRateL1Timestamp
         },
         l2TokenNonRebasable: {
-          address: deploymentConfig.l2.l2TokenNonRebasable,
           name: deploymentConfig.l2.l2TokenNonRebasableName,
-          symbol: deploymentConfig.l2.l2TokenRebasableSymbol,
+          symbol: deploymentConfig.l2.l2TokenNonRebasableSymbol,
           version: deploymentConfig.l2.l2TokenNonRebasableDomainVersion
         },
         l2TokenRebasable: {
-          proxyAdmin: deploymentConfig.l2.proxyAdmin,
           name: deploymentConfig.l2.l2TokenRebasableName,
           symbol: deploymentConfig.l2.l2TokenRebasableSymbol,
           version: deploymentConfig.l2.l2TokenRebasableDomainVersion
@@ -81,13 +78,13 @@ async function main() {
     );
 
   await deployment.printMultiChainDeploymentConfig(
-    "Deploy new contracts for Optimism Bridge",
+    "Deploy Optimism Bridge",
     l1Deployer,
     l2Deployer,
     deploymentConfig,
     l1DeployScript,
     l2DeployScript,
-    false
+    true
   );
 
   await prompt.proceed();
@@ -95,34 +92,36 @@ async function main() {
   await l1DeployScript.run();
   await l2DeployScript.run();
 
-  /// Setup TokenRateNotifier
+  if (!l1DeployScript.tokenRateNotifierImplAddress || !l1DeployScript.opStackTokenRatePusherImplAddress) {
+    throw new Error('Token rate notifier addresses are not defined');
+  }
+
   const tokenRateNotifierManagement = new TokenRateNotifierManagement(
     l1DeployScript.tokenRateNotifierImplAddress,
-    l1Deployer,
-    { logger: console }
+    l1Deployer
   );
   await tokenRateNotifierManagement.setup({
     tokenRateNotifier: l1DeployScript.tokenRateNotifierImplAddress,
     opStackTokenRatePusher: l1DeployScript.opStackTokenRatePusherImplAddress,
     ethDeployer: l1Deployer,
-    ethProvider: ethProvider,
-    notifierOwner: deploymentConfig.l1.tokenRateNotifierOwner
+    ethProvider: l1Provider,
+    notifierOwner: deploymentConfig.l1.lido
   });
 
-  /// Setup TokenRateOracle
-  const tokenRateOracleManagement = new TokenRateOracleManagement(
-    l2DeployScript.tokenRateOracleProxyAddress,
+  const l1BridgingManagement = new BridgingManagement(
+    l1DeployScript.bridgeProxyAddress,
+    l1Deployer,
+    { logger: console }
+  );
+
+  const l2BridgingManagement = new BridgingManagement(
+    l2DeployScript.tokenBridgeProxyAddress,
     l2Deployer,
     { logger: console }
   );
-  await tokenRateOracleManagement.setup({
-    tokenRateOracleAdmin: deploymentConfig.l2.tokenRateOracleAdmin,
-    initialTokenRateValue: deploymentConfig.l2.initialTokenRateValue,
-    initialTokenRateL1Timestamp: deploymentConfig.l2.initialTokenRateL1Timestamp,
-    rateUpdatesEnabled: deploymentConfig.l2.tokenRateUpdateEnabled,
-    rateUpdatesDisablers: deploymentConfig.l2.tokenRateUpdateDisablers,
-    rateUpdatesEnablers: deploymentConfig.l2.tokenRateUpdateEnablers
-  });
+
+  await l1BridgingManagement.setup(deploymentConfig.l1);
+  await l2BridgingManagement.setup(deploymentConfig.l2);
 }
 
 main().catch((error) => {

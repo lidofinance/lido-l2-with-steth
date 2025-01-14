@@ -10,12 +10,12 @@ interface L1StETHDeploymentConfig extends L1ScratchDeploymentConfig {
   l1TokenBridge: string;
 }
 
-interface L1ScratchDeploymentConfig extends L1AutomatonDeploymentConfig {
+interface L1ScratchDeploymentConfig extends L1DeploymentConfig {
   lido: string;
   tokenRateNotifierOwner: string;
 }
 
-interface L1AutomatonDeploymentConfig extends BridgingManagerSetupConfig {
+interface L1DeploymentConfig extends BridgingManagerSetupConfig {
   l1CrossDomainMessenger: string;
   proxyAdmin: string;
   accountingOracle: string;
@@ -29,10 +29,10 @@ interface L2StETHDeploymentConfig extends L2ScratchDeploymentConfig {
   l2TokenNonRebasable: string;
 }
 
-interface L2ScratchDeploymentConfig extends L2AutomatonDeploymentConfig {
+interface L2ScratchDeploymentConfig extends L2DeploymentConfig {
 }
 
-interface L2AutomatonDeploymentConfig extends BridgingManagerSetupConfig {
+interface L2DeploymentConfig extends BridgingManagerSetupConfig {
   l2CrossDomainMessenger: string;
 
   /// Oracle
@@ -72,9 +72,9 @@ interface MultiChainScratchDeploymentConfig {
   l2: L2ScratchDeploymentConfig;
 }
 
-interface MultiChainAutomatonDeploymentConfig {
-  l1: L1AutomatonDeploymentConfig;
-  l2: L2AutomatonDeploymentConfig;
+interface MultiChainDeploymentConfig {
+  l1: L1DeploymentConfig;
+  l2: L2DeploymentConfig;
 }
 
 export function loadL1StETHDeploymentConfig(): L1StETHDeploymentConfig {
@@ -94,7 +94,7 @@ export function loadL2StETHDeploymentConfig(): L2StETHDeploymentConfig {
 
 export function loadL1ScratchDeploymentConfig(): L1ScratchDeploymentConfig {
   return {
-    ...loadL1AutomatonDeploymentConfig(),
+    ...loadL1DeploymentConfig(),
     lido: env.address("LIDO"),
     tokenRateNotifierOwner: env.address("TOKEN_RATE_NOTIFIER_OWNER"),
   };
@@ -106,7 +106,7 @@ export function loadL2ScratchDeploymentConfig(): L2ScratchDeploymentConfig {
   };
 }
 
-export function loadL1AutomatonDeploymentConfig(): L1AutomatonDeploymentConfig {
+export function loadL1DeploymentConfig(): L1DeploymentConfig {
   return {
     l1CrossDomainMessenger: env.address("L1_CROSSDOMAIN_MESSENGER"),
     proxyAdmin: env.address("L1_PROXY_ADMIN"),
@@ -127,7 +127,7 @@ export function loadL1AutomatonDeploymentConfig(): L1AutomatonDeploymentConfig {
   };
 }
 
-export function loadL2AutomatonDeploymentConfig(): L2AutomatonDeploymentConfig {
+export function loadL2DeploymentConfig(): L2DeploymentConfig {
   return {
     l2CrossDomainMessenger: env.address("L2_CROSSDOMAIN_MESSENGER"),
     proxyAdmin: env.address("L2_PROXY_ADMIN"),
@@ -174,10 +174,10 @@ export function loadMultiChainStETHDeploymentConfig(): MultiChainStETHDeployment
   };
 }
 
-export function loadMultiChainAutomatonDeploymentConfig(): MultiChainAutomatonDeploymentConfig {
+export function loadMultiChainDeploymentConfig(): MultiChainDeploymentConfig {
   return {
-    l1: loadL1AutomatonDeploymentConfig(),
-    l2: loadL2AutomatonDeploymentConfig()
+    l1: loadL1DeploymentConfig(),
+    l2: loadL2DeploymentConfig()
   };
 }
 
@@ -190,7 +190,6 @@ export function loadMultiChainScratchDeploymentConfig(): MultiChainScratchDeploy
 
 export async function printDeploymentConfig() {
   const pad = " ".repeat(4);
-//  console.log(`${pad}· Network: ${env.string("NETWORK")}`);
   console.log(`${pad}· Forking: ${env.bool("FORKING")}`);
 }
 
@@ -198,7 +197,7 @@ export async function printMultiChainDeploymentConfig(
   title: string,
   l1Deployer: Wallet,
   l2Deployer: Wallet,
-  deploymentParams: MultiChainAutomatonDeploymentConfig,
+  deploymentParams: MultiChainDeploymentConfig,
   l1DeployScript: DeployScript,
   l2DeployScript: DeployScript,
   scratchDeploy: boolean
@@ -223,10 +222,9 @@ export async function printMultiChainDeploymentConfig(
   l2DeployScript.print({ padding: 6 });
 }
 
-
 async function printEthereumDeploymentConfig(
   deployer: Wallet,
-  params: L1AutomatonDeploymentConfig,
+  params: L1DeploymentConfig,
   scratchDeploy: boolean
 ) {
   const pad = " ".repeat(4);
@@ -268,7 +266,7 @@ async function printEthereumDeploymentConfig(
 
 async function printOptimismDeploymentConfig(
   deployer: Wallet,
-  params: L2AutomatonDeploymentConfig,
+  params: L2DeploymentConfig,
   scratchDeploy: boolean
 ) {
   const pad = " ".repeat(4);
@@ -317,7 +315,7 @@ async function printOptimismDeploymentConfig(
 }
 
 export default {
-  loadMultiChainAutomatonDeploymentConfig,
+  loadMultiChainDeploymentConfig,
   loadMultiChainStETHDeploymentConfig,
   loadMultiChainScratchDeploymentConfig,
   printMultiChainDeploymentConfig,
