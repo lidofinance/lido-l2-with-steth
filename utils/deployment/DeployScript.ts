@@ -59,6 +59,7 @@ export class DeployScript {
   private contracts: Contract[] = [];
   public readonly deployer: Wallet;
   private resultJson: { [key: string]: any } = {};
+  public lastBlockNumber: number = 0;
 
   constructor(deployer: Wallet, logger?: Logger) {
     this.deployer = deployer;
@@ -108,7 +109,8 @@ export class DeployScript {
     const contract = await new Factory(deployer).deploy(...step.args);
     const deployTx = contract.deployTransaction;
     this._log(`Waiting for tx: ${getBlockExplorerTxLinkByChainId(deployTx)}`);
-    await deployTx.wait();
+    const receipt = await deployTx.wait();
+    this.lastBlockNumber = receipt.blockNumber;
     this._log(
       `Contract ${chalk.yellow(
         factoryName
