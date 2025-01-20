@@ -210,19 +210,19 @@ export async function printMultiChainDeploymentConfig(
   console.log();
 
   console.log(chalk.bold("  · L1 Deployment Params:"));
-  await printEthereumDeploymentConfig(l1Deployer, l1, scratchDeploy);
+  await printL1DeploymentConfig(l1Deployer, l1, scratchDeploy);
   console.log();
   console.log(chalk.bold("  · L1 Deployment Actions:"));
   l1DeployScript.print({ padding: 6 });
 
   console.log(chalk.bold("  · L2 Deployment Params:"));
-  await printOptimismDeploymentConfig(l2Deployer, l2, scratchDeploy);
+  await printL2DeploymentConfig(l2Deployer, l2, scratchDeploy);
   console.log();
   console.log(chalk.bold("  · L2 Deployment Actions:"));
   l2DeployScript.print({ padding: 6 });
 }
 
-async function printEthereumDeploymentConfig(
+async function printL1DeploymentConfig(
   deployer: Wallet,
   params: L1DeploymentConfig,
   scratchDeploy: boolean
@@ -264,7 +264,7 @@ async function printEthereumDeploymentConfig(
   }
 }
 
-async function printOptimismDeploymentConfig(
+async function printL2DeploymentConfig(
   deployer: Wallet,
   params: L2DeploymentConfig,
   scratchDeploy: boolean
@@ -314,9 +314,132 @@ async function printOptimismDeploymentConfig(
   }
 }
 
+export async function printMultiChainStETHDeploymentConfig(
+  title: string,
+  l1Deployer: Wallet,
+  l2Deployer: Wallet,
+  deploymentParams: MultiChainStETHDeploymentConfig,
+  l1DeployScript: DeployScript,
+  l2DeployScript: DeployScript,
+) {
+  const { l1, l2 } = deploymentParams;
+  console.log(chalk.bold(`${title}\n`));
+
+  console.log(chalk.bold("  · Deployment Params:"));
+  await printDeploymentConfig();
+  console.log();
+
+  console.log(chalk.bold("  · L1 StETH Deployment Params:"));
+  await printL1StETHConfig(l1Deployer, l1);
+  console.log();
+  console.log(chalk.bold("  · L1 Deployment Actions:"));
+  l1DeployScript.print({ padding: 6 });
+
+  console.log(chalk.bold("  · L2 StETH Deployment Params:"));
+  await printL2StETHConfig(l2Deployer, l2);
+  console.log();
+  console.log(chalk.bold("  · L2 Deployment Actions:"));
+  l2DeployScript.print({ padding: 6 });
+}
+
+async function printL1StETHConfig(
+  deployer: Wallet,
+  params: L1StETHDeploymentConfig
+) {
+  const pad = " ".repeat(4);
+  const chainId = await deployer.getChainId();
+  console.log(`${pad}· Chain ID: ${chainId}`);
+  console.log(`${pad}· Deployer: ${chalk.underline(deployer.address)}`);
+
+  // Print base config
+  await printL1DeploymentConfig(deployer, params, false);
+  
+  // Print StETH specific fields
+  console.log(`${pad}· L1 Token Bridge: ${chalk.underline(params.l1TokenBridge)}`);
+  console.log(`${pad}· Lido: ${chalk.underline(params.lido)}`);
+  console.log(`${pad}· Token Rate Notifier Owner: ${chalk.underline(params.tokenRateNotifierOwner)}`);
+}
+
+async function printL2StETHConfig(
+  deployer: Wallet,
+  params: L2StETHDeploymentConfig
+) {
+  const pad = " ".repeat(4);
+  const chainId = await deployer.getChainId();
+  console.log(`${pad}· Chain ID: ${chainId}`);
+  console.log(`${pad}· Deployer: ${chalk.underline(deployer.address)}`);
+
+  // Print base config
+  await printL2DeploymentConfig(deployer, params, false);
+  
+  // Print StETH specific fields
+  console.log(`${pad}· L2 Token Bridge: ${chalk.underline(params.l2TokenBridge)}`);
+  console.log(`${pad}· L2 Token Non-Rebasable: ${chalk.underline(params.l2TokenNonRebasable)}`);
+}
+
+export async function printMultiChainScratchDeploymentConfig(
+  title: string,
+  l1Deployer: Wallet,
+  l2Deployer: Wallet,
+  deploymentParams: MultiChainScratchDeploymentConfig,
+  l1DeployScript: DeployScript,
+  l2DeployScript: DeployScript,
+) {
+  const { l1, l2 } = deploymentParams;
+  console.log(chalk.bold(`${title}\n`));
+
+  console.log(chalk.bold("  · Deployment Params:"));
+  await printDeploymentConfig();
+  console.log();
+
+  console.log(chalk.bold("  · L1 Scratch Deployment Params:"));
+  await printL1ScratchConfig(l1Deployer, l1);
+  console.log();
+  console.log(chalk.bold("  · L1 Deployment Actions:"));
+  l1DeployScript.print({ padding: 6 });
+
+  console.log(chalk.bold("  · L2 Scratch Deployment Params:"));
+  await printL2ScratchConfig(l2Deployer, l2);
+  console.log();
+  console.log(chalk.bold("  · L2 Deployment Actions:"));
+  l2DeployScript.print({ padding: 6 });
+}
+
+async function printL1ScratchConfig(
+  deployer: Wallet,
+  params: L1ScratchDeploymentConfig
+) {
+  const pad = " ".repeat(4);
+  const chainId = await deployer.getChainId();
+  console.log(`${pad}· Chain ID: ${chainId}`);
+  console.log(`${pad}· Deployer: ${chalk.underline(deployer.address)}`);
+
+  // Print base config with scratch deploy enabled
+  await printL1DeploymentConfig(deployer, params, true);
+  
+  // Print Scratch specific fields
+  console.log(`${pad}· Lido: ${chalk.underline(params.lido)}`);
+  console.log(`${pad}· Token Rate Notifier Owner: ${chalk.underline(params.tokenRateNotifierOwner)}`);
+}
+
+async function printL2ScratchConfig(
+  deployer: Wallet,
+  params: L2ScratchDeploymentConfig
+) {
+  const pad = " ".repeat(4);
+  const chainId = await deployer.getChainId();
+  console.log(`${pad}· Chain ID: ${chainId}`);
+  console.log(`${pad}· Deployer: ${chalk.underline(deployer.address)}`);
+
+  // Print base config with scratch deploy enabled
+  await printL2DeploymentConfig(deployer, params, true);
+}
+
 export default {
   loadMultiChainDeploymentConfig,
   loadMultiChainStETHDeploymentConfig,
   loadMultiChainScratchDeploymentConfig,
   printMultiChainDeploymentConfig,
+  printMultiChainStETHDeploymentConfig,
+  printMultiChainScratchDeploymentConfig,
 };
