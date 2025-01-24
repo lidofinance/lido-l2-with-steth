@@ -1,6 +1,5 @@
 import { assert } from "chai";
 import { BigNumber } from 'ethers'
-import env from "../../utils/env";
 import { wei } from "../../utils/wei";
 import optimism from "../../utils/optimism";
 import testing from "../../utils/testing";
@@ -543,7 +542,6 @@ export function ctxFactory(options: {
       withdrawalAmount,
   } = options;
 
-    const networkName = env.network("TESTING_OPT_NETWORK", "mainnet");
     const tokenRateDecimals = BigNumber.from(27);
 
     const {
@@ -554,14 +552,14 @@ export function ctxFactory(options: {
       l1ERC20ExtendedTokensBridgeAdmin,
       l2ERC20ExtendedTokensBridgeAdmin,
       ...contracts
-    } = await optimism.testing(networkName).getIntegrationTestSetup();
+    } = await optimism.testing().getIntegrationTestSetup();
 
     const l1Snapshot = await l1Provider.send("evm_snapshot", []);
     const l2Snapshot = await l2Provider.send("evm_snapshot", []);
 
     const tokenRate = await contracts.l1Token.getStETHByWstETH(BigNumber.from(10).pow(tokenRateDecimals));
 
-    await optimism.testing(networkName).stubL1CrossChainMessengerContract();
+    await optimism.testing().stubL1CrossChainMessengerContract();
 
     const accountA = testing.accounts.accountA(l1Provider, l2Provider);
     const accountB = testing.accounts.accountB(l1Provider, l2Provider);

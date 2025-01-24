@@ -4,12 +4,7 @@ import network from "../../utils/network";
 import pLimit from "p-limit";
 
 async function main() {
-  const networkName = env.network();
-  const ethOptNetwork = network.multichain(["eth", "opt"], networkName);
-
-  const [ethereumProvider, optimismProvider] = ethOptNetwork.getProviders({
-    forking: env.forking()
-  });
+  const [ethereumProvider, optimismProvider] = network.getProviders({ forking: env.forking() });
 
   // Mainnet
   const ethBridgeAddress = process.env["L1_TOKEN_BRIDGE"] ?? "0x76943C0D61395d8F2edF9060e1533529cAe05dE6"

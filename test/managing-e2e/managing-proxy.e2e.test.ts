@@ -47,7 +47,7 @@ scenario(
         [false],
       ]);
 
-    const optAddresses = optimism.addresses("sepolia");
+    const optAddresses = optimism.addresses();
 
     const { calldata, callvalue } = await ctx.messaging.prepareL2Message({
       sender: ctx.lidoAragonDAO.agent.address,
@@ -118,7 +118,7 @@ scenario(
         [false],
       ]);
 
-    const optAddresses = optimism.addresses("sepolia");
+    const optAddresses = optimism.addresses();
 
     const { calldata, callvalue } = await ctx.messaging.prepareL2Message({
       sender: ctx.lidoAragonDAO.agent.address,
@@ -180,22 +180,20 @@ scenario(
   .run();
 
 async function ctxFactory() {
-  const ethOptNetwork = network.multichain(["eth", "opt"], "sepolia");
-
-  const [l1Provider] = ethOptNetwork.getProviders({ forking: false });
-  const [l1Tester, l2Tester] = ethOptNetwork.getSigners(
+  const [l1Provider] = network.getProviders({ forking: false });
+  const [l1Tester, l2Tester] = network.getSigners(
     env.string("TESTING_PRIVATE_KEY"),
     { forking: false }
   );
 
-  const [l1LDOHolder] = ethOptNetwork.getSigners(
+  const [l1LDOHolder] = network.getSigners(
     env.string("TESTING_OPT_LDO_HOLDER_PRIVATE_KEY"),
     { forking: false }
   );
 
   return {
     lidoAragonDAO: lido("sepolia", l1Provider),
-    messaging: optimism.messaging("sepolia", { forking: false }),
+    messaging: optimism.messaging({ forking: false }),
     gasAmount: wei`0.1 ether`,
     l1Tester,
     l2Tester,

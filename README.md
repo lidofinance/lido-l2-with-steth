@@ -52,10 +52,9 @@ The configuration of the deployment scripts happens via the ENV variables. The f
 - [`L2_TOKEN`](#L2_TOKEN) - address of the non-rebasable token on L2.
 - [`L2_TOKEN_RATE_ORACLE`](#L2_TOKEN_RATE_ORACLE) - address of token rate oracle on L2.
 - [`GOV_BRIDGE_EXECUTOR`](#GOV_BRIDGE_EXECUTOR) - address of bridge executor.
-- [`NETWORK`](#NETWORK) - name of the network environments used by deployment scripts. Allowed values: `mainnet`, `sepolia`.
 - [`FORKING`](#FORKING) - run deployment in the forking network instead of real ones
-- [`ETH_DEPLOYER_PRIVATE_KEY`](#ETH_DEPLOYER_PRIVATE_KEY) - The private key of the deployer account in the Ethereum network is used during the deployment process.
-- [`OPT_DEPLOYER_PRIVATE_KEY`](#OPT_DEPLOYER_PRIVATE_KEY) - The private key of the deployer account in the Optimism network is used during the deployment process.
+- [`L1_DEPLOYER_PRIVATE_KEY`](#L1_DEPLOYER_PRIVATE_KEY) - The private key of the deployer account in the Ethereum network is used during the deployment process.
+- [`L2_DEPLOYER_PRIVATE_KEY`](#L2_DEPLOYER_PRIVATE_KEY) - The private key of the deployer account in the Optimism network is used during the deployment process.
 - [`L1_PROXY_ADMIN`](#L1_PROXY_ADMIN) - The address to grant admin rights of the `OssifiableProxy` on the L1 bridge
 - [`L1_BRIDGE_ADMIN`](#L1_BRIDGE_ADMIN) - Address to grant the `DEFAULT_ADMIN_ROLE` on the L1 bridge
 - [`L2_PROXY_ADMIN`](#L2_PROXY_ADMIN) - The address to grant admin rights of the `OssifiableProxy` on the L2 bridge
@@ -101,14 +100,14 @@ npm run optimism:test:unit
 
 ### Integration tests
 
-Before running integration tests, run the hardhat forked nodes in the standalone tabs corresponding to `TESTING_OPT_NETWORK` env variable or if it's not set use `mainnet` network. Example of the commands for the `mainnet` network:
+Before running integration tests, run the hardhat forked nodes in the standalone tabs. Example of the commands:
 
 ```bash
-# Required to run Optimism integraton tests
-npm run fork:eth:mainnet
+# Required to run integration tests
+npm run fork:l1
 
-# Required to run Optimism integration tests
-npm run fork:opt:mainnet
+# Required to run integration tests
+npm run fork:l2
 
 The integration tests might be run via the following commands:
 
@@ -129,7 +128,6 @@ TESTING_USE_DEPLOYED_CONTRACTS=true
 TESTING_L1_TOKENS_HOLDER=
 
 # Addresses of the Optimism bridge
-TESTING_OPT_NETWORK=
 TESTING_OPT_L1_TOKEN=
 TESTING_OPT_L2_TOKEN=
 TESTING_OPT_L1_ERC20_TOKEN_BRIDGE=
@@ -160,7 +158,6 @@ Additionally, tests might be run on the deployed contracts. To do it, set the fo
 TESTING_PRIVATE_KEY=
 
 # Addresses of the Optimism bridge
-TESTING_OPT_NETWORK=
 TESTING_OPT_L1_TOKEN=
 TESTING_OPT_L2_TOKEN=
 TESTING_OPT_L1_ERC20_TOKEN_BRIDGE=
@@ -181,39 +178,24 @@ The configuration of the project happens via set of ENV variables. The full list
 
 ### RPCs
 
-#### `RPC_URL_ETH_MAINNET`
+#### `L1_PRC_URL`
 
-Address of the RPC node for **Mainnet** Ethereum network.
+Address of the RPC node for **L1** Ethereum network.
 
-#### `RPC_ETH_SEPOLIA`
+#### `L2_PRC_URL`
 
-Address of the RPC node for **Sepolia** Ethereum network.
-
-#### `RPC_OPT_SEPOLIA`
-
-Address of the RPC node for **Sepolia** Optimism network.
-
-#### `RPC_OPT_MAINNET`
-
-> **Warning**
->
-> Please, don't use the default value for production deployments! The default RPC node might not be available or fail suddenly during the request.
-
-Address of the RPC node for **Mainnet** Optimism network.
-
-> Default value: `https://mainnet.optimism.io`
-
+Address of the RPC node for **L2** Ethereum network.
 
 ### Etherscan
 
 Below variables are required for successfull verification of the contracts on block explorer for certain networks.
 
-#### `ETHERSCAN_API_KEY_ETH`
+#### `L1_BLOCK_EXPLORER_API_KEY`
 
 API key from the [Etherscan](https://etherscan.io/) block explorer. See details here: https://info.etherscan.com/api-keys/
 
 
-#### `ETHERSCAN_API_KEY_OPT`
+#### `L2_BLOCK_EXPLORER_API_KEY`
 
 API key from the [Optimistic Ethereum](https://optimistic.etherscan.io/) block explorer.
 
@@ -229,23 +211,17 @@ Address of the existing non-rebasable token to deploy a new bridge for on the Et
 
 Address of the existing rebasable token to deploy new bridge for on the Ethereum chain.
 
-#### `NETWORK`
-
-> Default value: `mainnet`
-
-Name of the network environments used by deployment scripts. Might be one of: `mainnet`, `sepolia`.
-
 #### `FORKING`
 
 Run deployment in the forking network instead of public ones
 
 > Default value: `true`
 
-#### `ETH_DEPLOYER_PRIVATE_KEY`
+#### `L1_DEPLOYER_PRIVATE_KEY`
 
 The private key of the deployer account in the Ethereum network is used during the deployment process.
 
-#### `OPT_DEPLOYER_PRIVATE_KEY`
+#### `L2_DEPLOYER_PRIVATE_KEY`
 
 The private key of the deployer account in the Optimism network is used during the deployment process.
 
@@ -345,13 +321,13 @@ The array of addresses to grant `WITHDRAWALS_ENABLER_ROLE` on L2 bridge/gateway.
 The array of addresses to grant `WITHDRAWALS_DISABLER_ROLE` on L2 bridge/gateway. The value must be in the form of JSON array of strings. For example:
 `["0x00000000219ab540356cbb839cbe05303d7705fa","0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"]`
 
+#### `L2_DEPLOY_SKIP_PROMPTS`
+
+Skip interactive prompts during L2 deployment if set to true.
+
 ### Acceptance Integration & E2E Testing
 
 The following variables are used in the process of the Integration & E2E testing.
-
-#### `TESTING_OPT_NETWORK`
-
-Name of the network environments used for Optimism Integration & E2E testing. Might be one of: `mainnet`, `sepolia`.
 
 #### `TESTING_OPT_L1_TOKEN`
 
@@ -405,3 +381,10 @@ The test Ether might be retrived via [Paradigm Faucet](https://faucet.paradigm.x
 
 The private key from the address which holds 50+% TLDO
 
+### Cross-Chain Relayer
+
+Utility that relays messages to L2.
+
+#### `L1_L2_PORTAL`
+
+An address of portal that relays messages.

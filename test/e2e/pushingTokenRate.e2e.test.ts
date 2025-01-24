@@ -1,5 +1,4 @@
 import { assert } from "chai";
-import env from "../../utils/env";
 import network, { SignerOrProvider } from "../../utils/network";
 import testingUtils, { scenario } from "../../utils/testing";
 import { BigNumber } from 'ethers'
@@ -50,16 +49,9 @@ async function ctxFactory() {
 
 async function getE2ETestSetup() {
   const testerPrivateKey = testingUtils.env.TESTING_PRIVATE_KEY();
-  const networkName = env.network("TESTING_OPT_NETWORK", "sepolia");
 
-  const ethOptNetworks = network.multichain(["eth", "opt"], networkName);
-
-  const [ethProvider, optProvider] = ethOptNetworks.getProviders({
-    forking: false,
-  });
-  const [l1Tester, l2Tester] = ethOptNetworks.getSigners(testerPrivateKey, {
-    forking: false,
-  });
+  const [ethProvider, optProvider] = network.getProviders({ forking: false });
+  const [l1Tester, l2Tester] = network.getSigners(testerPrivateKey, { forking: false });
   const contracts = await loadDeployedContracts(l1Tester, l2Tester);
 
   return {

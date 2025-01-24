@@ -6,12 +6,10 @@ import testing from "../../utils/testing";
 async function main() {
 
   const isForking = true;
-  const networkName = env.network();
-  const ethOptNetwork = network.multichain(["eth", "opt"], networkName);
 
   const GOV_BRIDGE_EXECUTOR = testing.env.OPT_GOV_BRIDGE_EXECUTOR();
 
-  const [, optRunner] = ethOptNetwork.getSigners(env.privateKey(), {
+  const [, optRunner] = network.getSigners(env.privateKey(), {
     forking: isForking,
   });
 

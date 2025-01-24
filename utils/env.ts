@@ -1,5 +1,4 @@
 import { toAddress } from "@eth-optimism/sdk";
-import { NetworkName } from "./network";
 
 function getString(variableName: string, defaultValue?: string) {
   const value = process.env[variableName];
@@ -47,26 +46,26 @@ function getAddressList(variableName: string, defaultValue?: string[]) {
   return getList(variableName, defaultValue).map(toAddress);
 }
 
-function getNetwork(name: string = "NETWORK", defaultNetwork?: NetworkName) {
-  return getEnum(name, ["mainnet", "sepolia"], defaultNetwork);
-}
-
 function getPrivateKey() {
-  return getString("ETH_DEPLOYER_PRIVATE_KEY");
+  return getString("L1_DEPLOYER_PRIVATE_KEY");
 }
 
 function getForking() {
   return getBool("FORKING", false);
 }
 
+function getNumber(variableName: string, defaultValue?: string) {
+  return Number(getString(variableName, defaultValue));
+}
+
 export default {
   string: getString,
+  number: getNumber,
   list: getList,
   enum: getEnum,
   bool: getBool,
   address: getAddress,
   addresses: getAddressList,
-  network: getNetwork,
   privateKey: getPrivateKey,
   forking: getForking,
 };

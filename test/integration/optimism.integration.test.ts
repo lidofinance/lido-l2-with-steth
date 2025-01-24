@@ -1,13 +1,12 @@
 import { assert } from "chai";
 import { BigNumber } from 'ethers'
 import { wei } from "../../utils/wei";
-import env from "../../utils/env";
 import optimism from "../../utils/optimism";
 import testing, { scenario } from "../../utils/testing";
 import { BridgingManagerRole } from "../../utils/bridging-management";
 import { getExchangeRate } from "../../utils/testing/helpers";
 import { getBridgeExecutorParams } from "../../utils/bridge-executor";
-import deploymentAll from "../../utils/optimism/deployment";
+import deployAll from "../../utils/optimism/deployAll";
 import network from "../../utils/network";
 import {
   StETHStub__factory,
@@ -200,9 +199,7 @@ scenario("Optimism :: Bridge Executor integration test", ctxFactory)
   .run();
 
 async function ctxFactory() {
-  const networkName = env.network("TESTING_OPT_NETWORK", "mainnet");
   const [l1Provider, l2Provider] = network
-    .multichain(["eth", "opt"], networkName)
     .getProviders({ forking: true });
 
   const l1Deployer = testing.accounts.deployer(l1Provider);
@@ -255,7 +252,7 @@ async function ctxFactory() {
     decimals: 18
   };
 
-  await optimism.testing(networkName).stubL1CrossChainMessengerContract();
+  await optimism.testing().stubL1CrossChainMessengerContract();
 
   const l1TokenRebasable = await new StETHStub__factory(l1Deployer).deploy(
     l1TokenRebasableName,
@@ -276,7 +273,7 @@ async function ctxFactory() {
     lastProcessingRefSlot
   );
 
-  const optAddresses = optimism.addresses(networkName);
+  const optAddresses = optimism.addresses();
   const testingOnDeployedContracts = testing.env.USE_DEPLOYED_CONTRACTS(false);
 
   const govBridgeExecutor = testingOnDeployedContracts
@@ -294,15 +291,15 @@ async function ctxFactory() {
   const l1EthGovExecutorAddress =
     await govBridgeExecutor.getEthereumGovernanceExecutor();
 
-  const [, optDeployScript] = await deploymentAll(
-    networkName
-  ).deployAllScript(
+  const [, optDeployScript] = await deployAll(true)
+    .deployAllScript(
     {
       l1TokenNonRebasable: l1TokenNonRebasable.address,
       l1TokenRebasable: l1TokenRebasable.address,
       accountingOracle: accountingOracle.address,
       l2GasLimitForPushingTokenRate: l2GasLimitForPushingTokenRate,
       lido: lido.address,
+      l1CrossDomainMessenger: optAddresses.L1CrossDomainMessenger,
 
       deployer: l1Deployer,
       admins: {
@@ -313,6 +310,7 @@ async function ctxFactory() {
     },
     {
       tokenRateOracle: {
+        admin: l2Deployer.address,
         tokenRateOutdatedDelay: tokenRateOutdatedDelay,
         maxAllowedL2ToL1ClockLag: maxAllowedL2ToL1ClockLag,
         maxAllowedTokenRateDeviationPerDayBp: maxAllowedTokenRateDeviationPerDay,
@@ -321,6 +319,7 @@ async function ctxFactory() {
         tokenRate: exchangeRate,
         l1Timestamp: l1Timestamp
       },
+      l2CrossDomainMessenger: optAddresses.L2CrossDomainMessenger,
       l2TokenNonRebasable: {
         name: l2TokenNonRebasable.name,
         symbol: l2TokenNonRebasable.symbol,
@@ -358,7 +357,7 @@ async function ctxFactory() {
     l2Deployer
   );
 
-  const optContracts = optimism.contracts(networkName, { forking: true });
+  const optContracts = optimism.contracts({ forking: true });
 
   const l1CrossDomainMessengerAliased = await testing.impersonate(
     testing.accounts.applyL1ToL2Alias(

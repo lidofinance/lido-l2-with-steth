@@ -5,21 +5,19 @@ import {
 } from "../../typechain";
 import addresses from "./addresses";
 import { CommonOptions } from "./types";
-import network, { NetworkName } from "../network";
+import network from "../network";
 
 interface ContractsOptions extends CommonOptions {
   forking: boolean;
 }
 
 export default function contracts(
-  networkName: NetworkName,
   options: ContractsOptions
 ) {
   const [l1Provider, l2Provider] = network
-    .multichain(["eth", "opt"], networkName)
     .getProviders(options);
 
-  const optAddresses = addresses(networkName, options);
+  const optAddresses = addresses();
 
   return {
     L1CrossDomainMessenger: L1CrossDomainMessenger__factory.connect(

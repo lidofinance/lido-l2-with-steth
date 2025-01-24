@@ -1,7 +1,7 @@
 import * as dotenv from "dotenv";
 
 import { HardhatUserConfig } from "hardhat/config";
-import "@nomiclabs/hardhat-etherscan";
+import "@nomicfoundation/hardhat-verify";
 import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
@@ -38,37 +38,18 @@ const config: HardhatUserConfig = {
         }
       }
     },
-    // Ethereum Public Chains
-    eth_mainnet: {
-      url: env.string("RPC_ETH_MAINNET", ""),
+    l1: {
+      url: env.string("L1_PRC_URL", "")
     },
-    eth_sepolia: {
-      url: env.string("RPC_ETH_SEPOLIA", ""),
+    l2: {
+      url: env.string("L2_PRC_URL", "")
     },
-
-    // Ethereum Fork Chains
-    eth_mainnet_fork: {
-      url: "http://localhost:8545",
+    l1_fork: {
+      url: "http://localhost:8545"
     },
-    eth_sepolia_fork: {
-      url: "http://localhost:8545",
-    },
-
-    // Optimism Public Chains
-    opt_mainnet: {
-      url: env.string("RPC_OPT_MAINNET", ""),
-    },
-    opt_sepolia: {
-      url: env.string("RPC_OPT_SEPOLIA", ""),
-    },
-
-    // Optimism Fork Chains
-    opt_mainnet_fork: {
-      url: "http://localhost:9545",
-    },
-    opt_sepolia_fork: {
-      url: "http://localhost:9545",
-    },
+    l2_fork: {
+      url: "http://localhost:9545"
+    }
   },
   gasReporter: {
     enabled: env.string("REPORT_GAS", "false") !== "false",
@@ -76,29 +57,26 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: {
-      mainnet: env.string("ETHERSCAN_API_KEY_ETH", ""),
-      sepolia: env.string("ETHERSCAN_API_KEY_ETH", ""),
-      optimisticEthereum: env.string("ETHERSCAN_API_KEY_OPT", ""),
-      "opt_sepolia": env.string("ETHERSCAN_API_KEY_OPT", ""),
+      "l1": env.string("L1_BLOCK_EXPLORER_API_KEY", ""),
+      "l2": env.string("L2_BLOCK_EXPLORER_API_KEY", ""),
     },
-
     customChains: [
         {
-          network: 'sepolia',
-          chainId: 11155111,
+          network: 'l1',
+          chainId: env.number("L1_CHAIN_ID", ""),
           urls: {
-            apiURL: 'https://api-sepolia.etherscan.io/api',
-            browserURL: 'https://sepolia.etherscan.io',
+            apiURL: env.string("L1_BLOCK_EXPLORER_API_URL", ""),
+            browserURL: env.string("L1_BLOCK_EXPLORER_BROWSER_URL", ""),
           },
         },
         {
-            network: 'opt_sepolia',
-            chainId: 11155420,
-            urls: {
-              apiURL: 'https://api-sepolia-optimism.etherscan.io/api',
-              browserURL: 'https://sepolia-optimism.etherscan.io',
-            },
+          network: 'l2',
+          chainId: env.number("L2_CHAIN_ID", ""),
+          urls: {
+            apiURL: env.string("L2_BLOCK_EXPLORER_API_URL", ""),
+            browserURL: env.string("L2_BLOCK_EXPLORER_BROWSER_URL", ""),
           },
+        },
       ],
   },
   typechain: {

@@ -1,9 +1,8 @@
 import { assert } from "chai";
 import { BigNumber, Wallet } from "ethers";
-import { ethers } from "hardhat";
-import addresses from "./addresses";
 import { DeployScriptParams, OptDeploymentOptions } from "./types";
-import network, { NetworkName } from "../network";
+import addresses from "./addresses";
+import network from "../network";
 import { DeployScript, Logger } from "../deployment/DeployScript";
 import {
   OssifiableProxy__factory,
@@ -71,10 +70,9 @@ export class OracleL2DeployScript extends DeployScript {
 /// L2 part
 ///     TokenRateOracle + proxy
 export default function deploymentOracle(
-  networkName: NetworkName,
   options: OptDeploymentOptions = {}
 ) {
-  const optAddresses = addresses(networkName, options);
+  const optAddresses = addresses();
   return {
     async oracleDeployScript(
       l1Params: OptL1DeployScriptParams,
