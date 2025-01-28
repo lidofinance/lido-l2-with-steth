@@ -110,7 +110,7 @@ export class DeployScript {
     const deployTx = contract.deployTransaction;
     this._log(`Waiting for tx: ${getBlockExplorerTxLinkByChainId(deployTx)}`);
     const receipt = await deployTx.wait();
-    this.lastBlockNumber = receipt.blockNumber;
+    this.lastBlockNumber = Math.max(this.lastBlockNumber, receipt.blockNumber);
     this._log(
       `Contract ${chalk.yellow(
         factoryName

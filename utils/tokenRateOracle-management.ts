@@ -56,6 +56,15 @@ export class TokenRateOracleManagement {
   private readonly admin: Wallet | Signer;
   public readonly tokenRateOracle: TokenRateOracle;
   private readonly logger: TokenRateOracleManagementLogger;
+  private lastBlockNumber: number = 0;
+
+  public getLastBlockNumber(): number {
+    return this.lastBlockNumber;
+  }
+
+  private setLastBlockNumber(blockNumber: number) {
+    this.lastBlockNumber = Math.max(this.lastBlockNumber, blockNumber);
+  }
 
   static async getAdmins(tokenRateOracle: TokenRateOracle) {
     const adminAddresses = await getRoleHolders(
@@ -119,7 +128,8 @@ export class TokenRateOracleManagement {
       this.logger.logGrantRole(role, account);
       const tx = await this.tokenRateOracle.grantRole(role.hash, account);
       this.logger.logTxWaiting(tx);
-      await tx.wait();
+      const receipt = await tx.wait();
+      this.setLastBlockNumber(receipt.blockNumber);
       this.logger.logStepDone();
     }
   }
@@ -129,7 +139,8 @@ export class TokenRateOracleManagement {
     this.logger.logRenounceRole(role, adminAddress);
     const tx = await this.tokenRateOracle.renounceRole(role.hash, adminAddress);
     this.logger.logTxWaiting(tx);
-    await tx.wait();
+    const receipt = await tx.wait();
+    this.setLastBlockNumber(receipt.blockNumber);
     this.logger.logStepDone();
   }
 
@@ -140,7 +151,8 @@ export class TokenRateOracleManagement {
       params.initialTokenRateL1Timestamp
     );
     this.logger.logTxWaiting(tx);
-    await tx.wait();
+    const receipt = await tx.wait();
+    this.setLastBlockNumber(receipt.blockNumber);
     this.logger.logStepDone();
   }
 }
