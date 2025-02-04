@@ -67,6 +67,15 @@ export class BridgingManagement {
   private readonly admin: Wallet | Signer;
   public readonly bridgingManager: BridgingManager;
   private readonly logger: BridgingManagementLogger;
+  private lastBlockNumber: number = 0;
+
+  public getLastBlockNumber(): number {
+    return this.lastBlockNumber;
+  }
+
+  private setLastBlockNumber(blockNumber: number) {
+    this.lastBlockNumber = Math.max(this.lastBlockNumber, blockNumber);
+  }
 
   static async getAdmins(bridgingManager: BridgingManager) {
     const l1GatewayAdminAddresses = await getRoleHolders(
@@ -153,7 +162,8 @@ export class BridgingManagement {
       this.logger.logGrantRole(role, account);
       const tx = await this.bridgingManager.grantRole(role.hash, account);
       this.logger.logTxWaiting(tx);
-      await tx.wait();
+      const receipt = await tx.wait();
+      this.setLastBlockNumber(receipt.blockNumber);
       this.logger.logStepDone();
     }
   }
@@ -163,7 +173,8 @@ export class BridgingManagement {
     this.logger.logRenounceRole(role, adminAddress);
     const tx = await this.bridgingManager.renounceRole(role.hash, adminAddress);
     this.logger.logTxWaiting(tx);
-    await tx.wait();
+    const receipt = await tx.wait();
+    this.setLastBlockNumber(receipt.blockNumber);
     this.logger.logStepDone();
   }
 
@@ -171,7 +182,8 @@ export class BridgingManagement {
     this.logger.logEnableDeposits();
     const tx = await this.bridgingManager.enableDeposits();
     this.logger.logTxWaiting(tx);
-    await tx.wait();
+    const receipt = await tx.wait();
+    this.setLastBlockNumber(receipt.blockNumber);
     this.logger.logStepDone();
   }
 
@@ -179,7 +191,8 @@ export class BridgingManagement {
     this.logger.logEnableWithdrawals();
     const tx = await this.bridgingManager.enableWithdrawals();
     this.logger.logTxWaiting(tx);
-    await tx.wait();
+    const receipt = await tx.wait();
+    this.setLastBlockNumber(receipt.blockNumber);
     this.logger.logStepDone();
   }
 }

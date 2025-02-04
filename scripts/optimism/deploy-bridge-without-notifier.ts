@@ -5,7 +5,7 @@ import deployment from "../../utils/deployment";
 import { BridgingManagement } from "../../utils/bridging-management";
 import deployAll from "../../utils/optimism/deployAll";
 import { TokenRateOracleManagement } from "../../utils/tokenRateOracle-management";
-import * as fs from 'fs';
+import { writeFileSync } from "fs";
 
 async function main() {
 
@@ -117,6 +117,12 @@ async function main() {
   await l1DeployScript.saveResultToFile("l1DeployArgs.json");
   await l2DeployScript.saveResultToFile("l2DeployArgs.json");
 
+  l1DeployScript.lastBlockNumber = Math.max(l1DeployScript.lastBlockNumber, l1BridgingManagement.getLastBlockNumber());
+  l2DeployScript.lastBlockNumber = Math.max(
+    l2DeployScript.lastBlockNumber,
+    tokenRateOracleManagement.getLastBlockNumber(),
+    l2BridgingManagement.getLastBlockNumber()
+  );
   const deployResult = JSON.stringify({
     ethereum: l1DeployScript,
     optimism: l2DeployScript
@@ -124,7 +130,7 @@ async function main() {
 
   const fileName = 'deployResult.json';
   try {
-    fs.writeFileSync(fileName, `${deployResult}\n`, { encoding: "utf8", flag: "w" });
+    writeFileSync(fileName, `${deployResult}\n`, { encoding: "utf8", flag: "w" });
   } catch (error) {
     throw new Error(`Failed to write network state file ${fileName}: ${(error as Error).message}`);
   }
