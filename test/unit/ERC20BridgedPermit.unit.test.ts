@@ -103,7 +103,7 @@ unit("ERC20BridgedPermit", ctxFactory)
 
     // deploy new implementation
     const l2TokenImpl = await new ERC20BridgedPermit__factory(deployer).deploy(
-      "wstETH",
+      name,
       "wst",
       "1",
       9
@@ -179,7 +179,7 @@ unit("ERC20BridgedPermit", ctxFactory)
     );
 
     const l2TokenImpl = await new ERC20BridgedPermit__factory(deployer).deploy(
-      "name",
+      name,
       "symbol",
       "1",
       18

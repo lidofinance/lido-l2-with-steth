@@ -227,7 +227,7 @@ unit("ERC20RebasableBridgedPermit", ctxFactory)
       3600
     );
     const rebasableTokenImpl = await new ERC20RebasableBridgedPermit__factory(deployer).deploy(
-      "name",
+      name,
       "symbol",
       "1",
       10,
