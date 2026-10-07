@@ -139,10 +139,22 @@ abstract contract PermitExtension is IERC2612, EIP712 {
         );
     }
 
-    /// @notice Sets the name and the version of the tokens if they both are empty
+    /// @notice Sets domain metadata only if it matches the domain used for signature verification.
     /// @param name_ The name of the token
     /// @param version_ The version of the token
     function _initializeEIP5267Metadata(string memory name_, string memory version_) internal {
+        bytes32 domainSeparator = keccak256(
+            abi.encode(
+                keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
+                keccak256(bytes(name_)),
+                keccak256(bytes(version_)),
+                block.chainid,
+                address(this)
+            )
+        );
+        if (domainSeparator != _domainSeparatorV4()) {
+            revert ErrorEIP712DomainMismatch();
+        }
         _setEIP5267MetadataName(name_);
         _setEIP5267MetadataVersion(version_);
     }
@@ -181,4 +193,5 @@ abstract contract PermitExtension is IERC2612, EIP712 {
 
     error ErrorInvalidSignature();
     error ErrorDeadlineExpired();
+    error ErrorEIP712DomainMismatch();
 }
